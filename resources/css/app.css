@@ -1,0 +1,41 @@
+@import "tailwindcss";
+@import '../../vendor/livewire/flux/dist/flux.css';
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+@source "../**/*.blade.php";
+@source "../**/*.js";
+@source "../**/*.vue";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --font-sans: "DM Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Syne", ui-sans-serif, system-ui, sans-serif;
+  --color-accent: oklch(0.72 0.15 195);
+  --color-accent-foreground: oklch(0.99 0 0);
+}
+
+@keyframes welcome-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(1.25rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.welcome-animate {
+  animation: welcome-fade-up 0.6s ease-out forwards;
+}
+.welcome-animate-delay-1 { animation-delay: 0.1s; }
+.welcome-animate-delay-2 { animation-delay: 0.2s; }
+.welcome-animate-delay-3 { animation-delay: 0.35s; }
+.welcome-animate-delay-4 { animation-delay: 0.5s; }
+.welcome-animate-delay-5 { animation-delay: 0.65s; }
+.welcome-animate-delay-6 { animation-delay: 0.8s; }
+.welcome-animate-delay-7 { animation-delay: 1s; }
+.welcome-animate-delay-8 { animation-delay: 1.15s; }
+.welcome-animate-delay-9 { animation-delay: 1.3s; }
