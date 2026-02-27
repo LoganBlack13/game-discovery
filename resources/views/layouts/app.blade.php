@@ -27,7 +27,7 @@
                             <button type="submit" class="text-sm underline hover:no-underline">Log out</button>
                         </form>
                     @else
-                        <a href="{{ url('/login') }}" class="text-sm underline hover:no-underline">Log in</a>
+                        <livewire:auth-dropdown />
                         <a href="{{ url('/register') }}" class="text-sm underline hover:no-underline">Register</a>
                     @endauth
                     <flux:radio.group x-data variant="segmented" x-model="$flux.appearance" class="shrink-0">
