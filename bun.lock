@@ -7,7 +7,7 @@
         "@tailwindcss/vite": "^4.2.1",
         "concurrently": "^9.2.1",
         "laravel-vite-plugin": "^2.1.0",
-        "npm-check-updates": "^19.6.1",
+        "npm-check-updates": "^19.6.3",
         "playwright": "^1.58.2",
         "prettier": "^3.8.1",
         "prettier-plugin-organize-imports": "^4.3.0",
@@ -230,7 +230,7 @@
 
     "nanoid": ["nanoid@3.3.11", "", { "bin": { "nanoid": "bin/nanoid.cjs" } }, "sha512-N8SpfPUnUp1bK+PMYW8qSWdl9U+wwNWI4QKxOYDy9JAro3WMX7p2OeVRF9v+347pnakNevPmiHhNmZ2HbFA76w=="],
 
-    "npm-check-updates": ["npm-check-updates@19.6.1", "", { "bin": { "npm-check-updates": "build/cli.js", "ncu": "build/cli.js" } }, "sha512-oa0ZBydDx6ShvBVxMP5kaTHH3K2S6isMTYn4AhOa9l7k8m/QGY/D7VWbmI97GSXxRmmq9PAtRBMNOgOgwpD0yA=="],
+    "npm-check-updates": ["npm-check-updates@19.6.3", "", { "bin": { "npm-check-updates": "build/cli.js", "ncu": "build/cli.js" } }, "sha512-VAt9Bp26eLaymZ0nZyh5n/by+YZIuegXlvWR0yv1zBqd984f8VnEnBbn+1lS3nN5LyEjn62BJ+yYgzNSpb6Gzg=="],
 
     "picocolors": ["picocolors@1.1.1", "", {}, "sha512-xceH2snhtb5M9liqDsmEw56le376mTZkEX/jEb/RxNFyegNul7eNslCXP9FDj/Lcu0X8KEyMceP2ntpaHrDEVA=="],
 
