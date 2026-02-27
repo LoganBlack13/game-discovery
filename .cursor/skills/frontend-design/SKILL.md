@@ -1,0 +1,1 @@
+/home/logan/Projects/game-discovery/.agents/skills/./frontend-design/SKILL.md

@@ -1,0 +1,1 @@
+/home/logan/Projects/game-discovery/.agents/skills/./writing-plans/SKILL.md
