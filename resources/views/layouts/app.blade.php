@@ -21,7 +21,7 @@
             <header class="sticky top-0 z-50 shrink-0 border-b border-zinc-200/80 dark:border-zinc-800/80 bg-white/80 dark:bg-zinc-950/80 backdrop-blur-md">
                 <div class="mx-auto flex h-14 max-w-7xl items-center justify-end gap-4 px-4 sm:px-6 lg:px-8">
                     @auth
-                        <span class="text-sm text-zinc-600 dark:text-zinc-400">{{ auth()->user()->name }}</span>
+                        <a href="{{ route('profile.edit') }}" class="text-sm underline hover:no-underline">{{ auth()->user()->name }}</a>
                         <form action="{{ url('/logout') }}" method="POST" class="inline">
                             @csrf
                             <button type="submit" class="text-sm underline hover:no-underline">Log out</button>

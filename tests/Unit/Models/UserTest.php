@@ -16,5 +16,7 @@ test('to array', function (): void {
             'created_at',
             'updated_at',
             'username',
+            'profile_photo_path',
+            'two_factor_confirmed_at',
         ]);
 });
