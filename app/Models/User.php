@@ -15,6 +15,7 @@ use Illuminate\Notifications\Notifiable;
 /**
  * @property-read string $id
  * @property-read string $name
+ * @property-read string $username
  * @property-read string $email
  * @property-read CarbonInterface|null $email_verified_at
  * @property-read string $password
@@ -46,6 +47,7 @@ final class User extends Authenticatable implements MustVerifyEmail
         return [
             'id' => 'string',
             'name' => 'string',
+            'username' => 'string',
             'email' => 'string',
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
