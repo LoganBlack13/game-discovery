@@ -20,6 +20,16 @@
         <div class="min-h-screen flex flex-col">
             <header class="sticky top-0 z-50 shrink-0 border-b border-zinc-200/80 dark:border-zinc-800/80 bg-white/80 dark:bg-zinc-950/80 backdrop-blur-md">
                 <div class="mx-auto flex h-14 max-w-7xl items-center justify-end gap-4 px-4 sm:px-6 lg:px-8">
+                    @auth
+                        <span class="text-sm text-zinc-600 dark:text-zinc-400">{{ auth()->user()->name }}</span>
+                        <form action="{{ url('/logout') }}" method="POST" class="inline">
+                            @csrf
+                            <button type="submit" class="text-sm underline hover:no-underline">Log out</button>
+                        </form>
+                    @else
+                        <a href="{{ url('/login') }}" class="text-sm underline hover:no-underline">Log in</a>
+                        <a href="{{ url('/register') }}" class="text-sm underline hover:no-underline">Register</a>
+                    @endauth
                     <flux:radio.group x-data variant="segmented" x-model="$flux.appearance" class="shrink-0">
                         <flux:radio value="light" icon="sun">Light</flux:radio>
                         <flux:radio value="dark" icon="moon">Dark</flux:radio>
