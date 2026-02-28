@@ -65,7 +65,44 @@ new class extends Component
 ?>
 
 <div>
-    <div class="mb-6 flex flex-wrap items-center gap-4">
+    @if ($this->upNext->isNotEmpty())
+        <section class="mb-10" aria-label="Up next">
+            <h2 class="font-display text-lg font-semibold text-zinc-900 dark:text-white sm:text-xl">Up next</h2>
+            <p class="mt-0.5 text-sm text-zinc-500 dark:text-zinc-400">Nearest releases from your tracked games</p>
+            <div class="mt-4 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                @foreach ($this->upNext as $game)
+                    <x-game-card :game="$game" />
+                @endforeach
+            </div>
+            <script>
+                (function () {
+                    const containers = document.querySelectorAll('[data-countdown]');
+                    containers.forEach(function (el) {
+                        const releaseIso = el.dataset.releaseIso;
+                        const display = el.querySelector('[data-countdown-display]');
+                        if (!releaseIso || !display) return;
+                        function update() {
+                            const now = new Date();
+                            const release = new Date(releaseIso);
+                            if (release <= now) {
+                                display.textContent = 'Released';
+                                return;
+                            }
+                            const d = Math.max(0, Math.floor((release - now) / 86400000));
+                            const h = Math.max(0, Math.floor(((release - now) % 86400000) / 3600000));
+                            const m = Math.max(0, Math.floor(((release - now) % 3600000) / 60000));
+                            display.textContent = d + 'd ' + h + 'h ' + m + 'm';
+                        }
+                        update();
+                        setInterval(update, 60000);
+                    });
+                })();
+            </script>
+        </section>
+    @endif
+    <section aria-label="All tracked games">
+        <h2 class="font-display text-lg font-semibold text-zinc-900 dark:text-white sm:text-xl">All tracked games</h2>
+    <div class="mb-6 mt-4 flex flex-wrap items-center gap-4">
         <div class="flex items-center gap-2">
             <label for="dashboard-sort" class="text-sm font-medium text-zinc-700 dark:text-zinc-300">Sort</label>
             <select id="dashboard-sort" wire:model.live="sort" class="rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100">
@@ -126,4 +163,5 @@ new class extends Component
             @endforeach
         </div>
     @endif
+    </section>
 </div>
