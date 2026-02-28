@@ -18,4 +18,14 @@ final class GamePolicy
     {
         return $user !== null;
     }
+
+    public function update(User $user, Game $game): bool
+    {
+        return $user->isAdmin();
+    }
+
+    public function delete(User $user, Game $game): bool
+    {
+        return $user->isAdmin();
+    }
 }
