@@ -23,6 +23,7 @@
                     <div class="flex items-center gap-4">
                         <a href="{{ url('/') }}" class="text-sm underline hover:no-underline">← Back to site</a>
                         <a href="{{ route('admin.dashboard') }}" class="text-sm underline hover:no-underline">Dashboard</a>
+                        <a href="{{ route('admin.games.index') }}" class="text-sm underline hover:no-underline">Games</a>
                     </div>
                     <div class="flex items-center gap-4">
                         <a href="{{ route('profile.edit') }}" class="text-sm underline hover:no-underline">{{ auth()->user()->name }}</a>
