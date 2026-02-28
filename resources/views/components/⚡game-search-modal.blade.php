@@ -73,34 +73,39 @@ new class extends Component
             <div wire:loading class="px-4 py-2 text-sm text-zinc-500 dark:text-zinc-400">Searching…</div>
         @endif
         <div wire:loading.remove>
-            <ul class="max-h-[60vh] overflow-y-auto divide-y divide-zinc-200 dark:divide-zinc-700" role="list">
+            <ul class="flex max-h-[60vh] flex-col gap-2 overflow-y-auto py-2 pr-2 pl-4" role="list">
                 @foreach($this->results as $game)
             @php
                 $isTracked = in_array($game->id, $this->trackedGameIds);
             @endphp
-            <li class="flex items-center gap-2 px-4 py-3 transition-colors hover:bg-zinc-100 dark:hover:bg-zinc-800 focus-within:bg-zinc-100 dark:focus-within:bg-zinc-800 search-result-item" style="animation-delay: {{ $loop->index * 0.03 }}s">
+            <li class="search-result-item flex items-center gap-3 rounded-lg border border-zinc-200/50 bg-white px-4 py-3 shadow-sm transition-colors hover:bg-zinc-100 dark:border-zinc-700/50 dark:bg-zinc-900 dark:hover:bg-zinc-800" style="animation-delay: {{ $loop->index * 0.03 }}s">
                 <a
                     href="{{ route('games.show', $game) }}"
-                    class="flex min-w-0 flex-1 gap-3 focus:outline-none"
+                    class="flex min-w-0 flex-1 items-center gap-3 focus:outline-none"
                 >
                     @if ($game->cover_image)
-                        <img src="{{ $game->cover_image }}" alt="" class="h-14 w-10 shrink-0 rounded object-cover" />
+                        <img src="{{ $game->cover_image }}" alt="" class="h-16 w-12 shrink-0 rounded-lg object-cover ring-1 ring-zinc-200/50 shadow-sm dark:ring-zinc-700/50" />
                     @else
-                        <div class="flex h-14 w-10 shrink-0 items-center justify-center rounded bg-zinc-200 dark:bg-zinc-700 text-sm font-semibold text-zinc-500 dark:text-zinc-400">{{ substr($game->title, 0, 1) }}</div>
+                        <div class="flex h-16 w-12 shrink-0 items-center justify-center rounded-lg bg-zinc-200/80 text-sm font-semibold text-zinc-500 ring-1 ring-zinc-200/50 shadow-sm dark:bg-zinc-700/80 dark:text-zinc-400 dark:ring-zinc-700/50">{{ substr($game->title, 0, 1) }}</div>
                     @endif
                     <div class="min-w-0 flex-1">
-                        <span class="font-medium text-zinc-900 dark:text-white">{{ $game->title }}</span>
-                        @if ($game->release_date)
-                            <p class="text-sm text-zinc-500 dark:text-zinc-400">{{ $game->release_date->format('M j, Y') }}</p>
-                        @endif
-                        @if (count($game->platforms) > 0)
-                            <p class="text-xs text-zinc-500 dark:text-zinc-400">{{ implode(', ', array_slice($game->platforms, 0, 3)) }}</p>
-                        @endif
+                        <span class="block truncate font-semibold text-zinc-900 dark:text-white">{{ $game->title }}</span>
+                        <div class="text-sm text-zinc-500 dark:text-zinc-400">
+                            @if ($game->release_date)
+                                <span>{{ $game->release_date->format('M j, Y') }}</span>
+                            @endif
+                            @if (count($game->platforms) > 0)
+                                @if ($game->release_date)
+                                    <span> · </span>
+                                @endif
+                                <span>{{ implode(', ', array_slice($game->platforms, 0, 3)) }}</span>
+                            @endif
+                        </div>
                     </div>
                 </a>
-                <div class="shrink-0" wire:key="track-{{ $game->id }}">
+                <div class="shrink-0" x-on:click.stop wire:key="track-{{ $game->id }}">
                     @guest
-                        <a href="{{ route('login') }}" class="text-sm font-medium text-cyan-600 hover:text-cyan-700 dark:text-cyan-400 dark:hover:text-cyan-300">Log in to track</a>
+                        <a href="{{ route('login') }}" class="text-sm font-medium text-cyan-600 hover:text-cyan-700 dark:text-cyan-400 dark:hover:text-cyan-300" x-on:click.stop>Log in to track</a>
                     @else
                         @if ($isTracked)
                             <flux:button
