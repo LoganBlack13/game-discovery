@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Enums\UserRole;
 use Carbon\CarbonInterface;
 use Database\Factories\UserFactory;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
@@ -25,6 +26,7 @@ use Laravel\Fortify\TwoFactorAuthenticatable;
  * @property-read string|null $remember_token
  * @property-read CarbonInterface $created_at
  * @property-read CarbonInterface $updated_at
+ * @property-read UserRole $role
  */
 final class User extends Authenticatable implements MustVerifyEmail
 {
@@ -68,12 +70,18 @@ final class User extends Authenticatable implements MustVerifyEmail
             'profile_photo_path' => 'string',
             'email' => 'string',
             'email_verified_at' => 'datetime',
+            'role' => UserRole::class,
             'password' => 'hashed',
             'remember_token' => 'string',
             'two_factor_confirmed_at' => 'datetime',
             'created_at' => 'datetime',
             'updated_at' => 'datetime',
         ];
+    }
+
+    public function isAdmin(): bool
+    {
+        return $this->role === UserRole::Admin;
     }
 
     /**

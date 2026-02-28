@@ -5,7 +5,7 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-        <title>{{ $title ?? config('app.name') }}</title>
+        <title>{{ $title ?? config('app.name') }} – Admin</title>
 
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -19,39 +19,29 @@
     <body class="antialiased font-sans bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100">
         <div class="min-h-screen flex flex-col">
             <header class="sticky top-0 z-50 shrink-0 border-b border-zinc-200/80 dark:border-zinc-800/80 bg-white/80 dark:bg-zinc-950/80 backdrop-blur-md">
-                <div class="mx-auto flex h-14 max-w-7xl items-center justify-end gap-4 px-4 sm:px-6 lg:px-8">
-                    <flux:modal.trigger name="game-search" shortcut="meta+k" class="contents">
-                        <flux:button variant="ghost" icon="magnifying-glass" size="sm" aria-label="Search games (⌘K)">Search</flux:button>
-                    </flux:modal.trigger>
-                    @auth
-                        <a href="{{ route('dashboard') }}" class="text-sm underline hover:no-underline">Dashboard</a>
-                        @if(auth()->user()->isAdmin())
-                            <a href="{{ route('admin.dashboard') }}" class="text-sm underline hover:no-underline">Admin</a>
-                        @endif
+                <div class="mx-auto flex h-14 max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
+                    <div class="flex items-center gap-4">
+                        <a href="{{ url('/') }}" class="text-sm underline hover:no-underline">← Back to site</a>
+                        <a href="{{ route('admin.dashboard') }}" class="text-sm underline hover:no-underline">Dashboard</a>
+                    </div>
+                    <div class="flex items-center gap-4">
                         <a href="{{ route('profile.edit') }}" class="text-sm underline hover:no-underline">{{ auth()->user()->name }}</a>
                         <form action="{{ url('/logout') }}" method="POST" class="inline">
                             @csrf
                             <button type="submit" class="text-sm underline hover:no-underline">Log out</button>
                         </form>
-                    @else
-                        <livewire:auth-dropdown />
-                        <a href="{{ url('/register') }}" class="text-sm underline hover:no-underline">Register</a>
-                    @endauth
-                    <flux:radio.group x-data variant="segmented" x-model="$flux.appearance" class="shrink-0">
-                        <flux:radio value="light" icon="sun">Light</flux:radio>
-                        <flux:radio value="dark" icon="moon">Dark</flux:radio>
-                        <flux:radio value="system" icon="computer-desktop">System</flux:radio>
-                    </flux:radio.group>
+                        <flux:radio.group x-data variant="segmented" x-model="$flux.appearance" class="shrink-0">
+                            <flux:radio value="light" icon="sun">Light</flux:radio>
+                            <flux:radio value="dark" icon="moon">Dark</flux:radio>
+                            <flux:radio value="system" icon="computer-desktop">System</flux:radio>
+                        </flux:radio.group>
+                    </div>
                 </div>
             </header>
             <main class="grow">
                 {{ $slot }}
             </main>
         </div>
-
-        <flux:modal name="game-search" class="[:where(&)]:min-w-[28rem]">
-            <livewire:game-search-modal />
-        </flux:modal>
 
         @livewireScripts
         @fluxScripts

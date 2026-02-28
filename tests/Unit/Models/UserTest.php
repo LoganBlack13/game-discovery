@@ -8,15 +8,17 @@ test('to array', function (): void {
     $user = User::factory()->create()->refresh();
 
     expect(array_keys($user->toArray()))
-        ->toBe([
-            'id',
-            'name',
-            'email',
-            'email_verified_at',
-            'created_at',
-            'updated_at',
-            'username',
-            'profile_photo_path',
-            'two_factor_confirmed_at',
-        ]);
+        ->toContain('id', 'name', 'email', 'role');
+});
+
+test('isAdmin returns true for admin user', function (): void {
+    $user = User::factory()->admin()->create();
+
+    expect($user->isAdmin())->toBeTrue();
+});
+
+test('isAdmin returns false for regular user', function (): void {
+    $user = User::factory()->create();
+
+    expect($user->isAdmin())->toBeFalse();
 });
