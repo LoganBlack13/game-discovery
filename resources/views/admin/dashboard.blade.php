@@ -4,5 +4,13 @@
         <p class="mt-2 text-zinc-600 dark:text-zinc-400">
             Administrator actions (e.g. update DB, manage content) will be gathered here.
         </p>
+        <div class="mt-6">
+            <a
+                href="{{ route('admin.add-game') }}"
+                class="inline-flex items-center gap-2 rounded-lg border border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-900 px-4 py-2 text-sm font-medium text-zinc-700 dark:text-zinc-300 shadow-sm hover:bg-zinc-50 dark:hover:bg-zinc-800 focus:outline-none focus:ring-2 focus:ring-zinc-500 focus:ring-offset-2 dark:focus:ring-offset-zinc-900"
+            >
+                Add game from RAWG
+            </a>
+        </div>
     </div>
 </x-layouts.admin>
