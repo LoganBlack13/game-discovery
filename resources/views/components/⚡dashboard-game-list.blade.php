@@ -45,6 +45,22 @@ new class extends Component
             default => $query->orderByDesc('release_date')->get(),
         };
     }
+
+    /**
+     * Up next: 3 tracked games with nearest release date first (upcoming only).
+     *
+     * @return \Illuminate\Support\Collection<int, Game>
+     */
+    public function getUpNextProperty(): \Illuminate\Support\Collection
+    {
+        return auth()->user()
+            ->trackedGames()
+            ->whereNotNull('release_date')
+            ->where('release_date', '>', now())
+            ->orderBy('release_date')
+            ->limit(3)
+            ->get();
+    }
 };
 ?>
 
