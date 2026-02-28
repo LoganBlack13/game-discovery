@@ -15,6 +15,7 @@ Route::middleware(['auth', 'verified'])->group(function (): void {
     Route::prefix('admin')->name('admin.')->middleware('admin')->group(function (): void {
         Route::get('/', [DashboardController::class, '__invoke'])->name('dashboard');
         Route::get('/add-game', fn () => view('admin.add-game'))->name('add-game');
+        Route::get('/games', [App\Http\Controllers\Admin\GameController::class, 'index'])->name('games.index');
     });
     Route::post('/games/{game:slug}/track', [App\Http\Controllers\GameController::class, 'track'])->name('games.track');
     Route::delete('/games/{game:slug}/track', [App\Http\Controllers\GameController::class, 'untrack'])->name('games.untrack');
