@@ -63,3 +63,12 @@
     transform: translateY(0);
   }
 }
+
+/* Spotlight-style game search modal: dimmed, blurred backdrop */
+[data-flux-modal] > dialog[data-modal="game-search"]::backdrop {
+  background-color: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(0.25rem);
+}
+.dark [data-flux-modal] > dialog[data-modal="game-search"]::backdrop {
+  background-color: rgba(0, 0, 0, 0.6);
+}

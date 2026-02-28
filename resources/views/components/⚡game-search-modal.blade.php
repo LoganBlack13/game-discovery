@@ -24,21 +24,23 @@ new class extends Component
 };
 ?>
 
-<div class="flex flex-col gap-4" role="search" aria-label="Search games">
-    <flux:input
-        type="search"
-        wire:model.live.debounce.300ms="query"
-        placeholder="Search games..."
-        class="w-full"
-        autofocus
-        aria-label="Search games"
-    />
+<div class="flex flex-col overflow-hidden rounded-2xl" role="search" aria-label="Search games">
+    <div class="shrink-0 px-4 pt-4 pb-2">
+        <flux:input
+            type="search"
+            wire:model.live.debounce.300ms="query"
+            placeholder="Search games…"
+            class="w-full"
+            autofocus
+            aria-label="Search games"
+        />
+    </div>
     <ul class="max-h-[60vh] overflow-y-auto divide-y divide-zinc-200 dark:divide-zinc-700" role="list">
         @foreach($this->results as $game)
             <li>
                 <a
                     href="{{ route('games.show', $game) }}"
-                    class="flex gap-3 px-2 py-3 transition-colors hover:bg-zinc-100 dark:hover:bg-zinc-800 focus:bg-zinc-100 dark:focus:bg-zinc-800 focus:outline-none"
+                    class="flex gap-3 px-4 py-3 transition-colors hover:bg-zinc-100 dark:hover:bg-zinc-800 focus:bg-zinc-100 dark:focus:bg-zinc-800 focus:outline-none"
                 >
                     @if ($game->cover_image)
                         <img src="{{ $game->cover_image }}" alt="" class="h-14 w-10 shrink-0 rounded object-cover" />
@@ -58,7 +60,9 @@ new class extends Component
             </li>
         @endforeach
     </ul>
-    @if (trim($query) !== '' && $this->results->isEmpty())
-        <p class="py-4 text-center text-sm text-zinc-500 dark:text-zinc-400">No games found.</p>
+    @if (trim($query) === '')
+        <p class="px-4 py-6 text-center text-sm text-zinc-500 dark:text-zinc-400">Type to search games.</p>
+    @elseif($this->results->isEmpty())
+        <p class="px-4 py-6 text-center text-sm text-zinc-500 dark:text-zinc-400">No games found.</p>
     @endif
 </div>
