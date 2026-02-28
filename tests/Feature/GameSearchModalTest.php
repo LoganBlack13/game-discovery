@@ -6,13 +6,13 @@ use App\Models\Game;
 use App\Models\User;
 use Livewire\Livewire;
 
-test('search modal and trigger are present when layout is loaded', function (): void {
+test('search spotlight and trigger are present when layout is loaded', function (): void {
     $response = $this->get('/');
 
     $response->assertOk();
     $response->assertSee('Search games', false);
-    $response->assertSee('data-flux-modal-trigger', false);
-    $response->assertSee('game-search', false);
+    $response->assertSee('open-game-search', false);
+    $response->assertSee('Type to search games', false);
 });
 
 test('search trigger documents keyboard shortcut in UI', function (): void {
@@ -20,7 +20,6 @@ test('search trigger documents keyboard shortcut in UI', function (): void {
 
     $response->assertOk();
     $response->assertSee('Search games (⌘K)', false);
-    $response->assertSee('meta+k', false);
 });
 
 test('authenticated user can track a game from search modal', function (): void {

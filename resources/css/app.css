@@ -76,15 +76,15 @@
 }
 
 .search-result-item {
-  animation: search-result-in 0.22s ease-out both;
+  animation: search-result-in 0.15s ease-out both;
 }
 
-/* Spotlight-style game search modal: dimmed, blurred backdrop */
-[data-flux-modal] > dialog[data-modal="game-search"]::backdrop {
-  background-color: rgba(0, 0, 0, 0.4);
-  backdrop-filter: blur(0.5rem);
+@media (prefer-reduced-motion: reduce) {
+  .search-result-item {
+    animation: none;
+  }
 }
-.dark [data-flux-modal] > dialog[data-modal="game-search"]::backdrop {
-  background-color: rgba(0, 0, 0, 0.6);
-  backdrop-filter: blur(0.5rem);
+
+[x-cloak] {
+  display: none !important;
 }

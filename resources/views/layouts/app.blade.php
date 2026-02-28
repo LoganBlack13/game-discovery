@@ -20,9 +20,7 @@
         <div class="min-h-screen flex flex-col">
             <header class="sticky top-0 z-50 shrink-0 border-b border-zinc-200/80 dark:border-zinc-800/80 bg-white/80 dark:bg-zinc-950/80 backdrop-blur-md">
                 <div class="mx-auto flex h-14 max-w-7xl items-center justify-end gap-4 px-4 sm:px-6 lg:px-8">
-                    <flux:modal.trigger name="game-search" shortcut="meta+k" class="contents">
-                        <flux:button variant="ghost" icon="magnifying-glass" size="sm" aria-label="Search games (⌘K)">Search</flux:button>
-                    </flux:modal.trigger>
+                    <flux:button variant="ghost" icon="magnifying-glass" size="sm" aria-label="Search games (⌘K)" @click="$dispatch('open-game-search')">Search</flux:button>
                     @auth
                         <a href="{{ route('dashboard') }}" class="text-sm underline hover:no-underline">Dashboard</a>
                         @if(auth()->user()->isAdmin())
@@ -49,9 +47,25 @@
             </main>
         </div>
 
-        <flux:modal name="game-search" class="[:where(&)]:w-[calc(100%-2rem)] [:where(&)]:max-w-[calc(100%-2rem)] [:where(&)]:mx-auto lg:[:where(&)]:min-w-[50vw] lg:[:where(&)]:max-w-2xl [:where(&)]:rounded-2xl [:where(&)]:p-0">
+        <div
+            class="fixed inset-0 z-[100]"
+            x-data="{ open: false }"
+            x-show="open"
+            x-cloak
+            :class="{ 'spotlight-open': open }"
+            x-bind:data-spotlight-open="open ? 'true' : ''"
+            x-on:open-game-search.window="open = true; $nextTick(() => $dispatch('spotlight-opened'))"
+            x-on:keydown.escape.window="if (open) open = false"
+            x-on:close-game-search.window="open = false"
+            x-transition:enter="transition ease-out duration-150"
+            x-transition:enter-start="opacity-0"
+            x-transition:enter-end="opacity-100"
+            x-transition:leave="transition ease-in duration-100"
+            x-transition:leave-start="opacity-100"
+            x-transition:leave-end="opacity-0"
+        >
             <livewire:game-search-modal />
-        </flux:modal>
+        </div>
 
         @livewireScripts
         @fluxScripts
