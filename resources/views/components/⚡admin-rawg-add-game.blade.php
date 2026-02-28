@@ -93,15 +93,15 @@ new class extends Component
         @if (trim($query) === '')
             <p class="py-4 text-sm text-zinc-500 dark:text-zinc-400">Enter a game name to search RAWG.</p>
         @else
-            <div wire:loading.flex class="flex items-center gap-2 py-4 text-sm text-zinc-500 dark:text-zinc-400" wire:target="query">
+            <div wire:loading.flex class="flex items-center gap-2 py-4 text-sm text-zinc-500 dark:text-zinc-400" wire:target="query" aria-busy="true">
                 <flux:spinner size="sm" />
                 <span>Searching…</span>
             </div>
             <div wire:loading.remove wire:target="query">
                 @if (count($this->searchResults) > 0)
-                    <ul class="divide-y divide-zinc-200 dark:divide-zinc-700" role="list">
-                        @foreach($this->searchResults as $item)
-                            <li class="flex gap-3 px-2 py-3">
+                    <ul class="divide-y divide-zinc-200 dark:divide-zinc-700" role="list" aria-label="RAWG search results">
+                        @foreach($this->searchResults as $index => $item)
+                            <li class="admin-result-item flex gap-3 px-2 py-3" style="animation-delay: {{ $index * 40 }}ms;">
                                 @if (!empty($item['cover_image']))
                                     <img src="{{ $item['cover_image'] }}" alt="" class="h-14 w-10 shrink-0 rounded object-cover" />
                                 @else
