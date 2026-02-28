@@ -20,6 +20,7 @@ test('search trigger documents keyboard shortcut in UI', function (): void {
 
     $response->assertOk();
     $response->assertSee('Search games (⌘K)', false);
+    $response->assertSee('meta+k', false);
 });
 
 test('authenticated user can track a game from search modal', function (): void {
