@@ -1,20 +1,36 @@
 <?php
 
+use App\Models\Game;
 use Livewire\Component;
 use Livewire\Attributes\Title;
 
 new #[Title('Discover your next game')] class extends Component
 {
-    // Placeholder game data for discovery strip
-    public function getDiscoveryGames(): array
+    public function getUpcomingGames()
     {
-        return [
-            ['title' => 'Neon Drift', 'genre' => 'Racing'],
-            ['title' => 'Void Protocol', 'genre' => 'Strategy'],
-            ['title' => 'Crimson Echo', 'genre' => 'RPG'],
-            ['title' => 'Static Pulse', 'genre' => 'Rhythm'],
-            ['title' => 'Havenfall', 'genre' => 'Adventure'],
-        ];
+        return Game::query()
+            ->upcoming()
+            ->byReleaseDate()
+            ->limit(12)
+            ->get();
+    }
+
+    public function getPopularGames()
+    {
+        return Game::query()
+            ->withCount('trackedByUsers')
+            ->orderByDesc('tracked_by_users_count')
+            ->limit(12)
+            ->get();
+    }
+
+    public function getRecentlyReleasedGames()
+    {
+        return Game::query()
+            ->released()
+            ->orderByDesc('release_date')
+            ->limit(12)
+            ->get();
     }
 };
 ?>
@@ -35,33 +51,100 @@ new #[Title('Discover your next game')] class extends Component
                     Curated picks, hidden gems, and trending titles. One place to find what you’ll play next.
                 </p>
                 <div class="flex flex-wrap gap-4 opacity-0 welcome-animate welcome-animate-delay-3">
-                    <flux:button href="#" variant="primary" color="cyan" size="base" class="focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-zinc-950 transition-transform hover:scale-[1.02] active:scale-[0.98]">
+                    <flux:button href="#coming-soon" variant="primary" color="cyan" size="base" class="focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-zinc-950 transition-transform hover:scale-[1.02] active:scale-[0.98]">
                         Explore games
                     </flux:button>
-                    <flux:button href="#" variant="ghost" size="base" class="text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400 dark:focus-visible:ring-zinc-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-zinc-950">
+                    <flux:button href="#trending" variant="ghost" size="base" class="text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400 dark:focus-visible:ring-zinc-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-zinc-950">
                         See what’s trending
                     </flux:button>
                 </div>
             </div>
         </div>
 
-        {{-- Discovery strip: horizontal cards --}}
-        <section class="mt-20 sm:mt-28 lg:mt-36" aria-label="Discover games">
+        {{-- Coming soon --}}
+        <section id="coming-soon" class="mt-20 sm:mt-28 lg:mt-36" aria-label="Coming soon">
             <p class="font-display text-sm font-semibold uppercase tracking-widest text-cyan-600 dark:text-cyan-400 opacity-0 welcome-animate welcome-animate-delay-4 mb-6">
-                Trending now
+                Coming soon
             </p>
-            <div class="flex gap-4 overflow-x-auto pb-4 -mx-4 px-4 sm:mx-0 sm:px-0 sm:grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 sm:overflow-visible">
-                @foreach($this->getDiscoveryGames() as $index => $game)
+            <div class="flex gap-4 overflow-x-auto pb-4 -mx-4 px-4 sm:mx-0 sm:px-0 sm:grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 sm:overflow-visible">
+                @foreach($this->getUpcomingGames() as $index => $game)
                     <flux:card
                         class="shrink-0 w-[280px] sm:w-auto transition-transform hover:scale-[1.02] focus-within:ring-2 focus-within:ring-cyan-500 focus-within:ring-offset-2 dark:focus-within:ring-offset-zinc-950 opacity-0 welcome-animate welcome-animate-delay-{{ min(5 + $index, 9) }} border-zinc-200/80 dark:border-white/10 bg-white/90 dark:bg-white/5 backdrop-blur-sm"
                         size="sm"
                     >
-                        <a href="#" class="block focus:outline-none">
-                            <div class="aspect-[3/4] rounded-lg bg-gradient-to-br from-zinc-200 to-zinc-300 dark:from-zinc-700 dark:to-zinc-800 mb-3 flex items-center justify-center">
-                                <span class="font-display text-2xl font-bold text-zinc-400 dark:text-zinc-500">{{ substr($game['title'], 0, 1) }}</span>
-                            </div>
-                            <h3 class="font-display font-semibold text-zinc-900 dark:text-white">{{ $game['title'] }}</h3>
-                            <p class="mt-0.5 text-sm text-zinc-500 dark:text-zinc-400">{{ $game['genre'] }}</p>
+                        <a href="{{ route('games.show', $game) }}" class="block focus:outline-none">
+                            @if ($game->cover_image)
+                                <img src="{{ $game->cover_image }}" alt="" class="aspect-[3/4] w-full rounded-lg object-cover mb-3" />
+                            @else
+                                <div class="aspect-[3/4] rounded-lg bg-gradient-to-br from-zinc-200 to-zinc-300 dark:from-zinc-700 dark:to-zinc-800 mb-3 flex items-center justify-center">
+                                    <span class="font-display text-2xl font-bold text-zinc-400 dark:text-zinc-500">{{ substr($game->title, 0, 1) }}</span>
+                                </div>
+                            @endif
+                            <h3 class="font-display font-semibold text-zinc-900 dark:text-white">{{ $game->title }}</h3>
+                            @if ($game->release_date)
+                                <p class="mt-0.5 text-sm text-zinc-500 dark:text-zinc-400">{{ $game->release_date->format('M j, Y') }}</p>
+                            @endif
+                            @if (count($game->platforms) > 0)
+                                <p class="mt-0.5 text-xs text-zinc-500 dark:text-zinc-400">{{ implode(', ', array_slice($game->platforms, 0, 2)) }}</p>
+                            @endif
+                        </a>
+                    </flux:card>
+                @endforeach
+            </div>
+        </section>
+
+        {{-- Trending now --}}
+        <section id="trending" class="mt-12 sm:mt-16" aria-label="Trending now">
+            <p class="font-display text-sm font-semibold uppercase tracking-widest text-cyan-600 dark:text-cyan-400 mb-6">
+                Trending now
+            </p>
+            <div class="flex gap-4 overflow-x-auto pb-4 -mx-4 px-4 sm:mx-0 sm:px-0 sm:grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 sm:overflow-visible">
+                @foreach($this->getPopularGames() as $index => $game)
+                    <flux:card
+                        class="shrink-0 w-[280px] sm:w-auto transition-transform hover:scale-[1.02] focus-within:ring-2 focus-within:ring-cyan-500 focus-within:ring-offset-2 dark:focus-within:ring-offset-zinc-950 border-zinc-200/80 dark:border-white/10 bg-white/90 dark:bg-white/5 backdrop-blur-sm"
+                        size="sm"
+                    >
+                        <a href="{{ route('games.show', $game) }}" class="block focus:outline-none">
+                            @if ($game->cover_image)
+                                <img src="{{ $game->cover_image }}" alt="" class="aspect-[3/4] w-full rounded-lg object-cover mb-3" />
+                            @else
+                                <div class="aspect-[3/4] rounded-lg bg-gradient-to-br from-zinc-200 to-zinc-300 dark:from-zinc-700 dark:to-zinc-800 mb-3 flex items-center justify-center">
+                                    <span class="font-display text-2xl font-bold text-zinc-400 dark:text-zinc-500">{{ substr($game->title, 0, 1) }}</span>
+                                </div>
+                            @endif
+                            <h3 class="font-display font-semibold text-zinc-900 dark:text-white">{{ $game->title }}</h3>
+                            @if ($game->release_date)
+                                <p class="mt-0.5 text-sm text-zinc-500 dark:text-zinc-400">{{ $game->release_date->format('M j, Y') }}</p>
+                            @endif
+                        </a>
+                    </flux:card>
+                @endforeach
+            </div>
+        </section>
+
+        {{-- Recently released --}}
+        <section class="mt-12 sm:mt-16" aria-label="Recently released">
+            <p class="font-display text-sm font-semibold uppercase tracking-widest text-cyan-600 dark:text-cyan-400 mb-6">
+                Recently released
+            </p>
+            <div class="flex gap-4 overflow-x-auto pb-4 -mx-4 px-4 sm:mx-0 sm:px-0 sm:grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 sm:overflow-visible">
+                @foreach($this->getRecentlyReleasedGames() as $index => $game)
+                    <flux:card
+                        class="shrink-0 w-[280px] sm:w-auto transition-transform hover:scale-[1.02] focus-within:ring-2 focus-within:ring-cyan-500 focus-within:ring-offset-2 dark:focus-within:ring-offset-zinc-950 border-zinc-200/80 dark:border-white/10 bg-white/90 dark:bg-white/5 backdrop-blur-sm"
+                        size="sm"
+                    >
+                        <a href="{{ route('games.show', $game) }}" class="block focus:outline-none">
+                            @if ($game->cover_image)
+                                <img src="{{ $game->cover_image }}" alt="" class="aspect-[3/4] w-full rounded-lg object-cover mb-3" />
+                            @else
+                                <div class="aspect-[3/4] rounded-lg bg-gradient-to-br from-zinc-200 to-zinc-300 dark:from-zinc-700 dark:to-zinc-800 mb-3 flex items-center justify-center">
+                                    <span class="font-display text-2xl font-bold text-zinc-400 dark:text-zinc-500">{{ substr($game->title, 0, 1) }}</span>
+                                </div>
+                            @endif
+                            <h3 class="font-display font-semibold text-zinc-900 dark:text-white">{{ $game->title }}</h3>
+                            @if ($game->release_date)
+                                <p class="mt-0.5 text-sm text-zinc-500 dark:text-zinc-400">{{ $game->release_date->format('M j, Y') }}</p>
+                            @endif
                         </a>
                     </flux:card>
                 @endforeach

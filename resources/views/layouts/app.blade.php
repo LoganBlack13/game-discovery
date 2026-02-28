@@ -20,7 +20,11 @@
         <div class="min-h-screen flex flex-col">
             <header class="sticky top-0 z-50 shrink-0 border-b border-zinc-200/80 dark:border-zinc-800/80 bg-white/80 dark:bg-zinc-950/80 backdrop-blur-md">
                 <div class="mx-auto flex h-14 max-w-7xl items-center justify-end gap-4 px-4 sm:px-6 lg:px-8">
+                    <flux:modal.trigger name="game-search" shortcut="meta+k" class="contents">
+                        <flux:button variant="ghost" icon="magnifying-glass" size="sm" aria-label="Search games (⌘K)">Search</flux:button>
+                    </flux:modal.trigger>
                     @auth
+                        <a href="{{ route('dashboard') }}" class="text-sm underline hover:no-underline">Dashboard</a>
                         <a href="{{ route('profile.edit') }}" class="text-sm underline hover:no-underline">{{ auth()->user()->name }}</a>
                         <form action="{{ url('/logout') }}" method="POST" class="inline">
                             @csrf
@@ -41,6 +45,10 @@
                 {{ $slot }}
             </main>
         </div>
+
+        <flux:modal name="game-search" class="[:where(&)]:min-w-[28rem]">
+            <livewire:game-search-modal />
+        </flux:modal>
 
         @livewireScripts
         @fluxScripts
