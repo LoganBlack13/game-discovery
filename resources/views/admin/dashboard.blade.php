@@ -16,13 +16,14 @@
             </div>
         </div>
 
-        <div class="mt-6">
-            <a
-                href="{{ route('admin.add-game') }}"
-                class="inline-flex items-center gap-2 rounded-lg border border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-900 px-4 py-2 text-sm font-medium text-zinc-700 dark:text-zinc-300 shadow-sm hover:bg-zinc-50 dark:hover:bg-zinc-800 focus:outline-none focus:ring-2 focus:ring-zinc-500 focus:ring-offset-2 dark:focus:ring-offset-zinc-900"
-            >
-                Add game from RAWG
-            </a>
-        </div>
+        <section class="mt-8" id="add-game" aria-labelledby="add-game-heading">
+            <h2 id="add-game-heading" class="text-lg font-semibold text-zinc-900 dark:text-zinc-100">Add game from RAWG</h2>
+            <p class="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
+                Search RAWG and add a game to the database. Shown inline below.
+            </p>
+            <div class="mt-4">
+                <livewire:admin-rawg-add-game />
+            </div>
+        </section>
     </div>
 </x-layouts.admin>
