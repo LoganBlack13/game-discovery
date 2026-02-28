@@ -3,6 +3,7 @@
 use App\Enums\ReleaseStatus;
 use App\Http\Requests\Admin\UpdateGameRequest;
 use App\Models\Game;
+use App\Services\GameActivityRecorder;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Str;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
@@ -92,7 +93,7 @@ new class extends Component
         $this->reset(['editTitle', 'editSlug', 'editDescription', 'editCoverImage', 'editDeveloper', 'editPublisher', 'editGenres', 'editPlatforms', 'editReleaseDate', 'editReleaseStatus']);
     }
 
-    public function save(): void
+    public function save(GameActivityRecorder $recorder): void
     {
         $game = $this->getEditingGameProperty();
         if ($game === null) {
@@ -100,6 +101,8 @@ new class extends Component
         }
         $this->authorize('update', $game);
         $validated = $this->validate(UpdateGameRequest::rulesForGame($game));
+        $oldReleaseDate = $game->release_date;
+        $oldReleaseStatus = $game->release_status;
         $genres = array_filter(array_map('trim', explode(',', $validated['editGenres'] ?? '')));
         $platforms = array_filter(array_map('trim', explode(',', $validated['editPlatforms'] ?? '')));
         $game->update([
@@ -114,6 +117,8 @@ new class extends Component
             'release_date' => $validated['editReleaseDate'] !== '' ? $validated['editReleaseDate'] : null,
             'release_status' => ReleaseStatus::from($validated['editReleaseStatus']),
         ]);
+        $game->refresh();
+        $recorder->recordReleaseChanges($game, $oldReleaseDate, $oldReleaseStatus, true);
         $this->closeEdit();
         session()->flash('admin.game.updated', true);
     }

@@ -45,7 +45,7 @@ test('sync creates GameActivity when release date changes', function (): void {
             ]);
     });
 
-    (new SyncGameJob($this->externalId, $game->id))->handle(app(GameDataProvider::class));
+    (new SyncGameJob($this->externalId, $game->id))->handle(app(GameDataProvider::class), app(App\Services\GameActivityRecorder::class));
 
     $activity = GameActivity::query()
         ->where('game_id', $game->id)
@@ -86,7 +86,7 @@ test('sync creates GameActivity when release date is announced for first time', 
             ]);
     });
 
-    (new SyncGameJob($this->externalId, $game->id))->handle(app(GameDataProvider::class));
+    (new SyncGameJob($this->externalId, $game->id))->handle(app(GameDataProvider::class), app(App\Services\GameActivityRecorder::class));
 
     $activity = GameActivity::query()
         ->where('game_id', $game->id)
@@ -126,7 +126,7 @@ test('sync creates GameActivity when game becomes released', function (): void {
             ]);
     });
 
-    (new SyncGameJob($this->externalId, $game->id))->handle(app(GameDataProvider::class));
+    (new SyncGameJob($this->externalId, $game->id))->handle(app(GameDataProvider::class), app(App\Services\GameActivityRecorder::class));
 
     $activity = GameActivity::query()
         ->where('game_id', $game->id)

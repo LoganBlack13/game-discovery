@@ -2,8 +2,12 @@
 
 declare(strict_types=1);
 
+use App\Enums\GameActivityType;
+use App\Enums\ReleaseStatus;
 use App\Models\Game;
+use App\Models\GameActivity;
 use App\Models\User;
+use Carbon\Carbon;
 use Livewire\Livewire;
 
 uses()->group('admin');
@@ -90,4 +94,27 @@ test('non-admin cannot open edit drawer', function (): void {
     $component->call('openEdit', $game->id);
 
     expect($component->get('editingGameId'))->toBeNull();
+});
+
+test('admin update that changes release date creates GameActivity', function (): void {
+    $game = Game::factory()->create([
+        'release_date' => Carbon::now()->addMonths(2),
+        'release_status' => ReleaseStatus::ComingSoon,
+    ]);
+    $admin = User::factory()->admin()->create();
+    $newDate = Carbon::now()->addMonth()->format('Y-m-d');
+
+    Livewire::actingAs($admin)
+        ->test('admin.games-list')
+        ->call('openEdit', $game->id)
+        ->set('editReleaseDate', $newDate)
+        ->call('save');
+
+    $activity = GameActivity::query()
+        ->where('game_id', $game->id)
+        ->where('type', GameActivityType::ReleaseDateChanged)
+        ->first();
+
+    expect($activity)->not->toBeNull()
+        ->and($activity->title)->toBe('Release date changed');
 });
