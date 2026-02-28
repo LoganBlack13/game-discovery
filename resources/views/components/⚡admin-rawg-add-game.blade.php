@@ -1,11 +1,19 @@
 <?php
 
 use App\Contracts\GameDataProvider;
+use App\Jobs\SyncGameJob;
+use App\Models\Game;
 use Livewire\Component;
 
 new class extends Component
 {
     public string $query = '';
+
+    public ?string $addedExternalId = null;
+
+    public ?string $addedTitle = null;
+
+    public ?string $addError = null;
 
     /**
      * @return array<int, array{title: string, slug: string, description: string|null, cover_image: string|null, developer: string|null, publisher: string|null, genres: array, platforms: array, release_date: string|null, release_status: string, external_id: string, external_source: string}>
@@ -20,10 +28,60 @@ new class extends Component
 
         return $provider->search(trim($this->query));
     }
+
+    /**
+     * @return array<int, string>
+     */
+    public function getAlreadyInDbExternalIdsProperty(): array
+    {
+        $results = $this->searchResults;
+        if ($results === []) {
+            return [];
+        }
+        $externalIds = array_column($results, 'external_id');
+
+        return Game::query()
+            ->where('external_source', 'rawg')
+            ->whereIn('external_id', $externalIds)
+            ->pluck('external_id')
+            ->all();
+    }
+
+    public function addGame(string $externalId): void
+    {
+        abort_unless(auth()->user()?->isAdmin(), 403);
+
+        $this->addError = null;
+        $this->addedExternalId = null;
+        $this->addedTitle = null;
+
+        try {
+            SyncGameJob::dispatchSync($externalId);
+            $title = null;
+            foreach ($this->searchResults as $item) {
+                if (($item['external_id'] ?? '') === $externalId) {
+                    $title = $item['title'] ?? 'Unknown';
+                    break;
+                }
+            }
+            $this->addedExternalId = $externalId;
+            $this->addedTitle = $title ?? 'Unknown';
+        } catch (\Throwable) {
+            $this->addError = 'Could not add game. Try again.';
+        }
+    }
 };
 ?>
 
 <div class="flex flex-col gap-4" role="search">
+    <div aria-live="polite" class="min-h-[1.5rem]">
+        @if ($addedTitle)
+            <p class="text-sm text-green-600 dark:text-green-400">Added: {{ $addedTitle }}</p>
+        @endif
+        @if ($addError)
+            <p class="text-sm text-red-600 dark:text-red-400">{{ $addError }}</p>
+        @endif
+    </div>
     <flux:input
         type="search"
         wire:model.live.debounce.1000ms="query"
@@ -62,7 +120,19 @@ new class extends Component
                                     @endif
                                 </div>
                                 <div class="shrink-0">
-                                    <flux:button size="sm" disabled>Add</flux:button>
+                                    @if (in_array($item['external_id'], $this->alreadyInDbExternalIds))
+                                        <span class="inline-flex items-center rounded-md bg-zinc-100 dark:bg-zinc-800 px-2 py-1 text-xs font-medium text-zinc-600 dark:text-zinc-400">Already in database</span>
+                                    @else
+                                        <flux:button
+                                            size="sm"
+                                            wire:click="addGame({{ json_encode($item['external_id']) }})"
+                                            wire:loading.attr="disabled"
+                                            wire:target="addGame"
+                                        >
+                                            <span wire:loading.remove wire:target="addGame">Add to database</span>
+                                            <span wire:loading wire:target="addGame">Adding…</span>
+                                        </flux:button>
+                                    @endif
                                 </div>
                             </li>
                         @endforeach
