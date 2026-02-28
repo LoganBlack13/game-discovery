@@ -64,6 +64,21 @@
   }
 }
 
+@keyframes search-result-in {
+  from {
+    opacity: 0;
+    transform: translateY(0.25rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.search-result-item {
+  animation: search-result-in 0.22s ease-out both;
+}
+
 /* Spotlight-style game search modal: dimmed, blurred backdrop */
 [data-flux-modal] > dialog[data-modal="game-search"]::backdrop {
   background-color: rgba(0, 0, 0, 0.4);

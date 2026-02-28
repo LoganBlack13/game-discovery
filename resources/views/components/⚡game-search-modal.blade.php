@@ -68,12 +68,17 @@ new class extends Component
             aria-label="Search games"
         />
     </div>
-    <ul class="max-h-[60vh] overflow-y-auto divide-y divide-zinc-200 dark:divide-zinc-700" role="list">
-        @foreach($this->results as $game)
+    <div>
+        @if(trim($query) !== '')
+            <div wire:loading class="px-4 py-2 text-sm text-zinc-500 dark:text-zinc-400">Searching…</div>
+        @endif
+        <div wire:loading.remove>
+            <ul class="max-h-[60vh] overflow-y-auto divide-y divide-zinc-200 dark:divide-zinc-700" role="list">
+                @foreach($this->results as $game)
             @php
                 $isTracked = in_array($game->id, $this->trackedGameIds);
             @endphp
-            <li class="flex items-center gap-2 px-4 py-3 transition-colors hover:bg-zinc-100 dark:hover:bg-zinc-800 focus-within:bg-zinc-100 dark:focus-within:bg-zinc-800">
+            <li class="flex items-center gap-2 px-4 py-3 transition-colors hover:bg-zinc-100 dark:hover:bg-zinc-800 focus-within:bg-zinc-100 dark:focus-within:bg-zinc-800 search-result-item" style="animation-delay: {{ $loop->index * 0.03 }}s">
                 <a
                     href="{{ route('games.show', $game) }}"
                     class="flex min-w-0 flex-1 gap-3 focus:outline-none"
@@ -123,8 +128,10 @@ new class extends Component
                     @endguest
                 </div>
             </li>
-        @endforeach
-    </ul>
+                @endforeach
+            </ul>
+        </div>
+    </div>
     @if (trim($query) === '')
         <p class="px-4 py-6 text-center text-sm text-zinc-500 dark:text-zinc-400">Type to search games.</p>
     @elseif($this->results->isEmpty())
