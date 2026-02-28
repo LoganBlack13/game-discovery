@@ -1,7 +1,10 @@
 <?php
 
+use App\Enums\ReleaseStatus;
+use App\Http\Requests\Admin\UpdateGameRequest;
 use App\Models\Game;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Str;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -14,6 +17,28 @@ new class extends Component
     public string $search = '';
 
     public string $source = '';
+
+    public ?int $editingGameId = null;
+
+    public string $editTitle = '';
+
+    public string $editSlug = '';
+
+    public string $editDescription = '';
+
+    public string $editCoverImage = '';
+
+    public string $editDeveloper = '';
+
+    public string $editPublisher = '';
+
+    public string $editGenres = '';
+
+    public string $editPlatforms = '';
+
+    public string $editReleaseDate = '';
+
+    public string $editReleaseStatus = '';
 
     /**
      * @return LengthAwarePaginator<Game>
@@ -32,9 +57,65 @@ new class extends Component
             ->paginate(20);
     }
 
+    /**
+     * @return Game|null
+     */
+    public function getEditingGameProperty(): ?Game
+    {
+        if ($this->editingGameId === null) {
+            return null;
+        }
+
+        return Game::query()->find($this->editingGameId);
+    }
+
     public function openEdit(int $id): void
     {
-        $this->dispatch('open-edit-drawer', gameId: $id);
+        $game = Game::query()->findOrFail($id);
+        $this->authorize('update', $game);
+        $this->editingGameId = $id;
+        $this->editTitle = $game->title;
+        $this->editSlug = $game->slug ?? '';
+        $this->editDescription = $game->description ?? '';
+        $this->editCoverImage = $game->cover_image ?? '';
+        $this->editDeveloper = $game->developer ?? '';
+        $this->editPublisher = $game->publisher ?? '';
+        $this->editGenres = is_array($game->genres) ? implode(', ', $game->genres) : '';
+        $this->editPlatforms = is_array($game->platforms) ? implode(', ', $game->platforms) : '';
+        $this->editReleaseDate = $game->release_date?->format('Y-m-d') ?? '';
+        $this->editReleaseStatus = $game->release_status->value ?? ReleaseStatus::Released->value;
+    }
+
+    public function closeEdit(): void
+    {
+        $this->editingGameId = null;
+        $this->reset(['editTitle', 'editSlug', 'editDescription', 'editCoverImage', 'editDeveloper', 'editPublisher', 'editGenres', 'editPlatforms', 'editReleaseDate', 'editReleaseStatus']);
+    }
+
+    public function save(): void
+    {
+        $game = $this->getEditingGameProperty();
+        if ($game === null) {
+            return;
+        }
+        $this->authorize('update', $game);
+        $validated = $this->validate(UpdateGameRequest::rulesForGame($game));
+        $genres = array_filter(array_map('trim', explode(',', $validated['editGenres'] ?? '')));
+        $platforms = array_filter(array_map('trim', explode(',', $validated['editPlatforms'] ?? '')));
+        $game->update([
+            'title' => $validated['editTitle'],
+            'slug' => $validated['editSlug'] !== '' ? $validated['editSlug'] : Str::slug($validated['editTitle']),
+            'description' => $validated['editDescription'] !== '' ? $validated['editDescription'] : null,
+            'cover_image' => $validated['editCoverImage'] !== '' ? $validated['editCoverImage'] : null,
+            'developer' => $validated['editDeveloper'] !== '' ? $validated['editDeveloper'] : null,
+            'publisher' => $validated['editPublisher'] !== '' ? $validated['editPublisher'] : null,
+            'genres' => $genres,
+            'platforms' => $platforms,
+            'release_date' => $validated['editReleaseDate'] !== '' ? $validated['editReleaseDate'] : null,
+            'release_status' => ReleaseStatus::from($validated['editReleaseStatus']),
+        ]);
+        $this->closeEdit();
+        session()->flash('admin.game.updated', true);
     }
 
     public function deleteGame(int $id): void
@@ -103,4 +184,83 @@ new class extends Component
             @endforelse
         </flux:table.rows>
     </flux:table>
+
+    @if ($editingGameId && $this->editingGame)
+        <div
+            class="fixed inset-0 z-50 flex"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="edit-game-title"
+        >
+            <div
+                class="fixed inset-0 bg-zinc-900/50 dark:bg-zinc-950/70"
+                wire:click="closeEdit"
+                aria-hidden="true"
+            ></div>
+            <div
+                class="relative ml-auto flex h-full w-full max-w-lg flex-col border-s border-zinc-200 bg-white dark:border-zinc-700 dark:bg-zinc-900 shadow-xl overflow-y-auto"
+                x-data
+                @keydown.escape.window="$wire.closeEdit()"
+            >
+                <div class="sticky top-0 z-10 flex items-center justify-between border-b border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 px-4 py-3">
+                    <h2 id="edit-game-title" class="text-lg font-semibold text-zinc-900 dark:text-zinc-100">Edit game</h2>
+                    <flux:button variant="ghost" icon="x-mark" size="sm" wire:click="closeEdit" aria-label="Close drawer"></flux:button>
+                </div>
+                <form wire:submit="save" class="flex flex-1 flex-col gap-4 p-4">
+                    <flux:field>
+                        <flux:label>Title</flux:label>
+                        <flux:input wire:model="editTitle" aria-label="Title" />
+                    </flux:field>
+                    <flux:field>
+                        <flux:label>Slug</flux:label>
+                        <flux:input wire:model="editSlug" aria-label="Slug" placeholder="optional" />
+                    </flux:field>
+                    <flux:field>
+                        <flux:label>Description</flux:label>
+                        <flux:textarea wire:model="editDescription" aria-label="Description" rows="4" />
+                    </flux:field>
+                    <flux:field>
+                        <flux:label>Cover image URL</flux:label>
+                        <flux:input type="url" wire:model="editCoverImage" aria-label="Cover image URL" />
+                    </flux:field>
+                    <flux:field>
+                        <flux:label>Developer</flux:label>
+                        <flux:input wire:model="editDeveloper" aria-label="Developer" />
+                    </flux:field>
+                    <flux:field>
+                        <flux:label>Publisher</flux:label>
+                        <flux:input wire:model="editPublisher" aria-label="Publisher" />
+                    </flux:field>
+                    <flux:field>
+                        <flux:label>Genres (comma-separated)</flux:label>
+                        <flux:input wire:model="editGenres" aria-label="Genres" placeholder="e.g. Action, RPG" />
+                    </flux:field>
+                    <flux:field>
+                        <flux:label>Platforms (comma-separated)</flux:label>
+                        <flux:input wire:model="editPlatforms" aria-label="Platforms" placeholder="e.g. PC, PlayStation" />
+                    </flux:field>
+                    <flux:field>
+                        <flux:label>Release date</flux:label>
+                        <flux:input type="date" wire:model="editReleaseDate" aria-label="Release date" />
+                    </flux:field>
+                    <flux:field>
+                        <flux:label>Release status</flux:label>
+                        <select
+                            wire:model="editReleaseStatus"
+                            aria-label="Release status"
+                            class="w-full rounded-lg border border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-900 px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100"
+                        >
+                            @foreach (ReleaseStatus::cases() as $status)
+                                <option value="{{ $status->value }}">{{ ucfirst(str_replace('_', ' ', $status->value)) }}</option>
+                            @endforeach
+                        </select>
+                    </flux:field>
+                    <div class="mt-auto flex gap-2 pt-4">
+                        <flux:button type="button" variant="ghost" wire:click="closeEdit">Cancel</flux:button>
+                        <flux:button type="submit">Save</flux:button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    @endif
 </div>
