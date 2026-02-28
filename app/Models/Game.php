@@ -97,6 +97,14 @@ final class Game extends Model
     }
 
     /**
+     * @return HasMany<GameActivity>
+     */
+    public function activities(): HasMany
+    {
+        return $this->hasMany(GameActivity::class)->orderByDesc('occurred_at');
+    }
+
+    /**
      * @return BelongsToMany<User>
      */
     public function trackedByUsers(): BelongsToMany
