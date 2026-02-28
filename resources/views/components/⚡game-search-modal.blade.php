@@ -57,7 +57,21 @@ new class extends Component
 };
 ?>
 
-<div class="flex flex-col overflow-hidden rounded-2xl" role="search" aria-label="Search games">
+<div
+    class="flex flex-col overflow-hidden rounded-2xl"
+    role="search"
+    aria-label="Search games"
+    x-data="{ highlightedIndex: -1 }"
+    @keydown.window="
+        if (!$el.closest('dialog')?.open) return;
+        if (['INPUT', 'TEXTAREA'].includes(document.activeElement?.tagName)) return;
+        const links = $el.querySelectorAll('[data-game-url]');
+        const count = links.length;
+        if ($event.key === 'ArrowDown') { $event.preventDefault(); highlightedIndex = Math.min(highlightedIndex + 1, count - 1); links[highlightedIndex]?.scrollIntoView({ block: 'nearest' }); }
+        if ($event.key === 'ArrowUp') { $event.preventDefault(); highlightedIndex = Math.max(0, highlightedIndex - 1); links[highlightedIndex]?.scrollIntoView({ block: 'nearest' }); }
+        if ($event.key === 'Enter' && highlightedIndex >= 0 && links[highlightedIndex]) { $event.preventDefault(); window.location = links[highlightedIndex].getAttribute('data-game-url'); }
+    "
+>
     <div class="shrink-0 px-4 pt-4 pb-2">
         <flux:input
             type="search"
@@ -73,12 +87,19 @@ new class extends Component
             <div wire:loading class="px-4 py-2 text-sm text-zinc-500 dark:text-zinc-400">Searching…</div>
         @endif
         <div wire:loading.remove>
-            <ul class="flex max-h-[60vh] flex-col gap-2 overflow-y-auto py-2 pr-2 pl-4" role="list">
+            <ul class="flex max-h-[60vh] flex-col gap-2 overflow-y-auto py-2 pr-2 pl-4" role="listbox" aria-label="Search results">
                 @foreach($this->results as $game)
             @php
                 $isTracked = in_array($game->id, $this->trackedGameIds);
             @endphp
-            <li class="search-result-item flex items-center gap-3 rounded-lg border border-zinc-200/50 bg-white px-4 py-3 shadow-sm transition-colors hover:bg-zinc-100 dark:border-zinc-700/50 dark:bg-zinc-900 dark:hover:bg-zinc-800" style="animation-delay: {{ $loop->index * 0.03 }}s">
+            <li
+                class="search-result-item flex items-center gap-3 rounded-lg border px-4 py-3 shadow-sm transition-colors dark:bg-zinc-900"
+                style="animation-delay: {{ $loop->index * 0.03 }}s"
+                data-game-url="{{ route('games.show', $game) }}"
+                role="option"
+                :aria-selected="highlightedIndex === {{ $loop->index }}"
+                :class="highlightedIndex === {{ $loop->index }} ? 'border-cyan-500 bg-cyan-50 ring-1 ring-cyan-500/50 dark:bg-cyan-950/30 dark:border-cyan-500 dark:ring-cyan-500/50' : 'border-zinc-200/50 bg-white hover:bg-zinc-100 dark:border-zinc-700/50 dark:hover:bg-zinc-800'"
+            >
                 <a
                     href="{{ route('games.show', $game) }}"
                     class="flex min-w-0 flex-1 items-center gap-3 focus:outline-none"
