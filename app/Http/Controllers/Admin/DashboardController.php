@@ -16,10 +16,12 @@ final class DashboardController
         $recentGamesCount = Game::query()
             ->where('created_at', '>=', now()->subDays(7))
             ->count();
+        $latestGames = Game::query()->latest()->limit(10)->get();
 
         return view('admin.dashboard', [
             'totalGames' => $totalGames,
             'recentGamesCount' => $recentGamesCount,
+            'latestGames' => $latestGames,
         ]);
     }
 }
