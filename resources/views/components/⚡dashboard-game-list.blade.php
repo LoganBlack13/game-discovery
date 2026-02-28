@@ -100,6 +100,9 @@ new class extends Component
             </script>
         </section>
     @endif
+    <div class="mb-10">
+        <livewire:dashboard-feed />
+    </div>
     <section aria-label="All tracked games">
         <h2 class="font-display text-lg font-semibold text-zinc-900 dark:text-white sm:text-xl">All tracked games</h2>
     <div class="mb-6 mt-4 flex flex-wrap items-center gap-4">
