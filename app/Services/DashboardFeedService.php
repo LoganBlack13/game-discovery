@@ -73,7 +73,7 @@ final class DashboardFeedService
         }
 
         return $items
-            ->sortByDesc(fn (array $row): Carbon => $row['occurred_at'])
+            ->sortByDesc(fn (array $row) => $row['occurred_at'])
             ->values()
             ->skip($offset)
             ->take($limit)
