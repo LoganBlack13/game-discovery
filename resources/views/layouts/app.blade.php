@@ -49,7 +49,7 @@
             </main>
         </div>
 
-        <flux:modal name="game-search" class="[:where(&)]:max-w-2xl [:where(&)]:min-w-xs [:where(&)]:rounded-2xl [:where(&)]:p-0">
+        <flux:modal name="game-search" class="[:where(&)]:w-[calc(100%-2rem)] [:where(&)]:max-w-[calc(100%-2rem)] [:where(&)]:mx-auto lg:[:where(&)]:min-w-[50vw] lg:[:where(&)]:max-w-2xl [:where(&)]:rounded-2xl [:where(&)]:p-0">
             <livewire:game-search-modal />
         </flux:modal>
 
