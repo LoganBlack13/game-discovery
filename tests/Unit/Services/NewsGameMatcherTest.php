@@ -47,3 +47,29 @@ test('findMatchingGame only considers games in database', function (): void {
         ->and($game->id)->toBe($created->id)
         ->and($game->title)->toBe('Hollow Knight');
 });
+
+test('findMatchingGame does not match when game title is substring of a word in news', function (): void {
+    Game::factory()->create(['title' => 'Strand']);
+
+    $game = $this->matcher->findMatchingGame('Death Stranding 2 release date announced');
+
+    expect($game)->toBeNull();
+});
+
+test('findMatchingGame matches when all game words appear as whole words in news', function (): void {
+    Game::factory()->create(['title' => 'Death Stranding 2']);
+
+    $game = $this->matcher->findMatchingGame('Death Stranding 2 release date announced');
+
+    expect($game)->not->toBeNull()
+        ->and($game->title)->toBe('Death Stranding 2');
+});
+
+test('findMatchingGame is case-insensitive', function (): void {
+    Game::factory()->create(['title' => 'elden ring']);
+
+    $game = $this->matcher->findMatchingGame('Elden Ring DLC Shadow of the Erdtree');
+
+    expect($game)->not->toBeNull()
+        ->and($game->title)->toBe('elden ring');
+});
