@@ -7,6 +7,7 @@ namespace App\Services;
 use App\Models\News;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
 use Throwable;
 
 final class NewsEnrichmentService
@@ -60,7 +61,16 @@ final class NewsEnrichmentService
                     'error' => null,
                 ], $ttl);
 
-                $items = $this->fetcher->fetch($url);
+                try {
+                    $items = $this->fetcher->fetch($url);
+                } catch (Throwable $e) {
+                    Log::warning('News enrichment: failed to fetch feed', [
+                        'feed' => $name,
+                        'url' => $url,
+                        'message' => $e->getMessage(),
+                    ]);
+                    $items = [];
+                }
 
                 foreach ($items as $item) {
                     $game = $this->matcher->findMatchingGame($item['title']);
