@@ -54,25 +54,39 @@ new class extends Component
         <ul class="flex max-h-[calc(100vh-8rem)] flex-col gap-3 overflow-y-auto pr-1" role="list">
             @foreach ($this->items['items'] as $item)
                 <li class="shrink-0 rounded-lg border border-zinc-200/80 bg-white p-3 dark:border-zinc-700 dark:bg-zinc-800/50">
-                    <a
-                        href="{{ $item->url }}"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        class="block focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-zinc-900"
-                    >
-                        <p class="font-medium text-zinc-900 dark:text-white line-clamp-2">{{ $item->title }}</p>
-                    </a>
-                    <p class="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
-                        <a
-                            href="{{ route('games.show', $item->game) }}"
-                            class="hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500"
-                        >
-                            {{ $item->game->title }}
-                        </a>
-                        @if ($item->published_at)
-                            · <time datetime="{{ $item->published_at->toIso8601String() }}">{{ $item->published_at->format('M j, Y') }}</time>
-                        @endif
-                    </p>
+                    <div class="flex gap-3">
+                        <div class="h-14 w-10 shrink-0 overflow-hidden rounded-lg bg-zinc-200 dark:bg-zinc-700">
+                            @if ($item->game->cover_image)
+                                <img src="{{ $item->game->cover_image }}" alt="" class="h-full w-full object-cover" />
+                            @else
+                                <div class="flex h-full w-full items-center justify-center">
+                                    <span class="font-display text-lg font-bold text-zinc-400 dark:text-zinc-500">{{ substr($item->game->title ?? '', 0, 1) }}</span>
+                                </div>
+                            @endif
+                        </div>
+                        <div class="min-w-0 flex-1">
+                            <a
+                                href="{{ $item->url }}"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                class="block focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-zinc-900"
+                                title="{{ $item->title }}"
+                            >
+                                <p class="font-medium text-zinc-900 dark:text-white line-clamp-2">{{ $item->title }}</p>
+                            </a>
+                            <p class="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
+                                <a
+                                    href="{{ route('games.show', $item->game) }}"
+                                    class="hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500"
+                                >
+                                    {{ $item->game->title }}
+                                </a>
+                                @if ($item->published_at)
+                                    · <time datetime="{{ $item->published_at->toIso8601String() }}">{{ $item->published_at->format('M j, Y') }}</time>
+                                @endif
+                            </p>
+                        </div>
+                    </div>
                 </li>
             @endforeach
             @if ($this->items['hasMore'])
