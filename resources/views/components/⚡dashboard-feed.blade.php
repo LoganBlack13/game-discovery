@@ -91,7 +91,7 @@ new class extends Component
                                 };
                             @endphp
                             <span class="mt-0.5 inline-block rounded px-2 py-0.5 text-xs font-medium {{ $badgeClass }}">{{ $item['type_label'] }}</span>
-                            <p class="mt-1 text-sm text-zinc-600 dark:text-zinc-400">{{ $item['title'] }}</p>
+                            <p class="mt-1 text-sm text-zinc-600 dark:text-zinc-400" title="{{ $item['title'] }}">{{ $item['title'] }}</p>
                             @if (! empty($item['description']))
                                 <p class="mt-0.5 text-xs text-zinc-500 dark:text-zinc-500">{{ $item['description'] }}</p>
                             @endif
@@ -100,8 +100,10 @@ new class extends Component
                             </p>
                             <a
                                 href="{{ $item['url'] }}"
+                                @if ($item['type'] === 'new_article') target="_blank" rel="noopener noreferrer" @endif
                                 class="mt-2 inline-block rounded text-sm font-medium text-cyan-600 hover:text-cyan-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:ring-offset-2 dark:text-cyan-400 dark:hover:text-cyan-300 dark:focus-visible:ring-offset-zinc-900"
                                 aria-label="{{ $item['type'] === 'new_article' ? 'Read article: ' . $item['title'] : 'View ' . ($item['game']->title ?? 'game') }}"
+                                @if ($item['type'] === 'new_article') title="{{ $item['title'] }}" @endif
                             >
                                 {{ $item['type'] === 'new_article' ? 'Read article' : 'View game' }} →
                             </a>
