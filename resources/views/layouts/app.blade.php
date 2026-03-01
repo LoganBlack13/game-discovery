@@ -26,7 +26,6 @@
     </head>
     <body class="antialiased font-sans bg-base-100 text-base-content">
         <div class="min-h-screen flex flex-col">
-            {{-- Header: glass pill bar per spec (48px, rounded-full, bg white/6%, blur) --}}
             <header class="sticky top-0 z-50 shrink-0 px-4 pt-4">
                 <div class="header-bar mx-auto flex h-12 max-w-5xl items-center justify-between gap-6 rounded-full bg-white/[0.06] px-6 py-0 backdrop-blur-[10px] md:justify-between">
                     <a href="{{ url('/') }}" class="flex shrink-0 items-center" aria-label="{{ config('app.name') }} home">

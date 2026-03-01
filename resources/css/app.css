@@ -72,6 +72,78 @@
   background-size: 200% 180%;
   background-position: 0% 0%;
 }
+
+/* Homepage full-page background (gradient + particles + grain) — same under header and content */
+.homepage-full-bg-layer {
+  background-image:
+    radial-gradient(2px 2px at 20% 30%, rgba(47, 214, 196, 0.5), transparent),
+    radial-gradient(2px 2px at 40% 70%, rgba(47, 214, 196, 0.4), transparent),
+    radial-gradient(2px 2px at 60% 20%, rgba(47, 214, 196, 0.45), transparent),
+    radial-gradient(2px 2px at 80% 60%, rgba(47, 214, 196, 0.35), transparent),
+    radial-gradient(2px 2px at 15% 80%, rgba(47, 214, 196, 0.4), transparent),
+    radial-gradient(2px 2px at 90% 25%, rgba(47, 214, 196, 0.35), transparent),
+    radial-gradient(3px 3px at 35% 45%, rgba(47, 214, 196, 0.25), transparent),
+    radial-gradient(2px 2px at 70% 85%, rgba(47, 214, 196, 0.4), transparent),
+    radial-gradient(circle at center, rgba(0, 200, 180, 0.25), transparent 60%),
+    linear-gradient(#0a0f12, #000);
+  background-size:
+    200% 180%,
+    200% 180%,
+    200% 180%,
+    200% 180%,
+    200% 180%,
+    200% 180%,
+    200% 180%,
+    200% 180%,
+    100% 100%,
+    100% 100%;
+  background-position:
+    0% 0%,
+    0% 0%,
+    0% 0%,
+    0% 0%,
+    0% 0%,
+    0% 0%,
+    0% 0%,
+    0% 0%,
+    0 0,
+    0 0;
+}
+.homepage-full-bg-layer::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  opacity: 0.04;
+  pointer-events: none;
+}
+[data-theme="light"] .homepage-full-bg-layer {
+  background-image:
+    radial-gradient(2px 2px at 20% 30%, rgba(13, 148, 136, 0.2), transparent),
+    radial-gradient(2px 2px at 40% 70%, rgba(13, 148, 136, 0.15), transparent),
+    radial-gradient(2px 2px at 60% 20%, rgba(13, 148, 136, 0.2), transparent),
+    radial-gradient(2px 2px at 80% 60%, rgba(13, 148, 136, 0.15), transparent),
+    radial-gradient(2px 2px at 15% 80%, rgba(13, 148, 136, 0.18), transparent),
+    radial-gradient(2px 2px at 90% 25%, rgba(13, 148, 136, 0.15), transparent),
+    radial-gradient(3px 3px at 35% 45%, rgba(13, 148, 136, 0.12), transparent),
+    radial-gradient(2px 2px at 70% 85%, rgba(13, 148, 136, 0.18), transparent),
+    radial-gradient(circle at center, rgba(13, 148, 136, 0.12), transparent 60%),
+    linear-gradient(#f0fdfa, #e0f2f1);
+  background-size:
+    200% 180%,
+    200% 180%,
+    200% 180%,
+    200% 180%,
+    200% 180%,
+    200% 180%,
+    200% 180%,
+    200% 180%,
+    100% 100%,
+    100% 100%;
+}
+[data-theme="light"] .homepage-full-bg-layer::before {
+  opacity: 0.06;
+}
 /* Hero title glow */
 .hero-title-glow {
   text-shadow: 0 0 20px rgba(255, 255, 255, 0.15);
