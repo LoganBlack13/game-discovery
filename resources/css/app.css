@@ -40,6 +40,14 @@
 .welcome-animate-delay-8 { animation-delay: 1.15s; }
 .welcome-animate-delay-9 { animation-delay: 1.3s; }
 
+/* Homepage: refined minimal — card hover with smooth transition */
+.welcome-game-card {
+  transition: transform 0.25s ease;
+}
+.welcome-game-card:hover {
+  transform: scale(1.02);
+}
+
 @keyframes admin-result-in {
   from {
     opacity: 0;

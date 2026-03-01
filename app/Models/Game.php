@@ -86,6 +86,14 @@ final class Game extends Model
         return $query->orderBy('release_date');
     }
 
+    /**
+     * Order by release date ascending with games that have no release date last.
+     */
+    public function scopeUpcomingByReleaseDate(Builder $query): Builder
+    {
+        return $query->orderByRaw('release_date IS NULL')->orderBy('release_date');
+    }
+
     public function getRouteKeyName(): string
     {
         return 'slug';

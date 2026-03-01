@@ -10,7 +10,7 @@ new #[Title('Discover your next game')] class extends Component
     {
         return Game::query()
             ->upcoming()
-            ->byReleaseDate()
+            ->upcomingByReleaseDate()
             ->limit(12)
             ->get();
     }
@@ -66,15 +66,17 @@ new #[Title('Discover your next game')] class extends Component
             <p class="font-display text-sm font-semibold uppercase tracking-widest text-cyan-600 dark:text-cyan-400 opacity-0 welcome-animate welcome-animate-delay-4 mb-6">
                 Coming soon
             </p>
-            <div class="flex gap-4 overflow-x-auto pb-4 -mx-4 px-4 sm:mx-0 sm:px-0 sm:grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 sm:overflow-visible">
+            <div class="flex flex-nowrap gap-4 overflow-x-auto pb-4 -mx-4 px-4 sm:mx-0 sm:px-0">
                 @foreach($this->getUpcomingGames() as $index => $game)
                     <flux:card
-                        class="shrink-0 w-[280px] sm:w-auto transition-transform hover:scale-[1.02] focus-within:ring-2 focus-within:ring-cyan-500 focus-within:ring-offset-2 dark:focus-within:ring-offset-zinc-950 opacity-0 welcome-animate welcome-animate-delay-{{ min(5 + $index, 9) }} border-zinc-200/80 dark:border-white/10 bg-white/90 dark:bg-white/5 backdrop-blur-sm"
+                        class="welcome-game-card shrink-0 w-[280px] min-w-[280px] max-w-[280px] opacity-0 welcome-animate welcome-animate-delay-{{ min(5 + $index, 9) }} border-zinc-200/80 dark:border-white/10 bg-white/90 dark:bg-white/5 backdrop-blur-sm focus-within:ring-2 focus-within:ring-cyan-500 focus-within:ring-offset-2 dark:focus-within:ring-offset-zinc-950"
                         size="sm"
                     >
-                        <a href="{{ route('games.show', $game) }}" class="block focus:outline-none">
+                        <a href="{{ route('games.show', $game) }}" class="block min-w-0 focus:outline-none">
                             @if ($game->cover_image)
-                                <img src="{{ $game->cover_image }}" alt="" class="aspect-[3/4] w-full rounded-lg object-cover mb-3" />
+                                <div class="aspect-[3/4] w-full overflow-hidden rounded-lg mb-3">
+                                    <img src="{{ $game->cover_image }}" alt="" class="size-full object-cover" />
+                                </div>
                             @else
                                 <div class="aspect-[3/4] rounded-lg bg-gradient-to-br from-zinc-200 to-zinc-300 dark:from-zinc-700 dark:to-zinc-800 mb-3 flex items-center justify-center">
                                     <span class="font-display text-2xl font-bold text-zinc-400 dark:text-zinc-500">{{ substr($game->title, 0, 1) }}</span>
@@ -98,15 +100,17 @@ new #[Title('Discover your next game')] class extends Component
             <p class="font-display text-sm font-semibold uppercase tracking-widest text-cyan-600 dark:text-cyan-400 mb-6">
                 Trending now
             </p>
-            <div class="flex gap-4 overflow-x-auto pb-4 -mx-4 px-4 sm:mx-0 sm:px-0 sm:grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 sm:overflow-visible">
+            <div class="flex flex-nowrap gap-4 overflow-x-auto pb-4 -mx-4 px-4 sm:mx-0 sm:px-0">
                 @foreach($this->getPopularGames() as $index => $game)
                     <flux:card
-                        class="shrink-0 w-[280px] sm:w-auto transition-transform hover:scale-[1.02] focus-within:ring-2 focus-within:ring-cyan-500 focus-within:ring-offset-2 dark:focus-within:ring-offset-zinc-950 border-zinc-200/80 dark:border-white/10 bg-white/90 dark:bg-white/5 backdrop-blur-sm"
+                        class="welcome-game-card shrink-0 w-[280px] min-w-[280px] max-w-[280px] border-zinc-200/80 dark:border-white/10 bg-white/90 dark:bg-white/5 backdrop-blur-sm focus-within:ring-2 focus-within:ring-cyan-500 focus-within:ring-offset-2 dark:focus-within:ring-offset-zinc-950"
                         size="sm"
                     >
-                        <a href="{{ route('games.show', $game) }}" class="block focus:outline-none">
+                        <a href="{{ route('games.show', $game) }}" class="block min-w-0 focus:outline-none">
                             @if ($game->cover_image)
-                                <img src="{{ $game->cover_image }}" alt="" class="aspect-[3/4] w-full rounded-lg object-cover mb-3" />
+                                <div class="aspect-[3/4] w-full overflow-hidden rounded-lg mb-3">
+                                    <img src="{{ $game->cover_image }}" alt="" class="size-full object-cover" />
+                                </div>
                             @else
                                 <div class="aspect-[3/4] rounded-lg bg-gradient-to-br from-zinc-200 to-zinc-300 dark:from-zinc-700 dark:to-zinc-800 mb-3 flex items-center justify-center">
                                     <span class="font-display text-2xl font-bold text-zinc-400 dark:text-zinc-500">{{ substr($game->title, 0, 1) }}</span>
@@ -127,15 +131,17 @@ new #[Title('Discover your next game')] class extends Component
             <p class="font-display text-sm font-semibold uppercase tracking-widest text-cyan-600 dark:text-cyan-400 mb-6">
                 Recently released
             </p>
-            <div class="flex gap-4 overflow-x-auto pb-4 -mx-4 px-4 sm:mx-0 sm:px-0 sm:grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 sm:overflow-visible">
+            <div class="flex flex-nowrap gap-4 overflow-x-auto pb-4 -mx-4 px-4 sm:mx-0 sm:px-0">
                 @foreach($this->getRecentlyReleasedGames() as $index => $game)
                     <flux:card
-                        class="shrink-0 w-[280px] sm:w-auto transition-transform hover:scale-[1.02] focus-within:ring-2 focus-within:ring-cyan-500 focus-within:ring-offset-2 dark:focus-within:ring-offset-zinc-950 border-zinc-200/80 dark:border-white/10 bg-white/90 dark:bg-white/5 backdrop-blur-sm"
+                        class="welcome-game-card shrink-0 w-[280px] min-w-[280px] max-w-[280px] border-zinc-200/80 dark:border-white/10 bg-white/90 dark:bg-white/5 backdrop-blur-sm focus-within:ring-2 focus-within:ring-cyan-500 focus-within:ring-offset-2 dark:focus-within:ring-offset-zinc-950"
                         size="sm"
                     >
-                        <a href="{{ route('games.show', $game) }}" class="block focus:outline-none">
+                        <a href="{{ route('games.show', $game) }}" class="block min-w-0 focus:outline-none">
                             @if ($game->cover_image)
-                                <img src="{{ $game->cover_image }}" alt="" class="aspect-[3/4] w-full rounded-lg object-cover mb-3" />
+                                <div class="aspect-[3/4] w-full overflow-hidden rounded-lg mb-3">
+                                    <img src="{{ $game->cover_image }}" alt="" class="size-full object-cover" />
+                                </div>
                             @else
                                 <div class="aspect-[3/4] rounded-lg bg-gradient-to-br from-zinc-200 to-zinc-300 dark:from-zinc-700 dark:to-zinc-800 mb-3 flex items-center justify-center">
                                     <span class="font-display text-2xl font-bold text-zinc-400 dark:text-zinc-500">{{ substr($game->title, 0, 1) }}</span>
@@ -149,6 +155,11 @@ new #[Title('Discover your next game')] class extends Component
                     </flux:card>
                 @endforeach
             </div>
+        </section>
+
+        {{-- Latest news --}}
+        <section class="mt-12 sm:mt-16" aria-label="Latest news">
+            <livewire:welcome-news />
         </section>
     </div>
 </div>
