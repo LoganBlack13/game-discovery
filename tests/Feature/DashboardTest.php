@@ -28,9 +28,10 @@ test('authenticated user sees only their tracked games on dashboard', function (
     $response->assertOk();
     $response->assertSee('Tracked Game', false);
     $response->assertDontSee('Other Game', false);
+    $response->assertSee('xl:grid-cols-5', false);
 });
 
-test('authenticated user sees Up next when they have tracked games with future release dates', function (): void {
+test('authenticated user sees hero and Up next when they have tracked games with future release dates', function (): void {
     $user = User::factory()->create();
     $upcoming = Game::factory()->create([
         'title' => 'Upcoming Game',
@@ -43,9 +44,29 @@ test('authenticated user sees Up next when they have tracked games with future r
     $response->assertOk();
     $response->assertSee('Up next', false);
     $response->assertSee('Upcoming Game', false);
+    $response->assertSee('Until release', false);
 });
 
-test('authenticated user sees Recent updates section and only their tracked games updates', function (): void {
+test('authenticated user sees three next games when they have two to four upcoming', function (): void {
+    $user = User::factory()->create();
+    foreach (['First Game', 'Second Game', 'Third Game', 'Fourth Game'] as $title) {
+        $game = Game::factory()->create([
+            'title' => $title,
+            'release_date' => Carbon::now()->addMonths(1),
+        ]);
+        $user->trackedGames()->attach($game);
+    }
+
+    $response = $this->actingAs($user)->get(route('dashboard'));
+
+    $response->assertOk();
+    $response->assertSee('First Game', false);
+    $response->assertSee('Second Game', false);
+    $response->assertSee('Third Game', false);
+    $response->assertSee('Fourth Game', false);
+});
+
+test('authenticated user sees Latest news sidebar with news for tracked games only', function (): void {
     $user = User::factory()->create();
     $tracked = Game::factory()->create(['title' => 'My Tracked Game']);
     $user->trackedGames()->attach($tracked);
@@ -64,9 +85,33 @@ test('authenticated user sees Recent updates section and only their tracked game
     $response = $this->actingAs($user)->get(route('dashboard'));
 
     $response->assertOk();
-    $response->assertSee('Recent updates', false);
+    $response->assertSee('Latest news', false);
     $response->assertSee('Exclusive news for my game', false);
     $response->assertDontSee('News for untracked game', false);
+});
+
+test('news sidebar loads initial 10 items and loadMore adds more', function (): void {
+    $user = User::factory()->create();
+    $game = Game::factory()->create(['title' => 'News Game']);
+    $user->trackedGames()->attach($game);
+    foreach (range(1, 15) as $i) {
+        News::factory()->create([
+            'game_id' => $game->id,
+            'title' => "News item {$i}",
+            'published_at' => now()->subDays($i),
+        ]);
+    }
+
+    $component = Livewire::actingAs($user)->test('dashboard-news-sidebar');
+
+    $component->assertSee('News item 1');
+    $component->assertSee('News item 10');
+    $component->assertDontSee('News item 11');
+
+    $component->call('loadMore');
+
+    $component->assertSee('News item 11');
+    $component->assertSee('News item 15');
 });
 
 test('feed filter News only shows only news items', function (): void {
