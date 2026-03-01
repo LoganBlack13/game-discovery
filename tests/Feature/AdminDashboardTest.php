@@ -19,7 +19,7 @@ test('admin dashboard shows stats and inline add-game section', function (): voi
     $response->assertSee('Total games', false);
     $response->assertSee('4', false);
     $response->assertSee('Added this week', false);
-    $response->assertSee('Add game from RAWG', false);
+    $response->assertSee('Add game', false);
     $response->assertSee('Latest games', false);
     $response->assertSee('See more', false);
     $response->assertSee(route('admin.games.index'), false);

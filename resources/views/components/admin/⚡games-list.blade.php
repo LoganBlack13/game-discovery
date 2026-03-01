@@ -149,6 +149,7 @@ new class extends Component
         >
             <option value="">All sources</option>
             <option value="rawg">RAWG</option>
+            <option value="igdb">IGDB</option>
         </select>
     </div>
 

@@ -1,6 +1,6 @@
 <?php
 
-use App\Contracts\GameDataProvider;
+use App\Contracts\GameDataProviderResolver;
 use App\Jobs\SyncGameJob;
 use App\Models\Game;
 use Livewire\Component;
@@ -24,30 +24,58 @@ new class extends Component
             return [];
         }
 
-        $provider = app(GameDataProvider::class);
+        $resolver = app(GameDataProviderResolver::class);
+        $query = trim($this->query);
+        $results = [];
 
-        return $provider->search(trim($this->query));
+        foreach (['rawg', 'igdb'] as $source) {
+            try {
+                $provider = $resolver->resolve($source);
+                $results = array_merge($results, $provider->search($query));
+            } catch (\Throwable) {
+                continue;
+            }
+        }
+
+        return $results;
     }
 
     /**
-     * @return array<int, string>
+     * @return array<int, string> "external_source:external_id" pairs that exist in DB
      */
-    public function getAlreadyInDbExternalIdsProperty(): array
+    public function getAlreadyInDbPairsProperty(): array
     {
         $results = $this->searchResults;
         if ($results === []) {
             return [];
         }
-        $externalIds = array_column($results, 'external_id');
 
-        return Game::query()
-            ->where('external_source', 'rawg')
-            ->whereIn('external_id', $externalIds)
-            ->pluck('external_id')
-            ->all();
+        $pairs = [];
+        foreach ($results as $item) {
+            $source = $item['external_source'] ?? '';
+            $id = $item['external_id'] ?? '';
+            if ($source !== '' && $id !== '') {
+                $pairs[$source][] = $id;
+            }
+        }
+
+        $existing = [];
+        foreach ($pairs as $source => $ids) {
+            $ids = array_unique($ids);
+            $found = Game::query()
+                ->where('external_source', $source)
+                ->whereIn('external_id', $ids)
+                ->pluck('external_id')
+                ->all();
+            foreach ($found as $id) {
+                $existing[] = $source.':'.$id;
+            }
+        }
+
+        return $existing;
     }
 
-    public function addGame(string $externalId): void
+    public function addGame(string $externalId, string $externalSource): void
     {
         abort_unless(auth()->user()?->isAdmin(), 403);
 
@@ -56,10 +84,10 @@ new class extends Component
         $this->addedTitle = null;
 
         try {
-            SyncGameJob::dispatchSync($externalId);
+            SyncGameJob::dispatchSync($externalId, $externalSource);
             $title = null;
             foreach ($this->searchResults as $item) {
-                if (($item['external_id'] ?? '') === $externalId) {
+                if (($item['external_id'] ?? '') === $externalId && ($item['external_source'] ?? '') === $externalSource) {
                     $title = $item['title'] ?? 'Unknown';
                     break;
                 }
@@ -85,13 +113,13 @@ new class extends Component
     <flux:input
         type="search"
         wire:model.live.debounce.1000ms="query"
-        placeholder="Search RAWG for a game…"
+        placeholder="Search games (RAWG, IGDB)…"
         class="w-full"
-        aria-label="Search RAWG"
+        aria-label="Search games"
     />
-    <div class="min-h-[120px]" aria-label="RAWG search results">
+    <div class="min-h-[120px]" aria-label="Game search results">
         @if (trim($query) === '')
-            <p class="py-4 text-sm text-zinc-500 dark:text-zinc-400">Enter a game name to search RAWG.</p>
+            <p class="py-4 text-sm text-zinc-500 dark:text-zinc-400">Enter a game name to search RAWG and IGDB.</p>
         @else
             <div wire:loading.flex class="flex items-center gap-2 py-4 text-sm text-zinc-500 dark:text-zinc-400" wire:target="query" aria-busy="true">
                 <svg class="size-5 animate-spin shrink-0 text-zinc-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" aria-hidden="true">
@@ -102,8 +130,11 @@ new class extends Component
             </div>
             <div wire:loading.remove wire:target="query">
                 @if (count($this->searchResults) > 0)
-                    <ul class="divide-y divide-zinc-200 dark:divide-zinc-700" role="list" aria-label="RAWG search results">
+                    <ul class="divide-y divide-zinc-200 dark:divide-zinc-700" role="list" aria-label="Game search results">
                         @foreach($this->searchResults as $index => $item)
+                            @php
+                                $pairKey = ($item['external_source'] ?? '') . ':' . ($item['external_id'] ?? '');
+                            @endphp
                             <li class="admin-result-item flex gap-3 px-2 py-3" style="animation-delay: {{ $index * 40 }}ms;">
                                 @if (!empty($item['cover_image']))
                                     <img src="{{ $item['cover_image'] }}" alt="" class="h-14 w-10 shrink-0 rounded object-cover" />
@@ -111,7 +142,10 @@ new class extends Component
                                     <div class="flex h-14 w-10 shrink-0 items-center justify-center rounded bg-zinc-200 dark:bg-zinc-700 text-sm font-semibold text-zinc-500 dark:text-zinc-400">{{ substr($item['title'], 0, 1) }}</div>
                                 @endif
                                 <div class="min-w-0 flex-1">
-                                    <span class="font-medium text-zinc-900 dark:text-white">{{ $item['title'] }}</span>
+                                    <div class="flex items-center gap-2">
+                                        <span class="font-medium text-zinc-900 dark:text-white">{{ $item['title'] }}</span>
+                                        <span class="shrink-0 rounded bg-zinc-200 dark:bg-zinc-700 px-1.5 py-0.5 text-xs font-medium text-zinc-600 dark:text-zinc-400">{{ ucfirst($item['external_source'] ?? '') }}</span>
+                                    </div>
                                     @if (!empty($item['release_date']))
                                         <p class="text-sm text-zinc-500 dark:text-zinc-400">{{ \Carbon\Carbon::parse($item['release_date'])->format('M j, Y') }}</p>
                                     @endif
@@ -123,12 +157,12 @@ new class extends Component
                                     @endif
                                 </div>
                                 <div class="shrink-0">
-                                    @if (in_array($item['external_id'], $this->alreadyInDbExternalIds))
+                                    @if (in_array($pairKey, $this->alreadyInDbPairs))
                                         <span class="inline-flex items-center rounded-md bg-zinc-100 dark:bg-zinc-800 px-2 py-1 text-xs font-medium text-zinc-600 dark:text-zinc-400">Already in database</span>
                                     @else
                                         <flux:button
                                             size="sm"
-                                            wire:click="addGame({{ json_encode($item['external_id']) }})"
+                                            wire:click="addGame({{ json_encode($item['external_id']) }}, {{ json_encode($item['external_source']) }})"
                                             wire:loading.attr="disabled"
                                             wire:target="addGame"
                                         >
@@ -141,7 +175,7 @@ new class extends Component
                         @endforeach
                     </ul>
                 @else
-                    <p class="py-4 text-sm text-zinc-500 dark:text-zinc-400">No RAWG results. Try another query.</p>
+                    <p class="py-4 text-sm text-zinc-500 dark:text-zinc-400">No results. Try another query.</p>
                 @endif
             </div>
         @endif

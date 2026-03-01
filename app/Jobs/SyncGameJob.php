@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Jobs;
 
-use App\Contracts\GameDataProvider;
+use App\Contracts\GameDataProviderResolver;
 use App\Models\Game;
 use App\Services\GameActivityRecorder;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -16,11 +16,13 @@ final class SyncGameJob implements ShouldQueue
 
     public function __construct(
         public string $externalId,
+        public string $externalSource,
         public ?int $gameId = null
     ) {}
 
-    public function handle(GameDataProvider $provider, GameActivityRecorder $recorder): void
+    public function handle(GameDataProviderResolver $resolver, GameActivityRecorder $recorder): void
     {
+        $provider = $resolver->resolve($this->externalSource);
         $details = $provider->getGameDetails($this->externalId);
 
         $existing = Game::query()

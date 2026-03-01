@@ -40,5 +40,9 @@ return [
     'rawg' => [
         'key' => env('RAWG_API_KEY'),
     ],
+    'igdb' => [
+        'client_id' => env('IGDB_TWITCH_CLIENT_ID'),
+        'client_secret' => env('IGDB_TWITCH_CLIENT_SECRET'),
+    ],
 
 ];

@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Contracts\GameDataProvider;
+use App\Contracts\GameDataProviderResolver;
 use App\Enums\GameActivityType;
 use App\Enums\ReleaseStatus;
 use App\Jobs\SyncGameJob;
@@ -25,27 +26,36 @@ test('sync creates GameActivity when release date changes', function (): void {
     ]);
 
     $newReleaseDate = Carbon::now()->addMonth()->format('Y-m-d');
-    $this->mock(GameDataProvider::class, function ($mock) use ($game, $newReleaseDate): void {
+    $details = [
+        'title' => 'Existing Game',
+        'slug' => $game->slug,
+        'description' => $game->description,
+        'cover_image' => $game->cover_image,
+        'developer' => $game->developer,
+        'publisher' => $game->publisher,
+        'genres' => $game->genres,
+        'platforms' => $game->platforms,
+        'release_date' => $newReleaseDate,
+        'release_status' => ReleaseStatus::ComingSoon->value,
+        'external_id' => $this->externalId,
+        'external_source' => $this->externalSource,
+    ];
+
+    $provider = $this->mock(GameDataProvider::class, function ($mock) use ($details): void {
         $mock->shouldReceive('getGameDetails')
             ->once()
             ->with($this->externalId)
-            ->andReturn([
-                'title' => 'Existing Game',
-                'slug' => $game->slug,
-                'description' => $game->description,
-                'cover_image' => $game->cover_image,
-                'developer' => $game->developer,
-                'publisher' => $game->publisher,
-                'genres' => $game->genres,
-                'platforms' => $game->platforms,
-                'release_date' => $newReleaseDate,
-                'release_status' => ReleaseStatus::ComingSoon->value,
-                'external_id' => $this->externalId,
-                'external_source' => $this->externalSource,
-            ]);
+            ->andReturn($details);
     });
 
-    (new SyncGameJob($this->externalId, $game->id))->handle(app(GameDataProvider::class), app(App\Services\GameActivityRecorder::class));
+    $resolver = $this->mock(GameDataProviderResolver::class, function ($mock) use ($provider): void {
+        $mock->shouldReceive('resolve')
+            ->once()
+            ->with($this->externalSource)
+            ->andReturn($provider);
+    });
+
+    (new SyncGameJob($this->externalId, $this->externalSource, $game->id))->handle($resolver, app(App\Services\GameActivityRecorder::class));
 
     $activity = GameActivity::query()
         ->where('game_id', $game->id)
@@ -66,27 +76,36 @@ test('sync creates GameActivity when release date is announced for first time', 
     ]);
 
     $newReleaseDate = Carbon::now()->addMonths(3)->format('Y-m-d');
-    $this->mock(GameDataProvider::class, function ($mock) use ($game, $newReleaseDate): void {
+    $details = [
+        'title' => $game->title,
+        'slug' => $game->slug,
+        'description' => $game->description,
+        'cover_image' => $game->cover_image,
+        'developer' => $game->developer,
+        'publisher' => $game->publisher,
+        'genres' => $game->genres,
+        'platforms' => $game->platforms,
+        'release_date' => $newReleaseDate,
+        'release_status' => ReleaseStatus::ComingSoon->value,
+        'external_id' => $this->externalId,
+        'external_source' => $this->externalSource,
+    ];
+
+    $provider = $this->mock(GameDataProvider::class, function ($mock) use ($details): void {
         $mock->shouldReceive('getGameDetails')
             ->once()
             ->with($this->externalId)
-            ->andReturn([
-                'title' => $game->title,
-                'slug' => $game->slug,
-                'description' => $game->description,
-                'cover_image' => $game->cover_image,
-                'developer' => $game->developer,
-                'publisher' => $game->publisher,
-                'genres' => $game->genres,
-                'platforms' => $game->platforms,
-                'release_date' => $newReleaseDate,
-                'release_status' => ReleaseStatus::ComingSoon->value,
-                'external_id' => $this->externalId,
-                'external_source' => $this->externalSource,
-            ]);
+            ->andReturn($details);
     });
 
-    (new SyncGameJob($this->externalId, $game->id))->handle(app(GameDataProvider::class), app(App\Services\GameActivityRecorder::class));
+    $resolver = $this->mock(GameDataProviderResolver::class, function ($mock) use ($provider): void {
+        $mock->shouldReceive('resolve')
+            ->once()
+            ->with($this->externalSource)
+            ->andReturn($provider);
+    });
+
+    (new SyncGameJob($this->externalId, $this->externalSource, $game->id))->handle($resolver, app(App\Services\GameActivityRecorder::class));
 
     $activity = GameActivity::query()
         ->where('game_id', $game->id)
@@ -106,27 +125,36 @@ test('sync creates GameActivity when game becomes released', function (): void {
     ]);
 
     $pastDate = Carbon::now()->subDay()->format('Y-m-d');
-    $this->mock(GameDataProvider::class, function ($mock) use ($game, $pastDate): void {
+    $details = [
+        'title' => $game->title,
+        'slug' => $game->slug,
+        'description' => $game->description,
+        'cover_image' => $game->cover_image,
+        'developer' => $game->developer,
+        'publisher' => $game->publisher,
+        'genres' => $game->genres,
+        'platforms' => $game->platforms,
+        'release_date' => $pastDate,
+        'release_status' => ReleaseStatus::Released->value,
+        'external_id' => $this->externalId,
+        'external_source' => $this->externalSource,
+    ];
+
+    $provider = $this->mock(GameDataProvider::class, function ($mock) use ($details): void {
         $mock->shouldReceive('getGameDetails')
             ->once()
             ->with($this->externalId)
-            ->andReturn([
-                'title' => $game->title,
-                'slug' => $game->slug,
-                'description' => $game->description,
-                'cover_image' => $game->cover_image,
-                'developer' => $game->developer,
-                'publisher' => $game->publisher,
-                'genres' => $game->genres,
-                'platforms' => $game->platforms,
-                'release_date' => $pastDate,
-                'release_status' => ReleaseStatus::Released->value,
-                'external_id' => $this->externalId,
-                'external_source' => $this->externalSource,
-            ]);
+            ->andReturn($details);
     });
 
-    (new SyncGameJob($this->externalId, $game->id))->handle(app(GameDataProvider::class), app(App\Services\GameActivityRecorder::class));
+    $resolver = $this->mock(GameDataProviderResolver::class, function ($mock) use ($provider): void {
+        $mock->shouldReceive('resolve')
+            ->once()
+            ->with($this->externalSource)
+            ->andReturn($provider);
+    });
+
+    (new SyncGameJob($this->externalId, $this->externalSource, $game->id))->handle($resolver, app(App\Services\GameActivityRecorder::class));
 
     $activity = GameActivity::query()
         ->where('game_id', $game->id)

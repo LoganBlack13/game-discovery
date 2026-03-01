@@ -67,9 +67,9 @@
         </section>
 
         <section class="mt-8" id="add-game" aria-labelledby="add-game-heading">
-            <h2 id="add-game-heading" class="text-lg font-semibold text-zinc-900 dark:text-zinc-100">Add game from RAWG</h2>
+            <h2 id="add-game-heading" class="text-lg font-semibold text-zinc-900 dark:text-zinc-100">Add game</h2>
             <p class="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
-                Search RAWG and add a game to the database. Shown inline below.
+                Search RAWG and IGDB and add a game to the database. Shown inline below.
             </p>
             <div class="mt-4">
                 <livewire:admin-rawg-add-game />
