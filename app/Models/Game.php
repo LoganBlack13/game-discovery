@@ -25,6 +25,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property ReleaseStatus $release_status
  * @property string|null $external_id
  * @property string|null $external_source
+ * @property \Carbon\CarbonInterface|null $last_synced_at
  */
 final class Game extends Model
 {
@@ -47,6 +48,7 @@ final class Game extends Model
         'release_status',
         'external_id',
         'external_source',
+        'last_synced_at',
     ];
 
     /**
@@ -59,6 +61,7 @@ final class Game extends Model
             'release_status' => ReleaseStatus::class,
             'genres' => 'array',
             'platforms' => 'array',
+            'last_synced_at' => 'datetime',
         ];
     }
 

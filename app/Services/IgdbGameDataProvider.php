@@ -22,6 +22,9 @@ final class IgdbGameDataProvider implements GameDataProvider
 
     private const int TOKEN_CACHE_BUFFER_SECONDS = 60;
 
+    /** Add-game UI expects at most this many results per source. */
+    private const int SEARCH_LIMIT = 10;
+
     /**
      * @return array<int, array{title: string, slug: string, description: string|null, cover_image: string|null, developer: string|null, publisher: string|null, genres: array, platforms: array, release_date: string|null, release_status: string, external_id: string, external_source: string}>
      */
@@ -33,8 +36,9 @@ final class IgdbGameDataProvider implements GameDataProvider
         }
 
         $body = sprintf(
-            'search "%s"; fields id,name,slug,summary,first_release_date,genres.name,involved_companies.company.name,involved_companies.developer,involved_companies.publisher,cover.image_id,platforms.name; limit 10;',
-            addslashes($query)
+            'search "%s"; fields id,name,slug,summary,first_release_date,genres.name,involved_companies.company.name,involved_companies.developer,involved_companies.publisher,cover.image_id,platforms.name; limit %d;',
+            addslashes($query),
+            self::SEARCH_LIMIT
         );
 
         try {

@@ -15,29 +15,32 @@ new class extends Component
 
     public ?string $addError = null;
 
+    private const int SEARCH_LIMIT = 10;
+
     /**
-     * @return array<int, array{title: string, slug: string, description: string|null, cover_image: string|null, developer: string|null, publisher: string|null, genres: array, platforms: array, release_date: string|null, release_status: string, external_id: string, external_source: string}>
+     * @return array{rawg: list<array{title: string, slug: string, description: string|null, cover_image: string|null, developer: string|null, publisher: string|null, genres: array, platforms: array, release_date: string|null, release_status: string, external_id: string, external_source: string}>, igdb: list<array{title: string, slug: string, description: string|null, cover_image: string|null, developer: string|null, publisher: string|null, genres: array, platforms: array, release_date: string|null, release_status: string, external_id: string, external_source: string}>}
      */
-    public function getSearchResultsProperty(): array
+    public function getSearchResultsBySourceProperty(): array
     {
         if (trim($this->query) === '') {
-            return [];
+            return ['rawg' => [], 'igdb' => []];
         }
 
         $resolver = app(GameDataProviderResolver::class);
         $query = trim($this->query);
-        $results = [];
+        $bySource = ['rawg' => [], 'igdb' => []];
 
-        foreach (['rawg', 'igdb'] as $source) {
+        foreach (array_keys($bySource) as $source) {
             try {
                 $provider = $resolver->resolve($source);
-                $results = array_merge($results, $provider->search($query));
+                $results = $provider->search($query);
+                $bySource[$source] = array_slice($results, 0, self::SEARCH_LIMIT);
             } catch (\Throwable) {
                 continue;
             }
         }
 
-        return $results;
+        return $bySource;
     }
 
     /**
@@ -45,23 +48,14 @@ new class extends Component
      */
     public function getAlreadyInDbPairsProperty(): array
     {
-        $results = $this->searchResults;
-        if ($results === []) {
-            return [];
-        }
-
-        $pairs = [];
-        foreach ($results as $item) {
-            $source = $item['external_source'] ?? '';
-            $id = $item['external_id'] ?? '';
-            if ($source !== '' && $id !== '') {
-                $pairs[$source][] = $id;
-            }
-        }
-
+        $bySource = $this->searchResultsBySource;
         $existing = [];
-        foreach ($pairs as $source => $ids) {
-            $ids = array_unique($ids);
+        foreach ($bySource as $source => $items) {
+            $ids = array_unique(array_map(fn (array $item): string => (string) ($item['external_id'] ?? ''), $items));
+            $ids = array_filter($ids);
+            if ($ids === []) {
+                continue;
+            }
             $found = Game::query()
                 ->where('external_source', $source)
                 ->whereIn('external_id', $ids)
@@ -75,6 +69,31 @@ new class extends Component
         return $existing;
     }
 
+    /**
+     * @return array<string, \Carbon\CarbonInterface|null> Map of "source:id" => last_synced_at for games in DB from current results
+     */
+    public function getLastSyncedAtByPairProperty(): array
+    {
+        $bySource = $this->searchResultsBySource;
+        $map = [];
+        foreach ($bySource as $source => $items) {
+            $ids = array_unique(array_map(fn (array $item): string => (string) ($item['external_id'] ?? ''), $items));
+            $ids = array_filter($ids);
+            if ($ids === []) {
+                continue;
+            }
+            $games = Game::query()
+                ->where('external_source', $source)
+                ->whereIn('external_id', $ids)
+                ->get(['external_id', 'last_synced_at']);
+            foreach ($games as $game) {
+                $map[$source.':'.$game->external_id] = $game->last_synced_at;
+            }
+        }
+
+        return $map;
+    }
+
     public function addGame(string $externalId, string $externalSource): void
     {
         abort_unless(auth()->user()?->isAdmin(), 403);
@@ -86,8 +105,8 @@ new class extends Component
         try {
             SyncGameJob::dispatchSync($externalId, $externalSource);
             $title = null;
-            foreach ($this->searchResults as $item) {
-                if (($item['external_id'] ?? '') === $externalId && ($item['external_source'] ?? '') === $externalSource) {
+            foreach ($this->searchResultsBySource[$externalSource] ?? [] as $item) {
+                if (($item['external_id'] ?? '') === $externalId) {
                     $title = $item['title'] ?? 'Unknown';
                     break;
                 }
@@ -128,55 +147,77 @@ new class extends Component
                 </svg>
                 <span>Searching…</span>
             </div>
-            <div wire:loading.remove wire:target="query">
-                @if (count($this->searchResults) > 0)
-                    <ul class="divide-y divide-zinc-200 dark:divide-zinc-700" role="list" aria-label="Game search results">
-                        @foreach($this->searchResults as $index => $item)
-                            @php
-                                $pairKey = ($item['external_source'] ?? '') . ':' . ($item['external_id'] ?? '');
-                            @endphp
-                            <li class="admin-result-item flex gap-3 px-2 py-3" style="animation-delay: {{ $index * 40 }}ms;">
-                                @if (!empty($item['cover_image']))
-                                    <img src="{{ $item['cover_image'] }}" alt="" class="h-14 w-10 shrink-0 rounded object-cover" />
-                                @else
-                                    <div class="flex h-14 w-10 shrink-0 items-center justify-center rounded bg-zinc-200 dark:bg-zinc-700 text-sm font-semibold text-zinc-500 dark:text-zinc-400">{{ substr($item['title'], 0, 1) }}</div>
-                                @endif
-                                <div class="min-w-0 flex-1">
-                                    <div class="flex items-center gap-2">
-                                        <span class="font-medium text-zinc-900 dark:text-white">{{ $item['title'] }}</span>
-                                        <span class="shrink-0 rounded bg-zinc-200 dark:bg-zinc-700 px-1.5 py-0.5 text-xs font-medium text-zinc-600 dark:text-zinc-400">{{ ucfirst($item['external_source'] ?? '') }}</span>
-                                    </div>
-                                    @if (!empty($item['release_date']))
-                                        <p class="text-sm text-zinc-500 dark:text-zinc-400">{{ \Carbon\Carbon::parse($item['release_date'])->format('M j, Y') }}</p>
-                                    @endif
-                                    @if (count($item['platforms'] ?? []) > 0)
-                                        <p class="text-xs text-zinc-500 dark:text-zinc-400">{{ implode(', ', array_slice($item['platforms'], 0, 3)) }}</p>
-                                    @endif
-                                    @if (count($item['genres'] ?? []) > 0)
-                                        <p class="text-xs text-zinc-500 dark:text-zinc-400">{{ implode(', ', array_slice($item['genres'], 0, 3)) }}</p>
-                                    @endif
-                                </div>
-                                <div class="shrink-0">
-                                    @if (in_array($pairKey, $this->alreadyInDbPairs))
-                                        <span class="inline-flex items-center rounded-md bg-zinc-100 dark:bg-zinc-800 px-2 py-1 text-xs font-medium text-zinc-600 dark:text-zinc-400">Already in database</span>
-                                    @else
-                                        <flux:button
-                                            size="sm"
-                                            wire:click="addGame({{ json_encode($item['external_id']) }}, {{ json_encode($item['external_source']) }})"
-                                            wire:loading.attr="disabled"
-                                            wire:target="addGame"
-                                        >
-                                            <span wire:loading.remove wire:target="addGame">Add to database</span>
-                                            <span wire:loading wire:target="addGame">Adding…</span>
-                                        </flux:button>
-                                    @endif
-                                </div>
-                            </li>
-                        @endforeach
-                    </ul>
-                @else
-                    <p class="py-4 text-sm text-zinc-500 dark:text-zinc-400">No results. Try another query.</p>
-                @endif
+            <div wire:loading.remove wire:target="query" class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+                @foreach (['rawg' => 'RAWG', 'igdb' => 'IGDB'] as $sourceKey => $sourceLabel)
+                    <section aria-label="{{ $sourceLabel }} results" class="flex flex-col gap-2">
+                        <h2 class="text-sm font-semibold text-zinc-700 dark:text-zinc-300">{{ $sourceLabel }}</h2>
+                        @php
+                            $items = $this->searchResultsBySource[$sourceKey] ?? [];
+                        @endphp
+                        @if (count($items) > 0)
+                            <ul class="divide-y divide-zinc-200 dark:divide-zinc-700" role="list" aria-label="{{ $sourceLabel }} results">
+                                @foreach ($items as $index => $item)
+                                    @php
+                                        $pairKey = ($item['external_source'] ?? '') . ':' . ($item['external_id'] ?? '');
+                                        $isInDb = in_array($pairKey, $this->alreadyInDbPairs);
+                                        $lastSynced = $this->lastSyncedAtByPair[$pairKey] ?? null;
+                                    @endphp
+                                    <li class="admin-result-item flex gap-3 px-2 py-3" style="animation-delay: {{ $index * 40 }}ms;">
+                                        @if (!empty($item['cover_image']))
+                                            <img src="{{ $item['cover_image'] }}" alt="" class="h-14 w-10 shrink-0 rounded object-cover" />
+                                        @else
+                                            <div class="flex h-14 w-10 shrink-0 items-center justify-center rounded bg-zinc-200 dark:bg-zinc-700 text-sm font-semibold text-zinc-500 dark:text-zinc-400">{{ substr($item['title'], 0, 1) }}</div>
+                                        @endif
+                                        <div class="min-w-0 flex-1">
+                                            <div class="flex items-center gap-2">
+                                                <span class="font-medium text-zinc-900 dark:text-white">{{ $item['title'] }}</span>
+                                            </div>
+                                            @if (!empty($item['release_date']))
+                                                <p class="text-sm text-zinc-500 dark:text-zinc-400">{{ \Carbon\Carbon::parse($item['release_date'])->format('M j, Y') }}</p>
+                                            @endif
+                                            @if (count($item['platforms'] ?? []) > 0)
+                                                <p class="text-xs text-zinc-500 dark:text-zinc-400">{{ implode(', ', array_slice($item['platforms'], 0, 3)) }}</p>
+                                            @endif
+                                            @if (count($item['genres'] ?? []) > 0)
+                                                <p class="text-xs text-zinc-500 dark:text-zinc-400">{{ implode(', ', array_slice($item['genres'], 0, 3)) }}</p>
+                                            @endif
+                                            @if ($isInDb && $lastSynced)
+                                                <p class="mt-1 text-xs text-zinc-500 dark:text-zinc-400">Last synced: {{ $lastSynced->diffForHumans() }}</p>
+                                            @endif
+                                        </div>
+                                        <div class="shrink-0 flex flex-col gap-1 items-end">
+                                            @if ($isInDb)
+                                                <span class="inline-flex items-center rounded-md bg-zinc-100 dark:bg-zinc-800 px-2 py-1 text-xs font-medium text-zinc-600 dark:text-zinc-400">Already in database</span>
+                                                <flux:button
+                                                    size="sm"
+                                                    variant="ghost"
+                                                    wire:click="addGame({{ json_encode($item['external_id']) }}, {{ json_encode($item['external_source']) }})"
+                                                    wire:loading.attr="disabled"
+                                                    wire:target="addGame"
+                                                >
+                                                    <span wire:loading.remove wire:target="addGame">Update</span>
+                                                    <span wire:loading wire:target="addGame">Updating…</span>
+                                                </flux:button>
+                                            @else
+                                                <flux:button
+                                                    size="sm"
+                                                    wire:click="addGame({{ json_encode($item['external_id']) }}, {{ json_encode($item['external_source']) }})"
+                                                    wire:loading.attr="disabled"
+                                                    wire:target="addGame"
+                                                >
+                                                    <span wire:loading.remove wire:target="addGame">Add to database</span>
+                                                    <span wire:loading wire:target="addGame">Adding…</span>
+                                                </flux:button>
+                                            @endif
+                                        </div>
+                                    </li>
+                                @endforeach
+                            </ul>
+                        @else
+                            <p class="py-4 text-sm text-zinc-500 dark:text-zinc-400">No {{ $sourceLabel }} results.</p>
+                        @endif
+                    </section>
+                @endforeach
             </div>
         @endif
     </div>

@@ -15,6 +15,9 @@ final class RawgGameDataProvider implements GameDataProvider
 {
     private const string BASE_URL = 'https://api.rawg.io/api';
 
+    /** Add-game UI expects at most this many results per source. */
+    private const int SEARCH_LIMIT = 10;
+
     /**
      * @return array<int, array{title: string, slug: string, description: string|null, cover_image: string|null, developer: string|null, publisher: string|null, genres: array, platforms: array, release_date: string|null, release_status: string, external_id: string, external_source: string}>
      */
@@ -28,7 +31,7 @@ final class RawgGameDataProvider implements GameDataProvider
         $params = [
             'key' => $key,
             'search' => $query,
-            'page_size' => 10,
+            'page_size' => self::SEARCH_LIMIT,
         ];
         if ($platform !== null) {
             $params['platforms'] = $platform;
