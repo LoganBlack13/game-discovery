@@ -114,12 +114,12 @@ new class extends Component
         </ul>
         @if ($this->feedData['hasMore'])
             <div class="pt-2">
-                <flux:button wire:click="loadMore" variant="ghost" size="sm" aria-label="Load more updates" class="focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-zinc-900">
+                <button type="button" class="btn btn-ghost btn-sm" wire:click="loadMore" aria-label="Load more updates">
                     Load more
-                </flux:button>
+                </button>
             </div>
         @endif
     @else
-        <p class="text-zinc-500 dark:text-zinc-400">No updates yet. Track some games to see their news and release updates here.</p>
+        <p class="text-base-content/70">No updates yet. Track some games to see their news and release updates here.</p>
     @endif
 </section>

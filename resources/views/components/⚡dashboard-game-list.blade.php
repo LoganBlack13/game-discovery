@@ -178,29 +178,31 @@ new class extends Component
     @else
         <div class="grid gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
             @foreach ($this->games as $game)
-                <flux:card class="border-zinc-200/80 dark:border-white/10 bg-white/90 dark:bg-white/5 backdrop-blur-sm">
-                    <a href="{{ route('games.show', $game) }}" class="block focus:outline-none">
+                <div class="card compact bg-base-200 border border-base-300 shadow-sm overflow-hidden rounded-2xl">
+                    <a href="{{ route('games.show', $game) }}" class="block focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-base-200">
                         @if ($game->cover_image)
-                            <img src="{{ $game->cover_image }}" alt="" class="aspect-[3/4] w-full rounded-lg object-cover" />
+                            <figure class="aspect-[3/4] w-full overflow-hidden">
+                                <img src="{{ $game->cover_image }}" alt="" class="size-full object-cover" />
+                            </figure>
                         @else
-                            <div class="aspect-[3/4] flex w-full items-center justify-center rounded-lg bg-zinc-200 dark:bg-zinc-800">
-                                <span class="font-display text-3xl font-bold text-zinc-400 dark:text-zinc-500">{{ substr($game->title, 0, 1) }}</span>
+                            <div class="aspect-[3/4] flex w-full items-center justify-center bg-base-300">
+                                <span class="font-display text-3xl font-bold text-base-content/40">{{ substr($game->title, 0, 1) }}</span>
                             </div>
                         @endif
-                        <div class="mt-3">
-                            <h2 class="font-display font-semibold text-zinc-900 dark:text-white">{{ $game->title }}</h2>
+                        <div class="card-body gap-0 p-3">
+                            <h2 class="card-title font-display text-base font-semibold text-base-content">{{ $game->title }}</h2>
                             @if ($game->release_date)
-                                <p class="mt-0.5 text-sm text-zinc-500 dark:text-zinc-400">{{ $game->release_date->format('M j, Y') }}</p>
+                                <p class="mt-0.5 text-sm text-base-content/70">{{ $game->release_date->format('M j, Y') }}</p>
                             @endif
                             @if (count($game->platforms) > 0)
-                                <p class="mt-0.5 text-xs text-zinc-500 dark:text-zinc-400">{{ implode(', ', array_slice($game->platforms, 0, 3)) }}</p>
+                                <p class="mt-0.5 text-xs text-base-content/60">{{ implode(', ', array_slice($game->platforms, 0, 3)) }}</p>
                             @endif
                             @if ($game->news->isNotEmpty() && $game->news->first()->published_at)
-                                <p class="mt-1 text-xs text-zinc-500 dark:text-zinc-400">Latest news: {{ $game->news->first()->published_at->format('M j') }}</p>
+                                <p class="mt-1 text-xs text-base-content/60">Latest news: {{ $game->news->first()->published_at->format('M j') }}</p>
                             @endif
                         </div>
                     </a>
-                </flux:card>
+                </div>
             @endforeach
         </div>
     @endif

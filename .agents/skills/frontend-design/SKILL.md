@@ -6,6 +6,8 @@ license: Complete terms in LICENSE.txt
 
 This skill guides creation of distinctive, production-grade frontend interfaces that avoid generic "AI slop" aesthetics. Implement real working code with exceptional attention to aesthetic details and creative choices.
 
+**This project:** User-facing pages (app layout and non-admin views) use **DaisyUI 5** on top of Tailwind v4. When creating or styling components for the app, prefer DaisyUI semantic components and theme variables (btn, card, input, base-content, primary, etc.). Design choices should still follow the aesthetic guidelines below (typography, color, motion, etc.) while using DaisyUI where it fits. Admin pages use Flux and are out of scope for DaisyUI.
+
 The user provides frontend requirements: a component, page, application, or interface to build. They may include context about the purpose, audience, or technical constraints.
 
 ## Design Thinking
