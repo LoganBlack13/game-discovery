@@ -44,15 +44,15 @@ new class extends Component
 ?>
 
 <section aria-label="Recent updates" class="space-y-4">
-    <h2 class="font-display text-lg font-semibold text-zinc-900 dark:text-white sm:text-xl">Recent updates</h2>
-    <p class="text-sm text-zinc-500 dark:text-zinc-400">Latest news and release updates for your tracked games</p>
+    <h2 class="font-display text-lg font-semibold text-base-content sm:text-xl">Recent updates</h2>
+    <p class="text-sm text-base-content/70">Latest news and release updates for your tracked games</p>
 
     <div class="flex flex-wrap items-center gap-2">
-        <label for="feed-filter" class="text-sm font-medium text-zinc-700 dark:text-zinc-300">Show</label>
+        <label for="feed-filter" class="text-sm font-medium text-base-content">Show</label>
         <select
             id="feed-filter"
             wire:model.live="filter"
-            class="rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 focus:border-cyan-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100 dark:focus:border-cyan-400 dark:focus-visible:ring-cyan-400"
+            class="select select-bordered select-sm"
             aria-label="Filter feed"
         >
             <option value="all">All updates</option>
@@ -65,43 +65,43 @@ new class extends Component
         <ul class="flex flex-col gap-4" role="list">
             @foreach ($this->feedData['items'] as $index => $item)
                 <li
-                    class="rounded-xl border border-zinc-200/80 bg-white p-4 shadow-sm transition dark:border-zinc-700 dark:bg-zinc-800/50 dark:shadow-none"
+                    class="rounded-box border border-base-content/10 bg-base-100 p-4 shadow-sm transition"
                     style="animation: feed-item-in 0.35s ease-out both; animation-delay: {{ min($index * 0.05, 0.5) }}s;"
                 >
                     <div class="flex gap-4">
-                        <div class="h-20 w-14 shrink-0 overflow-hidden rounded-lg bg-zinc-200 dark:bg-zinc-700">
+                        <div class="h-20 w-14 shrink-0 overflow-hidden rounded-box bg-base-200">
                             @if ($item['game']->cover_image ?? null)
                                 <img src="{{ $item['game']->cover_image }}" alt="" class="h-full w-full object-cover" />
                             @else
                                 <div class="flex h-full w-full items-center justify-center">
-                                    <span class="font-display text-xl font-bold text-zinc-400 dark:text-zinc-500">{{ substr($item['game']->title ?? '', 0, 1) }}</span>
+                                    <span class="font-display text-xl font-bold text-base-content/40">{{ substr($item['game']->title ?? '', 0, 1) }}</span>
                                 </div>
                             @endif
                         </div>
                         <div class="min-w-0 flex-1">
-                            <p class="font-display text-sm font-semibold text-zinc-900 dark:text-white">{{ $item['game']->title ?? 'Game' }}</p>
+                            <p class="font-display text-sm font-semibold text-base-content">{{ $item['game']->title ?? 'Game' }}</p>
                             @php
                                 $badgeClass = match ($item['type']) {
-                                    'new_article' => 'bg-sky-100 text-sky-800 dark:bg-sky-900/40 dark:text-sky-300',
-                                    'release_date_changed' => 'bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300',
-                                    'release_date_announced' => 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300',
-                                    'game_released' => 'bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-300',
-                                    'major_update' => 'bg-violet-100 text-violet-800 dark:bg-violet-900/40 dark:text-violet-300',
-                                    default => 'bg-zinc-200 text-zinc-700 dark:bg-zinc-600 dark:text-zinc-300',
+                                    'new_article' => 'badge badge-info badge-sm',
+                                    'release_date_changed' => 'badge badge-warning badge-sm',
+                                    'release_date_announced' => 'badge badge-success badge-sm',
+                                    'game_released' => 'badge badge-success badge-sm',
+                                    'major_update' => 'badge badge-secondary badge-sm',
+                                    default => 'badge badge-ghost badge-sm',
                                 };
                             @endphp
-                            <span class="mt-0.5 inline-block rounded px-2 py-0.5 text-xs font-medium {{ $badgeClass }}">{{ $item['type_label'] }}</span>
-                            <p class="mt-1 text-sm text-zinc-600 dark:text-zinc-400" title="{{ $item['title'] }}">{{ $item['title'] }}</p>
+                            <span class="mt-0.5 {{ $badgeClass }}">{{ $item['type_label'] }}</span>
+                            <p class="mt-1 text-sm text-base-content/70" title="{{ $item['title'] }}">{{ $item['title'] }}</p>
                             @if (! empty($item['description']))
-                                <p class="mt-0.5 text-xs text-zinc-500 dark:text-zinc-500">{{ $item['description'] }}</p>
+                                <p class="mt-0.5 text-xs text-base-content/60">{{ $item['description'] }}</p>
                             @endif
-                            <p class="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
+                            <p class="mt-1 text-xs text-base-content/60">
                                 <time datetime="{{ $item['occurred_at']->toIso8601String() }}">{{ $item['occurred_at']->diffForHumans() }}</time>
                             </p>
                             <a
                                 href="{{ $item['url'] }}"
                                 @if ($item['type'] === 'new_article') target="_blank" rel="noopener noreferrer" @endif
-                                class="mt-2 inline-block rounded text-sm font-medium text-cyan-600 hover:text-cyan-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:ring-offset-2 dark:text-cyan-400 dark:hover:text-cyan-300 dark:focus-visible:ring-offset-zinc-900"
+                                class="mt-2 inline-block text-sm font-medium text-primary hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-base-100"
                                 aria-label="{{ $item['type'] === 'new_article' ? 'Read article: ' . $item['title'] : 'View ' . ($item['game']->title ?? 'game') }}"
                                 @if ($item['type'] === 'new_article') title="{{ $item['title'] }}" @endif
                             >

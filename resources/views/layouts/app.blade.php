@@ -1,6 +1,6 @@
 @props(['title' => null])
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" data-theme="dark">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" data-theme="{{ config('themes.default_dark') }}">
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -15,74 +15,84 @@
 
         @livewireStyles
         <script>
+            window.GAME_DISCOVERY_THEMES = @json(config('themes'));
+        </script>
+        <script>
             (function () {
-                const THEMES = ['arcade-night', 'daylight-pastel', 'retro-crt', 'noir-minimal', 'cosmic-fade'];
+                const config = window.GAME_DISCOVERY_THEMES;
+                const slugs = config.themes.map(function (t) { return t.slug; });
                 const stored = localStorage.getItem('game-discovery-theme');
 
                 function resolveThemeSlug(raw) {
                     if (raw === 'system' || !raw) {
                         const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-                        return prefersDark ? 'arcade-night' : 'daylight-pastel';
+                        return prefersDark ? config.default_dark : config.default_light;
                     }
 
                     if (raw === 'dark') {
-                        return 'arcade-night';
+                        return config.default_dark;
                     }
 
                     if (raw === 'light') {
-                        return 'daylight-pastel';
+                        return config.default_light;
                     }
 
-                    return THEMES.includes(raw) ? raw : 'arcade-night';
+                    return slugs.indexOf(raw) !== -1 ? raw : config.default_dark;
+                }
+
+                function themeType(slug) {
+                    const theme = config.themes.find(function (t) { return t.slug === slug; });
+                    return theme && theme.light ? 'light' : 'dark';
                 }
 
                 const effective = resolveThemeSlug(stored);
                 document.documentElement.dataset.theme = effective;
+                document.documentElement.dataset.themeType = themeType(effective);
             })();
         </script>
     </head>
     <body class="antialiased font-sans bg-base-100 text-base-content">
         <div class="min-h-screen flex flex-col">
             <header class="sticky top-0 z-50 shrink-0 px-4 pt-4">
-                <div class="header-bar mx-auto flex h-12 max-w-5xl items-center justify-between gap-6 rounded-full bg-white/[0.06] px-6 py-0 backdrop-blur-[10px] md:justify-between">
+                <div class="header-bar mx-auto flex h-12 max-w-5xl items-center justify-between gap-6 rounded-full bg-base-100/10 px-6 py-0 backdrop-blur-[10px] md:justify-between">
                     <a href="{{ url('/') }}" class="flex shrink-0 items-center" aria-label="{{ config('app.name') }} home">
                         <span class="header-logo flex h-8 w-8 items-center justify-center font-display text-xl font-bold">S</span>
                     </a>
                     <nav class="hidden items-center gap-6 md:flex" aria-label="Main">
-                        <a href="{{ url('/') }}#coming-soon" class="nav-pill-link rounded-full px-3.5 py-1.5 text-base font-medium text-white/[0.85] transition-colors hover:text-white">Games</a>
-                        <a href="{{ url('/') }}#trending" class="nav-pill-link rounded-full px-3.5 py-1.5 text-base font-medium text-white/[0.85] transition-colors hover:text-white">Trending</a>
-                        <a href="{{ url('/') }}#latest-news" class="nav-pill-link rounded-full px-3.5 py-1.5 text-base font-medium text-white/[0.85] transition-colors hover:text-white">News</a>
-                        <a href="{{ url('/') }}#about" class="nav-pill-link rounded-full px-3.5 py-1.5 text-base font-medium text-white/[0.85] transition-colors hover:text-white">About</a>
+                        <a href="{{ url('/') }}#coming-soon" class="nav-pill-link rounded-full px-3.5 py-1.5 text-base font-medium text-base-content/80 transition-colors hover:text-base-content">Games</a>
+                        <a href="{{ url('/') }}#trending" class="nav-pill-link rounded-full px-3.5 py-1.5 text-base font-medium text-base-content/80 transition-colors hover:text-base-content">Trending</a>
+                        <a href="{{ url('/') }}#latest-news" class="nav-pill-link rounded-full px-3.5 py-1.5 text-base font-medium text-base-content/80 transition-colors hover:text-base-content">News</a>
+                        <a href="{{ url('/') }}#about" class="nav-pill-link rounded-full px-3.5 py-1.5 text-base font-medium text-base-content/80 transition-colors hover:text-base-content">About</a>
                     </nav>
                     <div class="flex items-center gap-6">
-                        <button type="button" class="rounded-full p-2 text-white/[0.85] transition-colors hover:bg-white/[0.08] hover:text-white" aria-label="Search games (⌘K)" @click="$dispatch('open-game-search')">
+                        <button type="button" class="rounded-full p-2 text-base-content/80 transition-colors hover:bg-base-100/20 hover:text-base-content" aria-label="Search games (⌘K)" @click="$dispatch('open-game-search')">
                             <svg class="size-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
                             </svg>
                         </button>
                         @auth
-                            <a href="{{ route('dashboard') }}" class="hidden text-base font-medium text-white/[0.85] hover:text-white sm:inline">Dashboard</a>
+                            <a href="{{ route('dashboard') }}" class="hidden text-base font-medium text-base-content/80 hover:text-base-content sm:inline">Dashboard</a>
                             @if(auth()->user()->isAdmin())
-                                <a href="{{ route('admin.dashboard') }}" class="hidden text-base font-medium text-white/[0.85] hover:text-white sm:inline">Admin</a>
+                                <a href="{{ route('admin.dashboard') }}" class="hidden text-base font-medium text-base-content/80 hover:text-base-content sm:inline">Admin</a>
                             @endif
-                            <a href="{{ route('profile.edit') }}" class="hidden text-base font-medium text-white/[0.85] hover:text-white sm:inline">{{ auth()->user()->name }}</a>
+                            <a href="{{ route('profile.edit') }}" class="hidden text-base font-medium text-base-content/80 hover:text-base-content sm:inline">{{ auth()->user()->name }}</a>
                             <form action="{{ url('/logout') }}" method="POST" class="hidden sm:inline">
                                 @csrf
-                                <button type="submit" class="text-base font-medium text-white/[0.85] hover:text-white">Log out</button>
+                                <button type="submit" class="text-base font-medium text-base-content/80 hover:text-base-content">Log out</button>
                             </form>
                         @else
                             <livewire:auth-dropdown />
-                            <a href="{{ url('/register') }}" class="hidden text-base font-medium text-white/[0.85] hover:text-white sm:inline">Register</a>
+                            <a href="{{ url('/register') }}" class="hidden text-base font-medium text-base-content/80 hover:text-base-content sm:inline">Register</a>
                         @endauth
                         <div
-                            class="theme-toggle-pill flex shrink-0 items-center gap-1.5 rounded-full bg-white/[0.08] px-2 py-1.5"
-                            x-data="themeToggle()"
+                            class="theme-toggle-pill flex shrink-0 items-center gap-1.5 rounded-full bg-base-100/10 px-2 py-1.5"
+                            x-data="themeToggle(window.GAME_DISCOVERY_THEMES)"
                             x-init="init()"
                         >
                             <button
                                 type="button"
-                                class="hidden rounded-full px-2 py-1 text-xs font-medium text-white/[0.7] hover:text-white sm:inline-flex"
-                                :class="mode === 'system' ? 'bg-white/15 text-white' : ''"
+                                class="hidden rounded-full px-2 py-1 text-xs font-medium text-base-content/70 hover:text-base-content sm:inline-flex"
+                                :class="mode === 'system' ? 'bg-base-100/20 text-base-content' : ''"
                                 @click="setMode('system')"
                             >
                                 System
@@ -90,7 +100,7 @@
                             <div class="relative" x-data="{ open: false }" x-on:click.outside="open = false">
                                 <button
                                     type="button"
-                                    class="flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium text-white/[0.85] hover:bg-white/[0.12]"
+                                    class="flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium text-base-content/80 hover:bg-base-100/15"
                                     @click="open = !open"
                                     :aria-expanded="open"
                                     aria-haspopup="listbox"
@@ -130,29 +140,29 @@
                             </div>
                         </div>
                         <div class="relative md:hidden" x-data="{ open: false }" x-on:click.outside="open = false">
-                            <button type="button" class="rounded-full p-2 text-white/[0.85] hover:bg-white/[0.08] hover:text-white" aria-label="Open menu" :aria-expanded="open" @click="open = !open">
+                            <button type="button" class="rounded-full p-2 text-base-content/80 hover:bg-base-100/20 hover:text-base-content" aria-label="Open menu" :aria-expanded="open" @click="open = !open">
                                 <svg class="size-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" /></svg>
                             </button>
                             <div class="fixed inset-0 top-[72px] z-40 bg-black/50 backdrop-blur-sm" x-show="open" x-cloak x-transition @click="open = false"></div>
-                            <div class="fixed left-4 right-4 top-[72px] z-50 rounded-2xl border border-white/10 bg-[#0a0f12] p-4 shadow-xl" x-show="open" x-cloak x-transition>
+                            <div class="fixed left-4 right-4 top-[72px] z-50 rounded-2xl border border-base-content/10 bg-base-950 p-4 shadow-xl" x-show="open" x-cloak x-transition>
                                 <nav class="flex flex-col gap-1" aria-label="Main">
-                                    <a href="{{ url('/') }}#coming-soon" class="rounded-full px-3.5 py-2.5 text-base font-medium text-white/[0.85] hover:bg-white/[0.08] hover:text-white" @click="open = false">Games</a>
-                                    <a href="{{ url('/') }}#trending" class="rounded-full px-3.5 py-2.5 text-base font-medium text-white/[0.85] hover:bg-white/[0.08] hover:text-white" @click="open = false">Trending</a>
-                                    <a href="{{ url('/') }}#latest-news" class="rounded-full px-3.5 py-2.5 text-base font-medium text-white/[0.85] hover:bg-white/[0.08] hover:text-white" @click="open = false">News</a>
-                                    <a href="{{ url('/') }}#about" class="rounded-full px-3.5 py-2.5 text-base font-medium text-white/[0.85] hover:bg-white/[0.08] hover:text-white" @click="open = false">About</a>
+                                    <a href="{{ url('/') }}#coming-soon" class="rounded-full px-3.5 py-2.5 text-base font-medium text-base-content/80 hover:bg-base-100/10 hover:text-base-content" @click="open = false">Games</a>
+                                    <a href="{{ url('/') }}#trending" class="rounded-full px-3.5 py-2.5 text-base font-medium text-base-content/80 hover:bg-base-100/10 hover:text-base-content" @click="open = false">Trending</a>
+                                    <a href="{{ url('/') }}#latest-news" class="rounded-full px-3.5 py-2.5 text-base font-medium text-base-content/80 hover:bg-base-100/10 hover:text-base-content" @click="open = false">News</a>
+                                    <a href="{{ url('/') }}#about" class="rounded-full px-3.5 py-2.5 text-base font-medium text-base-content/80 hover:bg-base-100/10 hover:text-base-content" @click="open = false">About</a>
                                 </nav>
                                 @auth
-                                    <div class="mt-3 flex flex-col gap-1 border-t border-white/10 pt-3">
-                                        <a href="{{ route('dashboard') }}" class="rounded-full px-3.5 py-2.5 text-base font-medium text-white/[0.85] hover:bg-white/[0.08]" @click="open = false">Dashboard</a>
+                                    <div class="mt-3 flex flex-col gap-1 border-t border-base-content/10 pt-3">
+                                        <a href="{{ route('dashboard') }}" class="rounded-full px-3.5 py-2.5 text-base font-medium text-base-content/80 hover:bg-base-100/10" @click="open = false">Dashboard</a>
                                         @if(auth()->user()->isAdmin())
-                                            <a href="{{ route('admin.dashboard') }}" class="rounded-full px-3.5 py-2.5 text-base font-medium text-white/[0.85] hover:bg-white/[0.08]" @click="open = false">Admin</a>
+                                            <a href="{{ route('admin.dashboard') }}" class="rounded-full px-3.5 py-2.5 text-base font-medium text-base-content/80 hover:bg-base-100/10" @click="open = false">Admin</a>
                                         @endif
-                                        <a href="{{ route('profile.edit') }}" class="rounded-full px-3.5 py-2.5 text-base font-medium text-white/[0.85] hover:bg-white/[0.08]" @click="open = false">{{ auth()->user()->name }}</a>
-                                        <form action="{{ url('/logout') }}" method="POST">@csrf<button type="submit" class="w-full rounded-full px-3.5 py-2.5 text-left text-base font-medium text-white/[0.85] hover:bg-white/[0.08]">Log out</button></form>
+                                        <a href="{{ route('profile.edit') }}" class="rounded-full px-3.5 py-2.5 text-base font-medium text-base-content/80 hover:bg-base-100/10" @click="open = false">{{ auth()->user()->name }}</a>
+                                        <form action="{{ url('/logout') }}" method="POST">@csrf<button type="submit" class="w-full rounded-full px-3.5 py-2.5 text-left text-base font-medium text-base-content/80 hover:bg-base-100/10">Log out</button></form>
                                     </div>
                                 @else
-                                    <div class="mt-3 border-t border-white/10 pt-3">
-                                        <a href="{{ url('/register') }}" class="block rounded-full px-3.5 py-2.5 text-base font-medium text-white/[0.85] hover:bg-white/[0.08]" @click="open = false">Register</a>
+                                    <div class="mt-3 border-t border-base-content/10 pt-3">
+                                        <a href="{{ url('/register') }}" class="block rounded-full px-3.5 py-2.5 text-base font-medium text-base-content/80 hover:bg-base-100/10" @click="open = false">Register</a>
                                     </div>
                                 @endauth
                             </div>
@@ -187,17 +197,13 @@
 
         @livewireScripts
         <script>
-            function themeToggle() {
+            function themeToggle(config) {
                 return {
                     mode: 'system',
-                    effectiveTheme: 'arcade-night',
-                    themes: [
-                        { slug: 'arcade-night', label: 'Arcade night', swatch: '#0f172a' },
-                        { slug: 'daylight-pastel', label: 'Daylight pastel', swatch: '#e0f2f1' },
-                        { slug: 'retro-crt', label: 'Retro CRT', swatch: '#0b1020' },
-                        { slug: 'noir-minimal', label: 'Noir minimal', swatch: '#020617' },
-                        { slug: 'cosmic-fade', label: 'Cosmic fade', swatch: '#020617' },
-                    ],
+                    effectiveTheme: config.default_dark,
+                    themes: config.themes,
+                    defaultDark: config.default_dark,
+                    defaultLight: config.default_light,
                     init() {
                         const stored = localStorage.getItem('game-discovery-theme');
                         if (stored === 'system' || !stored) {
@@ -216,30 +222,36 @@
                             }
                         });
                     },
+                    themeType(slug) {
+                        const theme = this.themes.find((t) => t.slug === slug);
+                        return theme && theme.light ? 'light' : 'dark';
+                    },
                     updateEffectiveFromStorage(raw) {
                         const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
                         let slug;
 
                         if (!raw || raw === 'system') {
-                            slug = prefersDark ? 'arcade-night' : 'daylight-pastel';
+                            slug = prefersDark ? this.defaultDark : this.defaultLight;
                         } else if (raw === 'dark') {
-                            slug = 'arcade-night';
+                            slug = this.defaultDark;
                         } else if (raw === 'light') {
-                            slug = 'daylight-pastel';
+                            slug = this.defaultLight;
                         } else if (this.themes.find((t) => t.slug === raw)) {
                             slug = raw;
                         } else {
-                            slug = prefersDark ? 'arcade-night' : 'daylight-pastel';
+                            slug = prefersDark ? this.defaultDark : this.defaultLight;
                         }
 
                         this.effectiveTheme = slug;
                         document.documentElement.dataset.theme = slug;
+                        document.documentElement.dataset.themeType = this.themeType(slug);
                     },
                     setTheme(slug) {
                         this.mode = 'explicit';
                         this.effectiveTheme = slug;
                         localStorage.setItem('game-discovery-theme', slug);
                         document.documentElement.dataset.theme = slug;
+                        document.documentElement.dataset.themeType = this.themeType(slug);
                     },
                     setMode(value) {
                         this.mode = value;
@@ -250,7 +262,7 @@
                     },
                     labelForTheme(slug) {
                         const theme = this.themes.find((t) => t.slug === slug);
-                        return theme ? theme.label : 'Arcade night';
+                        return theme ? theme.label : this.themes[0].label;
                     },
                 };
             }

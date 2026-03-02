@@ -65,7 +65,7 @@
             <div class="flex items-center gap-2">
                 <button
                     type="button"
-                    class="btn btn-ghost btn-xs rounded-full border border-base-content/10 bg-base-100/40 text-base-content/80 hover:bg-base-100/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-base-100"
+                    class="btn btn-ghost btn-xs rounded-btn border border-base-content/10 bg-base-100/40 text-base-content/80 hover:bg-base-100/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-base-100"
                     aria-label="Scroll {{ strtolower($title) }} left"
                     x-on:click.prevent="scrollBy('left')"
                 >
@@ -75,7 +75,7 @@
                 </button>
                 <button
                     type="button"
-                    class="btn btn-ghost btn-xs rounded-full border border-base-content/10 bg-base-100/40 text-base-content/80 hover:bg-base-100/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-base-100"
+                    class="btn btn-ghost btn-xs rounded-btn border border-base-content/10 bg-base-100/40 text-base-content/80 hover:bg-base-100/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-base-100"
                     aria-label="Scroll {{ strtolower($title) }} right"
                     x-on:click.prevent="scrollBy('right')"
                 >

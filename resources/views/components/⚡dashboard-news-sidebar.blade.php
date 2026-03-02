@@ -46,21 +46,21 @@ new class extends Component
 ?>
 
 <section aria-label="Latest news" class="space-y-4">
-    <h2 class="font-display text-lg font-semibold text-zinc-900 dark:text-white sm:text-xl">Latest news</h2>
+    <h2 class="font-display text-lg font-semibold text-base-content sm:text-xl">Latest news</h2>
 
     @if ($this->items['items']->isEmpty())
-        <p class="text-sm text-zinc-500 dark:text-zinc-400">No news yet for your tracked games.</p>
+        <p class="text-sm text-base-content/70">No news yet for your tracked games.</p>
     @else
         <ul class="flex max-h-[calc(100vh-8rem)] flex-col gap-3 overflow-y-auto pr-1" role="list">
             @foreach ($this->items['items'] as $item)
-                <li class="shrink-0 rounded-lg border border-zinc-200/80 bg-white p-3 dark:border-zinc-700 dark:bg-zinc-800/50">
+                <li class="shrink-0 rounded-box border border-base-content/10 bg-base-100 p-3">
                     <div class="flex gap-3">
-                        <div class="h-14 w-10 shrink-0 overflow-hidden rounded-lg bg-zinc-200 dark:bg-zinc-700">
+                        <div class="h-14 w-10 shrink-0 overflow-hidden rounded-box bg-base-200">
                             @if ($item->game->cover_image)
                                 <img src="{{ $item->game->cover_image }}" alt="" class="h-full w-full object-cover" />
                             @else
                                 <div class="flex h-full w-full items-center justify-center">
-                                    <span class="font-display text-lg font-bold text-zinc-400 dark:text-zinc-500">{{ substr($item->game->title ?? '', 0, 1) }}</span>
+                                    <span class="font-display text-lg font-bold text-base-content/40">{{ substr($item->game->title ?? '', 0, 1) }}</span>
                                 </div>
                             @endif
                         </div>
@@ -69,15 +69,15 @@ new class extends Component
                                 href="{{ $item->url }}"
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                class="block focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-zinc-900"
+                                class="block focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-base-100"
                                 title="{{ $item->title }}"
                             >
-                                <p class="font-medium text-zinc-900 dark:text-white line-clamp-2">{{ $item->title }}</p>
+                                <p class="font-medium text-base-content line-clamp-2">{{ $item->title }}</p>
                             </a>
-                            <p class="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
+                            <p class="mt-1 text-xs text-base-content/60">
                                 <a
                                     href="{{ route('games.show', $item->game) }}"
-                                    class="hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500"
+                                    class="hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-primary"
                                 >
                                     {{ $item->game->title }}
                                 </a>

@@ -43,7 +43,7 @@ new class extends Component
         <ul class="flex flex-col" role="list">
             @foreach ($this->items['items'] as $item)
                 <li class="flex gap-4 border-b border-base-content/10 py-4 first:pt-0 last:border-b-0">
-                    <div class="size-14 shrink-0 overflow-hidden rounded-lg bg-base-300">
+                    <div class="size-14 shrink-0 overflow-hidden rounded-box bg-base-300">
                         @if ($item->thumbnail)
                             <img src="{{ $item->thumbnail }}" alt="" class="size-full object-cover" />
                         @elseif ($item->game?->cover_image)

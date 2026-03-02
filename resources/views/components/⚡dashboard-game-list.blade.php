@@ -75,10 +75,10 @@ new class extends Component
             @if ($heroGame)
                 <a
                     href="{{ route('games.show', $heroGame) }}"
-                    class="group relative mb-6 block overflow-hidden rounded-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-zinc-950"
+                    class="group relative mb-6 block overflow-hidden rounded-box focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-base-100"
                     aria-label="{{ $heroGame->title }} — view game"
                 >
-                    <div class="relative min-h-[14rem] w-full overflow-hidden rounded-xl bg-zinc-900 sm:min-h-[18rem]">
+                    <div class="relative min-h-[14rem] w-full overflow-hidden rounded-box bg-base-950 sm:min-h-[18rem]">
                         @if ($heroGame->cover_image)
                             <img
                                 src="{{ $heroGame->cover_image }}"
@@ -86,13 +86,13 @@ new class extends Component
                                 class="absolute inset-0 h-full w-full object-cover transition duration-300 group-hover:scale-105"
                             />
                         @endif
-                        <div class="absolute inset-0 bg-gradient-to-b from-transparent via-zinc-900/60 to-zinc-950" aria-hidden="true"></div>
-                        <div class="absolute inset-0 bg-zinc-900/50 dark:bg-zinc-900/80" aria-hidden="true"></div>
+                        <div class="absolute inset-0 bg-gradient-to-b from-transparent via-base-content/60 to-base-950" aria-hidden="true"></div>
+                        <div class="absolute inset-0 bg-base-950/50" aria-hidden="true"></div>
                         <div class="relative flex min-h-[14rem] flex-col justify-end p-6 sm:min-h-[18rem] sm:p-8">
-                            <p class="text-xs font-medium uppercase tracking-wider text-cyan-200/90 dark:text-cyan-300/90">Until release</p>
+                            <p class="text-xs font-medium uppercase tracking-wider text-primary-content/90">Until release</p>
                             @if ($heroGame->release_date && $heroGame->release_date->isFuture())
                                 <div
-                                    class="mt-1 font-mono text-3xl font-bold tabular-nums text-white sm:text-4xl"
+                                    class="mt-1 font-mono text-3xl font-bold tabular-nums text-base-content sm:text-4xl"
                                     data-countdown
                                     data-release-iso="{{ $heroGame->release_date->toIso8601String() }}"
                                     role="timer"
@@ -101,7 +101,7 @@ new class extends Component
                                     <span data-countdown-display>—</span>
                                 </div>
                             @endif
-                            <h2 class="mt-3 font-display text-xl font-semibold text-white drop-shadow-md sm:text-2xl md:text-3xl">
+                            <h2 class="mt-3 font-display text-xl font-semibold text-base-content drop-shadow-md sm:text-2xl md:text-3xl">
                                 {{ $heroGame->title }}
                             </h2>
                         </div>
@@ -142,11 +142,11 @@ new class extends Component
         </section>
     @endif
     <section aria-label="All tracked games">
-        <h2 class="font-display text-lg font-semibold text-zinc-900 dark:text-white sm:text-xl">All tracked games</h2>
+        <h2 class="font-display text-lg font-semibold text-base-content sm:text-xl">All tracked games</h2>
     <div class="mb-6 mt-4 flex flex-wrap items-center gap-4">
         <div class="flex items-center gap-2">
-            <label for="dashboard-sort" class="text-sm font-medium text-zinc-700 dark:text-zinc-300">Sort</label>
-            <select id="dashboard-sort" wire:model.live="sort" class="rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100">
+            <label for="dashboard-sort" class="text-sm font-medium text-base-content">Sort</label>
+            <select id="dashboard-sort" wire:model.live="sort" class="select select-bordered select-sm">
                 <option value="release_date">Release date (newest)</option>
                 <option value="recently_added">Recently added</option>
                 <option value="alphabetical">Alphabetical</option>
@@ -154,8 +154,8 @@ new class extends Component
             </select>
         </div>
         <div class="flex items-center gap-2">
-            <label for="dashboard-filter" class="text-sm font-medium text-zinc-700 dark:text-zinc-300">Filter</label>
-            <select id="dashboard-filter" wire:model.live="filter" class="rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100">
+            <label for="dashboard-filter" class="text-sm font-medium text-base-content">Filter</label>
+            <select id="dashboard-filter" wire:model.live="filter" class="select select-bordered select-sm">
                 <option value="">All</option>
                 <option value="released">Released</option>
                 <option value="upcoming">Upcoming</option>
@@ -163,8 +163,8 @@ new class extends Component
             </select>
         </div>
         <div class="flex items-center gap-2">
-            <label for="dashboard-platform" class="text-sm font-medium text-zinc-700 dark:text-zinc-300">Platform</label>
-            <select id="dashboard-platform" wire:model.live="platform" class="rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100">
+            <label for="dashboard-platform" class="text-sm font-medium text-base-content">Platform</label>
+            <select id="dashboard-platform" wire:model.live="platform" class="select select-bordered select-sm">
                 <option value="">All platforms</option>
                 <option value="PC">PC</option>
                 <option value="PlayStation">PlayStation</option>
@@ -174,11 +174,11 @@ new class extends Component
         </div>
     </div>
     @if ($this->games->isEmpty())
-        <p class="text-zinc-600 dark:text-zinc-400">You haven’t tracked any games yet. <a href="{{ url('/') }}" class="underline hover:no-underline">Discover games</a> and tap “Track game” on any title.</p>
+        <p class="text-base-content/70">You haven’t tracked any games yet. <a href="{{ url('/') }}" class="underline hover:no-underline">Discover games</a> and tap “Track game” on any title.</p>
     @else
         <div class="grid gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
             @foreach ($this->games as $game)
-                <div class="card compact bg-base-200 border border-base-300 shadow-sm overflow-hidden rounded-2xl">
+                <div class="card compact bg-base-200 border border-base-content/10 shadow-sm overflow-hidden rounded-box">
                     <a href="{{ route('games.show', $game) }}" class="block focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-base-200">
                         @if ($game->cover_image)
                             <figure class="aspect-[3/4] w-full overflow-hidden">

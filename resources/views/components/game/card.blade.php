@@ -9,7 +9,7 @@
     $statusText = $status ?? ($game->release_date?->format('M j, Y'));
     $platforms = is_array($game->platforms ?? null) ? $game->platforms : [];
 
-    $baseClasses = 'card bg-base-300 border border-base-300 text-base-content rounded-2xl transition-all duration-200 hover:-translate-y-0.5 hover:border-primary hover:shadow-primary/20 hover:ring-2 hover:ring-primary/50 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-base-100';
+    $baseClasses = 'card bg-base-300 border border-base-content/10 text-base-content rounded-box transition-all duration-200 hover:-translate-y-0.5 hover:border-primary hover:shadow-primary/20 hover:ring-2 hover:ring-primary/50 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-base-100';
     $variants = [
         'default' => 'w-[280px] min-w-[280px] max-w-[280px] shadow-xl shrink-0',
         'compact' => 'w-[280px] min-w-[280px] max-w-[280px] shadow-md shrink-0',

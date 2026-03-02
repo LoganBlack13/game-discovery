@@ -1,5 +1,7 @@
 @import "tailwindcss";
-@plugin "daisyui";
+@plugin "daisyui" {
+  themes: arcade-night --default --prefersdark, daylight-pastel, retro-crt, noir-minimal, cosmic-fade;
+}
 
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../storage/framework/views/*.php';
@@ -7,7 +9,7 @@
 @source "../**/*.js";
 @source "../**/*.vue";
 
-@custom-variant dark (&:where(.dark, .dark *));
+@custom-variant dark (&:where([data-theme=arcade-night], [data-theme=arcade-night] *, [data-theme=retro-crt], [data-theme=retro-crt] *, [data-theme=noir-minimal], [data-theme=noir-minimal] *, [data-theme=cosmic-fade], [data-theme=cosmic-fade] *));
 
 @theme {
   --font-sans: "DM Sans", ui-sans-serif, system-ui, sans-serif;
@@ -16,12 +18,15 @@
   --color-accent-foreground: oklch(0.99 0 0);
 }
 
-/* === DaisyUI themes (semantic colors) === */
+/* === DaisyUI themes (generator-compatible) === */
 
-/* Arcade Night – default dark control center */
-[data-theme="arcade-night"],
-[data-theme="dark"] {
-  --color-primary: oklch(0.72 0.15 195); /* cyan/teal */
+@plugin "daisyui/theme" {
+  name: "arcade-night";
+  default: true;
+  prefersdark: true;
+  color-scheme: dark;
+
+  --color-primary: oklch(0.72 0.15 195);
   --color-primary-content: oklch(0.99 0 0);
   --color-secondary: oklch(0.73 0.19 308);
   --color-secondary-content: oklch(0.99 0 0);
@@ -43,11 +48,23 @@
   --color-warning-content: oklch(0.18 0.05 80);
   --color-error: oklch(0.65 0.25 25);
   --color-error-content: oklch(0.16 0.04 25);
+
+  --radius-selector: 0.25rem;
+  --radius-field: 0.25rem;
+  --radius-box: 0.5rem;
+  --size-selector: 0.25rem;
+  --size-field: 0.25rem;
+  --border: 1px;
+  --depth: 1;
+  --noise: 0;
 }
 
-/* Daylight Pastel – soft light theme */
-[data-theme="daylight-pastel"],
-[data-theme="light"] {
+@plugin "daisyui/theme" {
+  name: "daylight-pastel";
+  default: false;
+  prefersdark: false;
+  color-scheme: light;
+
   --color-primary: oklch(0.78 0.13 190);
   --color-primary-content: oklch(0.18 0.04 190);
   --color-secondary: oklch(0.82 0.13 320);
@@ -70,13 +87,26 @@
   --color-warning-content: oklch(0.24 0.06 80);
   --color-error: oklch(0.7 0.24 25);
   --color-error-content: oklch(0.18 0.06 25);
+
+  --radius-selector: 0.25rem;
+  --radius-field: 0.25rem;
+  --radius-box: 0.5rem;
+  --size-selector: 0.25rem;
+  --size-field: 0.25rem;
+  --border: 1px;
+  --depth: 1;
+  --noise: 0;
 }
 
-/* Retro CRT – amber/green on dark */
-[data-theme="retro-crt"] {
-  --color-primary: oklch(0.78 0.2 110); /* phosphor green */
+@plugin "daisyui/theme" {
+  name: "retro-crt";
+  default: false;
+  prefersdark: false;
+  color-scheme: dark;
+
+  --color-primary: oklch(0.78 0.2 110);
   --color-primary-content: oklch(0.16 0.05 110);
-  --color-secondary: oklch(0.8 0.18 70); /* amber */
+  --color-secondary: oklch(0.8 0.18 70);
   --color-secondary-content: oklch(0.18 0.06 70);
   --color-accent: oklch(0.73 0.16 145);
   --color-accent-content: oklch(0.14 0.04 145);
@@ -96,10 +126,23 @@
   --color-warning-content: oklch(0.22 0.07 70);
   --color-error: oklch(0.66 0.25 25);
   --color-error-content: oklch(0.18 0.06 25);
+
+  --radius-selector: 0.25rem;
+  --radius-field: 0.25rem;
+  --radius-box: 0.5rem;
+  --size-selector: 0.25rem;
+  --size-field: 0.25rem;
+  --border: 1px;
+  --depth: 1;
+  --noise: 0;
 }
 
-/* Noir Minimal – high contrast monochrome with teal accent */
-[data-theme="noir-minimal"] {
+@plugin "daisyui/theme" {
+  name: "noir-minimal";
+  default: false;
+  prefersdark: false;
+  color-scheme: dark;
+
   --color-primary: oklch(0.74 0.11 190);
   --color-primary-content: oklch(0.16 0.03 190);
   --color-secondary: oklch(0.7 0.02 260);
@@ -122,10 +165,23 @@
   --color-warning-content: oklch(0.22 0.06 80);
   --color-error: oklch(0.68 0.23 25);
   --color-error-content: oklch(0.18 0.05 25);
+
+  --radius-selector: 0.25rem;
+  --radius-field: 0.25rem;
+  --radius-box: 0.5rem;
+  --size-selector: 0.25rem;
+  --size-field: 0.25rem;
+  --border: 1px;
+  --depth: 1;
+  --noise: 0;
 }
 
-/* Cosmic Fade – deep space purples/blues */
-[data-theme="cosmic-fade"] {
+@plugin "daisyui/theme" {
+  name: "cosmic-fade";
+  default: false;
+  prefersdark: false;
+  color-scheme: dark;
+
   --color-primary: oklch(0.75 0.15 280);
   --color-primary-content: oklch(0.16 0.04 280);
   --color-secondary: oklch(0.7 0.13 320);
@@ -148,6 +204,86 @@
   --color-warning-content: oklch(0.22 0.06 80);
   --color-error: oklch(0.7 0.25 25);
   --color-error-content: oklch(0.18 0.06 25);
+
+  --radius-selector: 0.25rem;
+  --radius-field: 0.25rem;
+  --radius-box: 0.5rem;
+  --size-selector: 0.25rem;
+  --size-field: 0.25rem;
+  --border: 1px;
+  --depth: 1;
+  --noise: 0;
+}
+
+
+@plugin "daisyui/theme" {
+  name: "walkingnova";
+  default: false;
+  prefersdark: false;
+  color-scheme: "light";
+  --color-base-100: oklch(97% 0.014 343.198);
+  --color-base-200: oklch(94% 0.028 342.258);
+  --color-base-300: oklch(89% 0.061 343.231);
+  --color-base-content: oklch(40% 0.153 2.432);
+  --color-primary: oklch(79% 0.184 86.047);
+  --color-primary-content: oklch(98% 0.026 102.212);
+  --color-secondary: oklch(66% 0.295 322.15);
+  --color-secondary-content: oklch(97% 0.017 320.058);
+  --color-accent: oklch(70% 0.14 182.503);
+  --color-accent-content: oklch(98% 0.014 180.72);
+  --color-neutral: oklch(52% 0.223 3.958);
+  --color-neutral-content: oklch(97% 0.014 343.198);
+  --color-info: oklch(71% 0.143 215.221);
+  --color-info-content: oklch(98% 0.019 200.873);
+  --color-success: oklch(70% 0.14 182.503);
+  --color-success-content: oklch(98% 0.014 180.72);
+  --color-warning: oklch(76% 0.188 70.08);
+  --color-warning-content: oklch(98% 0.022 95.277);
+  --color-error: oklch(65% 0.241 354.308);
+  --color-error-content: oklch(97% 0.014 343.198);
+  --radius-selector: 1rem;
+  --radius-field: 2rem;
+  --radius-box: 1rem;
+  --size-selector: 0.25rem;
+  --size-field: 0.25rem;
+  --border: 1px;
+  --depth: 1;
+  --noise: 1;
+}
+
+@plugin "daisyui/theme" {
+  name: "cyberpunk";
+  default: false;
+  prefersdark: false;
+  color-scheme: "light";
+  --color-base-100: oklch(94.51% 0.179 104.32);
+  --color-base-200: oklch(91.51% 0.179 104.32);
+  --color-base-300: oklch(85.51% 0.179 104.32);
+  --color-base-content: oklch(0% 0 0);
+  --color-primary: oklch(74.22% 0.209 6.35);
+  --color-primary-content: oklch(14.844% 0.041 6.35);
+  --color-secondary: oklch(83.33% 0.184 204.72);
+  --color-secondary-content: oklch(16.666% 0.036 204.72);
+  --color-accent: oklch(71.86% 0.217 310.43);
+  --color-accent-content: oklch(14.372% 0.043 310.43);
+  --color-neutral: oklch(23.04% 0.065 269.31);
+  --color-neutral-content: oklch(94.51% 0.179 104.32);
+  --color-info: oklch(72.06% 0.191 231.6);
+  --color-info-content: oklch(0% 0 0);
+  --color-success: oklch(64.8% 0.15 160);
+  --color-success-content: oklch(0% 0 0);
+  --color-warning: oklch(84.71% 0.199 83.87);
+  --color-warning-content: oklch(0% 0 0);
+  --color-error: oklch(71.76% 0.221 22.18);
+  --color-error-content: oklch(0% 0 0);
+  --radius-selector: 0rem;
+  --radius-field: 0rem;
+  --radius-box: 0rem;
+  --size-selector: 0.25rem;
+  --size-field: 0.25rem;
+  --border: 1px;
+  --depth: 0;
+  --noise: 0;
 }
 
 @keyframes welcome-fade-up {
@@ -244,8 +380,7 @@
   opacity: 0.04;
   pointer-events: none;
 }
-[data-theme="light"] .homepage-full-bg-layer,
-[data-theme="daylight-pastel"] .homepage-full-bg-layer {
+[data-theme-type="light"] .homepage-full-bg-layer {
   background-image:
     radial-gradient(2px 2px at 20% 30%, rgba(13, 148, 136, 0.2), transparent),
     radial-gradient(2px 2px at 40% 70%, rgba(13, 148, 136, 0.15), transparent),
@@ -269,90 +404,59 @@
     100% 100%,
     100% 100%;
 }
-[data-theme="light"] .homepage-full-bg-layer::before,
-[data-theme="daylight-pastel"] .homepage-full-bg-layer::before {
+[data-theme-type="light"] .homepage-full-bg-layer::before {
   opacity: 0.06;
 }
-/* Hero title glow */
+/* Hero tile: image overlay glow (theme primary) */
+.hero-tile-image-glow {
+  background-image: radial-gradient(
+    circle at top,
+    color-mix(in srgb, var(--color-primary) 20%, transparent),
+    transparent 55%
+  );
+}
+
+/* Hero title glow (theme base-content) */
 .hero-title-glow {
-  text-shadow: 0 0 20px rgba(255, 255, 255, 0.15);
+  text-shadow: 0 0 20px color-mix(in srgb, var(--color-base-content) 15%, transparent);
 }
-/* Primary CTA per spec */
-.btn-hero-primary {
-  background: #2fd6c4;
-  color: #083434;
-  border-radius: 10px;
-  padding: 14px 26px;
-  font-size: 16px;
-  font-weight: 600;
-  border: none;
-  box-shadow: 0 10px 30px rgba(47, 214, 196, 0.35);
-  transition: transform 0.2s ease, filter 0.2s ease;
-}
-.btn-hero-primary:hover {
-  transform: translateY(-1px);
-  filter: brightness(1.1);
-}
-/* Secondary CTA per spec */
-.btn-hero-secondary {
-  font-size: 16px;
-  color: rgba(255, 255, 255, 0.85);
-  text-decoration: underline;
-  transition: color 0.2s ease;
-}
-.btn-hero-secondary:hover {
-  color: white;
-}
-/* Header nav: active item pill */
+/* Header nav: active item pill (theme-aware) */
 .nav-pill-link.router-link-active,
 .nav-pill-link[aria-current="page"] {
-  background: rgba(255, 255, 255, 0.08);
+  background: color-mix(in srgb, var(--color-base-content) 8%, transparent);
 }
 /* Header logo: teal accent per spec */
 .header-logo {
-  color: #2fd6c4;
+  color: var(--color-primary);
 }
-/* Light-ish themes: header bar readable on light background */
-[data-theme="light"] .header-bar,
-[data-theme="daylight-pastel"] .header-bar {
-  background: rgba(0, 0, 0, 0.06);
+/* Light themes: header bar readable on light background */
+[data-theme-type="light"] .header-bar {
+  background: color-mix(in srgb, var(--color-base-content) 6%, transparent);
 }
-[data-theme="light"] .header-bar .nav-pill-link,
-[data-theme="light"] .header-bar .header-logo,
-[data-theme="light"] .header-bar a,
-[data-theme="light"] .header-bar button,
-[data-theme="daylight-pastel"] .header-bar .nav-pill-link,
-[data-theme="daylight-pastel"] .header-bar .header-logo,
-[data-theme="daylight-pastel"] .header-bar a,
-[data-theme="daylight-pastel"] .header-bar button {
-  color: rgba(0, 0, 0, 0.85);
+[data-theme-type="light"] .header-bar .nav-pill-link,
+[data-theme-type="light"] .header-bar .header-logo,
+[data-theme-type="light"] .header-bar a,
+[data-theme-type="light"] .header-bar button {
+  color: var(--color-base-content);
 }
-[data-theme="light"] .header-bar .nav-pill-link:hover,
-[data-theme="light"] .header-bar a:hover,
-[data-theme="light"] .header-bar button:hover,
-[data-theme="daylight-pastel"] .header-bar .nav-pill-link:hover,
-[data-theme="daylight-pastel"] .header-bar a:hover,
-[data-theme="daylight-pastel"] .header-bar button:hover {
-  color: #000;
+[data-theme-type="light"] .header-bar .nav-pill-link:hover,
+[data-theme-type="light"] .header-bar a:hover,
+[data-theme-type="light"] .header-bar button:hover {
+  color: var(--color-base-content);
 }
-[data-theme="light"] .header-bar .header-logo,
-[data-theme="daylight-pastel"] .header-bar .header-logo {
-  color: #0d9488;
+[data-theme-type="light"] .header-bar .header-logo {
+  color: var(--color-primary);
 }
-[data-theme="light"] .header-bar .nav-pill-link.router-link-active,
-[data-theme="light"] .header-bar .nav-pill-link[aria-current="page"],
-[data-theme="daylight-pastel"] .header-bar .nav-pill-link.router-link-active,
-[data-theme="daylight-pastel"] .header-bar .nav-pill-link[aria-current="page"] {
-  background: rgba(0, 0, 0, 0.08);
+[data-theme-type="light"] .header-bar .nav-pill-link.router-link-active,
+[data-theme-type="light"] .header-bar .nav-pill-link[aria-current="page"] {
+  background: color-mix(in srgb, var(--color-base-content) 8%, transparent);
 }
-[data-theme="light"] .header-bar .theme-toggle-pill,
-[data-theme="daylight-pastel"] .header-bar .theme-toggle-pill {
-  background: rgba(0, 0, 0, 0.08);
+[data-theme-type="light"] .header-bar .theme-toggle-pill {
+  background: color-mix(in srgb, var(--color-base-content) 8%, transparent);
 }
-[data-theme="light"] .header-bar .theme-toggle-pill button:hover,
-[data-theme="daylight-pastel"] .header-bar .theme-toggle-pill button:hover {
-  background: rgba(0, 0, 0, 0.12);
-  color: #000;
+[data-theme-type="light"] .header-bar .theme-toggle-pill button:hover {
+  background: color-mix(in srgb, var(--color-base-content) 12%, transparent);
+  color: var(--color-base-content);
 }
 
 @keyframes admin-result-in {

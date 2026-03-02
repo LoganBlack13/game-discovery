@@ -87,7 +87,7 @@ new #[Title('Discover your next game')] class extends Component
             <div class="mt-4">
                 <a
                     href="#trending"
-                    class="btn btn-primary btn-sm rounded-full px-5 font-medium"
+                    class="btn btn-primary btn-sm rounded-btn px-5 font-medium"
                 >
                     Explore games
                 </a>

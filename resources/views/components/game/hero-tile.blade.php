@@ -9,7 +9,7 @@
     $platforms = is_array($game->platforms ?? null) ? $game->platforms : [];
 ?>
 
-<article {{ $attributes->class('relative overflow-hidden rounded-3xl bg-base-300 text-base-content shadow-2xl ring-1 ring-base-content/10') }}>
+<article {{ $attributes->class('relative overflow-hidden rounded-box bg-base-300 text-base-content shadow-2xl ring-1 ring-base-content/10') }}>
     <div class="relative grid gap-0 lg:grid-cols-[minmax(0,2fr)_minmax(0,1.2fr)]">
         <div class="relative overflow-hidden">
             <div class="absolute inset-0 bg-gradient-to-t from-base-100/90 via-base-100/40 to-transparent"></div>
@@ -22,7 +22,7 @@
                     </span>
                 </div>
             @endif
-            <div class="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(59,130,246,0.2),transparent_55%)]"></div>
+            <div class="hero-tile-image-glow pointer-events-none absolute inset-0"></div>
         </div>
         <div class="relative flex flex-col justify-between gap-4 p-6 lg:p-7">
             <header class="space-y-2">
@@ -60,11 +60,11 @@
             <div class="mt-2 flex flex-wrap items-center gap-3">
                 <a
                     href="{{ route('games.show', $game) }}"
-                    class="btn btn-primary btn-sm rounded-full px-5 font-medium"
+                    class="btn btn-primary btn-sm rounded-btn px-5 font-medium"
                 >
                     Play now
                 </a>
-                <button type="button" class="btn btn-ghost btn-sm rounded-full px-4 text-sm">
+                <button type="button" class="btn btn-ghost btn-sm rounded-btn px-4 text-sm">
                     View details
                 </button>
             </div>

@@ -12,7 +12,7 @@ new class extends Component
     <button
         type="button"
         @click="open = !open"
-        class="text-sm underline hover:no-underline"
+        class="text-sm text-base-content/80 underline hover:no-underline hover:text-base-content"
     >
         Log in
     </button>
@@ -20,49 +20,46 @@ new class extends Component
         x-show="open"
         x-cloak
         @click.outside="open = false"
-        class="absolute right-0 top-full z-50 mt-2 w-72 rounded-lg border border-zinc-200 bg-white p-4 shadow-lg dark:border-zinc-700 dark:bg-zinc-900"
+        class="absolute right-0 top-full z-50 mt-2 w-72 rounded-box border border-base-content/10 bg-base-100 p-4 shadow-xl"
     >
         <form action="{{ url('/login') }}" method="POST" class="flex flex-col gap-3">
             @csrf
             <div class="flex flex-col gap-1">
-                <label for="auth-dropdown-email" class="text-xs font-medium">Email</label>
+                <label for="auth-dropdown-email" class="text-xs font-medium text-base-content">Email</label>
                 <input
                     id="auth-dropdown-email"
                     type="email"
                     name="email"
                     value="{{ old('email') }}"
                     required
-                    class="rounded border border-zinc-300 px-2 py-1.5 text-sm dark:border-zinc-600 dark:bg-zinc-800"
+                    class="input input-bordered input-sm w-full"
                 />
                 @error('email')
-                    <p class="text-xs text-red-600 dark:text-red-400">{{ $message }}</p>
+                    <p class="text-xs text-error">{{ $message }}</p>
                 @enderror
             </div>
             <div class="flex flex-col gap-1">
-                <label for="auth-dropdown-password" class="text-xs font-medium">Password</label>
+                <label for="auth-dropdown-password" class="text-xs font-medium text-base-content">Password</label>
                 <input
                     id="auth-dropdown-password"
                     type="password"
                     name="password"
                     required
-                    class="rounded border border-zinc-300 px-2 py-1.5 text-sm dark:border-zinc-600 dark:bg-zinc-800"
+                    class="input input-bordered input-sm w-full"
                 />
                 @error('password')
-                    <p class="text-xs text-red-600 dark:text-red-400">{{ $message }}</p>
+                    <p class="text-xs text-error">{{ $message }}</p>
                 @enderror
             </div>
-            <label class="flex items-center gap-2 text-sm">
-                <input type="checkbox" name="remember" class="rounded border-zinc-300" />
+            <label class="flex cursor-pointer items-center gap-2 text-sm text-base-content">
+                <input type="checkbox" name="remember" class="checkbox checkbox-sm" />
                 Remember me
             </label>
-            <button
-                type="submit"
-                class="rounded bg-zinc-900 px-3 py-1.5 text-sm font-medium text-white dark:bg-zinc-100 dark:text-zinc-900"
-            >
+            <button type="submit" class="btn btn-primary btn-sm w-full">
                 Log in
             </button>
         </form>
-        <p class="mt-2 text-xs text-zinc-500 dark:text-zinc-400">
+        <p class="mt-2 text-xs text-base-content/70">
             <a href="{{ url('/forgot-password') }}" class="underline hover:no-underline">Forgot password?</a>
             · <a href="{{ url('/register') }}" class="underline hover:no-underline">Register</a>
         </p>
