@@ -263,19 +263,20 @@ new #[Title('Discover your next game')] class extends Component
 
     {{-- Coming soon --}}
     <section id="coming-soon" class="mb-16 sm:mb-20" aria-label="Coming soon">
-        <x-ui.section-header
-            id="coming-soon-heading"
+        <x-ui.card-row
+            id="coming-soon-row"
             title="Coming soon"
             subtitle="Mark your calendar"
-            class="mb-6"
-        />
-        <div class="flex flex-nowrap gap-4 overflow-x-auto p-4">
-            @foreach($this->getUpcomingGames() as $index => $game)
-                <div class="opacity-0 welcome-animate welcome-animate-delay-{{ min(5 + $index, 9) }}">
-                    <x-game.card :game="$game" :status="$game->release_date?->format('M j, Y') ?? null" />
-                </div>
+        >
+            @php($upcoming = $this->getUpcomingGames())
+            @foreach($upcoming as $index => $game)
+                <x-game.card
+                    :game="$game"
+                    :status="$game->release_date?->format('M j, Y') ?? null"
+                    class="welcome-animate welcome-animate-delay-{{ min(5 + $index, 9) }}"
+                />
             @endforeach
-        </div>
+        </x-ui.card-row>
     </section>
 
     {{-- Discover by mood --}}
@@ -303,7 +304,7 @@ new #[Title('Discover your next game')] class extends Component
                             We’ll surface {{ strtolower($label) }} picks here as you and others track more games.
                         </p>
                     @else
-                        <div class="flex gap-3 overflow-x-auto pb-1">
+                        <div class="flex gap-3 overflow-x-auto pb-1 scrollbar-hidden">
                             @foreach ($games as $game)
                                 <x-game.card
                                     :game="$game"
@@ -320,17 +321,15 @@ new #[Title('Discover your next game')] class extends Component
 
     {{-- Trending now --}}
     <section id="trending" class="mt-12 sm:mt-16" aria-label="Trending now">
-        <x-ui.section-header
-            id="trending-heading"
+        <x-ui.card-row
+            id="trending-row"
             title="Trending now"
             subtitle="What everyone tracks"
-            class="mb-6"
-        />
-        <div class="flex flex-nowrap gap-4 overflow-x-auto pb-4 -mx-4 px-4 sm:mx-0 sm:px-0">
+        >
             @foreach($this->getPopularGames() as $game)
                 <x-game.card :game="$game" status="Trending now" />
             @endforeach
-        </div>
+        </x-ui.card-row>
     </section>
 
     {{-- Your backlog (if signed in) --}}
@@ -360,17 +359,15 @@ new #[Title('Discover your next game')] class extends Component
 
     {{-- Recently released --}}
     <section class="mt-12 sm:mt-16" aria-label="Recently released">
-        <x-ui.section-header
-            id="recently-released-heading"
+        <x-ui.card-row
+            id="recently-released-row"
             title="Recently released"
             subtitle="Fresh out of the oven"
-            class="mb-6"
-        />
-        <div class="flex flex-nowrap gap-4 overflow-x-auto pb-4 -mx-4 px-4 sm:mx-0 sm:px-0">
+        >
             @foreach($this->getRecentlyReleasedGames() as $game)
                 <x-game.card :game="$game" />
             @endforeach
-        </div>
+        </x-ui.card-row>
     </section>
 
     {{-- Platform spotlights --}}

@@ -407,3 +407,11 @@
 [x-cloak] {
   display: none !important;
 }
+
+/* Horizontal card rows – hide scrollbars but keep scrollability */
+.scrollbar-hidden {
+  scrollbar-width: none;
+}
+.scrollbar-hidden::-webkit-scrollbar {
+  display: none;
+}
