@@ -87,10 +87,9 @@
         @endif
     </x-ui.section-header>
 
-    <div class="relative">
         <div
             x-ref="scroll"
-            class="card-row-scroll -mx-4 flex gap-4 overflow-x-auto px-4 pb-4 scrollbar-hidden snap-x snap-mandatory sm:mx-0 sm:px-0"
+            class="card-row-scroll flex gap-4 overflow-x-auto scrollbar-hidden snap-x snap-mandatory p-4"
             @pointerdown="onPointerDown($event)"
             @pointermove="onPointerMove($event)"
             @pointerup="onPointerUp()"
@@ -98,6 +97,5 @@
         >
             {{ $slot }}
         </div>
-    </div>
 </section>
 

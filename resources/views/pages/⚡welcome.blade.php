@@ -48,59 +48,6 @@ new #[Title('Discover your next game')] class extends Component
         return $this->getHeroGames()->slice(1, 3);
     }
 
-    public function getHeroMoods(): array
-    {
-        return [
-            'cozy' => 'Cozy',
-            'story' => 'Story-heavy',
-            'competitive' => 'Competitive',
-            'roguelike' => 'Roguelike',
-        ];
-    }
-
-    public function getHeroSessionLengths(): array
-    {
-        return [
-            'short' => 'Up to 30 min',
-            'medium' => '1–2 hours',
-            'long' => 'Long session',
-        ];
-    }
-
-    public function getHeroPlatforms(): array
-    {
-        return [
-            'PC' => 'PC',
-            'PlayStation' => 'PlayStation',
-            'Xbox' => 'Xbox',
-            'Switch' => 'Switch',
-        ];
-    }
-
-    public function getMoodGames(): array
-    {
-        $base = Game::query()
-            ->withCount('trackedByUsers')
-            ->orderByDesc('tracked_by_users_count')
-            ->limit(30)
-            ->get();
-
-        $groups = [
-            'cozy' => fn (Game $game): bool => in_array('Indie', $game->genres, true) || in_array('Simulation', $game->genres, true),
-            'story' => fn (Game $game): bool => in_array('RPG', $game->genres, true) || in_array('Adventure', $game->genres, true),
-            'competitive' => fn (Game $game): bool => in_array('Shooter', $game->genres, true) || in_array('Multiplayer', $game->genres, true),
-            'roguelike' => fn (Game $game): bool => in_array('Roguelike', $game->genres, true) || in_array('Roguelite', $game->genres, true),
-        ];
-
-        $result = [];
-
-        foreach ($groups as $key => $filter) {
-            $result[$key] = $base->filter($filter)->take(6);
-        }
-
-        return $result;
-    }
-
     public function getBacklogGames()
     {
         if (! auth()->check()) {
@@ -113,24 +60,6 @@ new #[Title('Discover your next game')] class extends Component
             ->latest('tracked_games.created_at')
             ->limit(6)
             ->get();
-    }
-
-    public function getPlatformSpotlights(): array
-    {
-        $platforms = ['PC', 'PlayStation', 'Xbox', 'Switch'];
-
-        $result = [];
-
-        foreach ($platforms as $platform) {
-            $result[$platform] = Game::query()
-                ->whereJsonContains('platforms', $platform)
-                ->withCount('trackedByUsers')
-                ->orderByDesc('tracked_by_users_count')
-                ->limit(8)
-                ->get();
-        }
-
-        return $result;
     }
 };
 ?>
@@ -164,34 +93,6 @@ new #[Title('Discover your next game')] class extends Component
                 </a>
             </div>
 
-            <div class="flex flex-wrap gap-2">
-                <div class="flex flex-wrap gap-1.5">
-                    @foreach ($this->getHeroMoods() as $value => $label)
-                        <span
-                            class="badge badge-outline border-primary/40 px-3 py-2 text-[11px] font-medium text-base-content/80"
-                        >
-                            {{ $label }}
-                        </span>
-                    @endforeach
-                </div>
-
-                <div class="hidden flex-wrap gap-1.5 sm:flex">
-                    @foreach ($this->getHeroSessionLengths() as $label)
-                        <span class="badge badge-outline border-base-content/20 px-3 py-2 text-[11px] font-medium text-base-content/70">
-                            {{ $label }}
-                        </span>
-                    @endforeach
-                </div>
-
-                <div class="hidden flex-wrap gap-1.5 md:flex">
-                    @foreach ($this->getHeroPlatforms() as $label)
-                        <span class="badge badge-outline border-base-content/20 px-3 py-2 text-[11px] font-medium text-base-content/70">
-                            {{ $label }}
-                        </span>
-                    @endforeach
-                </div>
-            </div>
-
             @if ($this->getHeroPrimary())
                 <div class="space-y-4">
                     <x-game.hero-tile
@@ -202,10 +103,9 @@ new #[Title('Discover your next game')] class extends Component
                         ]"
                     />
 
-                    @php($heroSecondary = $this->getHeroSecondary())
-                    @if ($heroSecondary->isNotEmpty())
-                        <div class="hidden gap-3 sm:grid sm:grid-cols-3">
-                            @foreach ($heroSecondary as $game)
+                    @if ($this->getHeroSecondary()->isNotEmpty())
+                        <div class="gap-3 flex">
+                            @foreach ($this->getHeroSecondary() as $game)
                                 <x-game.card
                                     :game="$game"
                                     variant="compact"
@@ -268,8 +168,7 @@ new #[Title('Discover your next game')] class extends Component
             title="Coming soon"
             subtitle="Mark your calendar"
         >
-            @php($upcoming = $this->getUpcomingGames())
-            @foreach($upcoming as $index => $game)
+            @foreach($this->getUpcomingGames() as $index => $game)
                 <x-game.card
                     :game="$game"
                     :status="$game->release_date?->format('M j, Y') ?? null"
@@ -279,45 +178,6 @@ new #[Title('Discover your next game')] class extends Component
         </x-ui.card-row>
     </section>
 
-    {{-- Discover by mood --}}
-    <section class="mt-4 space-y-6" aria-label="Discover by mood">
-        <x-ui.section-header
-            title="Discover by mood"
-            subtitle="Cozy nights, big stories, or quick runs"
-        />
-
-        @php($moodGroups = $this->getMoodGames())
-        <div class="grid gap-6 lg:grid-cols-2">
-            @foreach ($this->getHeroMoods() as $key => $label)
-                @php($games = $moodGroups[$key] ?? collect())
-                <div class="space-y-3">
-                    <div class="flex items-center justify-between gap-3">
-                        <p class="text-sm font-medium text-base-content">
-                            {{ $label }}
-                        </p>
-                        <span class="badge badge-ghost badge-sm text-[11px] text-base-content/70">
-                            Mood rail
-                        </span>
-                    </div>
-                    @if ($games->isEmpty())
-                        <p class="text-xs text-base-content/60">
-                            We’ll surface {{ strtolower($label) }} picks here as you and others track more games.
-                        </p>
-                    @else
-                        <div class="flex gap-3 overflow-x-auto pb-1 scrollbar-hidden">
-                            @foreach ($games as $game)
-                                <x-game.card
-                                    :game="$game"
-                                    variant="compact"
-                                    :status="$game->release_date?->format('M j, Y')"
-                                />
-                            @endforeach
-                        </div>
-                    @endif
-                </div>
-            @endforeach
-        </div>
-    </section>
 
     {{-- Trending now --}}
     <section id="trending" class="mt-12 sm:mt-16" aria-label="Trending now">
@@ -338,23 +198,19 @@ new #[Title('Discover your next game')] class extends Component
             title="Your backlog"
             subtitle="Games you’re already tracking"
         />
-
-        @php($backlog = $this->getBacklogGames())
-        @if ($backlog->isEmpty())
-            <p class="text-sm text-base-content/70">
+        <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            @forelse ($this->getBacklogGames() as $game)
+                <x-game.card
+                    :game="$game"
+                    variant="compact"
+                    :status="$game->release_date?->format('M j, Y') ?? 'In your backlog'"
+                />
+            @empty
+                <p class="text-sm text-base-content/70">
                 Sign in and start tracking games to see a personalized backlog here.
-            </p>
-        @else
-            <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                @foreach ($backlog as $game)
-                    <x-game.card
-                        :game="$game"
-                        variant="compact"
-                        :status="$game->release_date?->format('M j, Y') ?? 'In your backlog'"
-                    />
-                @endforeach
-            </div>
-        @endif
+                </p>
+            @endforelse
+        </div>
     </section>
 
     {{-- Recently released --}}
@@ -368,45 +224,6 @@ new #[Title('Discover your next game')] class extends Component
                 <x-game.card :game="$game" />
             @endforeach
         </x-ui.card-row>
-    </section>
-
-    {{-- Platform spotlights --}}
-    <section class="mt-12 sm:mt-16" aria-label="Platform spotlights">
-        <x-ui.section-header
-            title="Platform spotlights"
-            subtitle="Highlights from each library"
-        />
-
-        @php($spotlights = $this->getPlatformSpotlights())
-        <div class="grid gap-8 lg:grid-cols-2">
-            @foreach ($spotlights as $platform => $games)
-                <div class="space-y-3">
-                    <div class="flex items-center justify-between gap-3">
-                        <p class="text-sm font-medium text-base-content">
-                            {{ $platform }}
-                        </p>
-                        <span class="badge badge-outline badge-sm text-[11px] text-base-content/70">
-                            Popular on {{ $platform }}
-                        </span>
-                    </div>
-                    @if ($games->isEmpty())
-                        <p class="text-xs text-base-content/60">
-                            No spotlight games yet for {{ $platform }}. Check back soon.
-                        </p>
-                    @else
-                        <div class="flex gap-3 overflow-x-auto pb-1">
-                            @foreach ($games as $game)
-                                <x-game.card
-                                    :game="$game"
-                                    variant="compact"
-                                    :status="$game->release_date?->format('M j, Y')"
-                                />
-                            @endforeach
-                        </div>
-                    @endif
-                </div>
-            @endforeach
-        </div>
     </section>
 
     {{-- Latest news --}}
