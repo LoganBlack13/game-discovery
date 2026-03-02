@@ -16,11 +16,138 @@
   --color-accent-foreground: oklch(0.99 0 0);
 }
 
-/* User frontend: teal/cyan primary for both light and dark (matches homepage image) */
-[data-theme="light"],
+/* === DaisyUI themes (semantic colors) === */
+
+/* Arcade Night – default dark control center */
+[data-theme="arcade-night"],
 [data-theme="dark"] {
-  --color-primary: oklch(0.72 0.15 195);
+  --color-primary: oklch(0.72 0.15 195); /* cyan/teal */
   --color-primary-content: oklch(0.99 0 0);
+  --color-secondary: oklch(0.73 0.19 308);
+  --color-secondary-content: oklch(0.99 0 0);
+  --color-accent: oklch(0.78 0.16 160);
+  --color-accent-content: oklch(0.15 0.03 160);
+  --color-neutral: oklch(0.35 0.03 250);
+  --color-neutral-content: oklch(0.97 0.01 250);
+
+  --color-base-100: oklch(0.15 0.02 250);
+  --color-base-200: oklch(0.12 0.01 250);
+  --color-base-300: oklch(0.09 0.01 250);
+  --color-base-content: oklch(0.93 0.02 250);
+
+  --color-info: oklch(0.76 0.11 236);
+  --color-info-content: oklch(0.16 0.03 236);
+  --color-success: oklch(0.75 0.16 154);
+  --color-success-content: oklch(0.16 0.03 154);
+  --color-warning: oklch(0.82 0.18 80);
+  --color-warning-content: oklch(0.18 0.05 80);
+  --color-error: oklch(0.65 0.25 25);
+  --color-error-content: oklch(0.16 0.04 25);
+}
+
+/* Daylight Pastel – soft light theme */
+[data-theme="daylight-pastel"],
+[data-theme="light"] {
+  --color-primary: oklch(0.78 0.13 190);
+  --color-primary-content: oklch(0.18 0.04 190);
+  --color-secondary: oklch(0.82 0.13 320);
+  --color-secondary-content: oklch(0.22 0.05 320);
+  --color-accent: oklch(0.85 0.16 140);
+  --color-accent-content: oklch(0.2 0.05 140);
+  --color-neutral: oklch(0.55 0.03 250);
+  --color-neutral-content: oklch(0.98 0.01 250);
+
+  --color-base-100: oklch(0.98 0.01 180);
+  --color-base-200: oklch(0.94 0.01 180);
+  --color-base-300: oklch(0.9 0.01 180);
+  --color-base-content: oklch(0.2 0.03 240);
+
+  --color-info: oklch(0.72 0.12 236);
+  --color-info-content: oklch(0.2 0.04 236);
+  --color-success: oklch(0.78 0.16 154);
+  --color-success-content: oklch(0.2 0.05 154);
+  --color-warning: oklch(0.86 0.2 80);
+  --color-warning-content: oklch(0.24 0.06 80);
+  --color-error: oklch(0.7 0.24 25);
+  --color-error-content: oklch(0.18 0.06 25);
+}
+
+/* Retro CRT – amber/green on dark */
+[data-theme="retro-crt"] {
+  --color-primary: oklch(0.78 0.2 110); /* phosphor green */
+  --color-primary-content: oklch(0.16 0.05 110);
+  --color-secondary: oklch(0.8 0.18 70); /* amber */
+  --color-secondary-content: oklch(0.18 0.06 70);
+  --color-accent: oklch(0.73 0.16 145);
+  --color-accent-content: oklch(0.14 0.04 145);
+  --color-neutral: oklch(0.32 0.02 260);
+  --color-neutral-content: oklch(0.96 0.01 260);
+
+  --color-base-100: oklch(0.12 0.03 260);
+  --color-base-200: oklch(0.1 0.03 260);
+  --color-base-300: oklch(0.08 0.03 260);
+  --color-base-content: oklch(0.9 0.02 120);
+
+  --color-info: oklch(0.7 0.12 220);
+  --color-info-content: oklch(0.18 0.04 220);
+  --color-success: oklch(0.76 0.19 140);
+  --color-success-content: oklch(0.18 0.05 140);
+  --color-warning: oklch(0.8 0.22 70);
+  --color-warning-content: oklch(0.22 0.07 70);
+  --color-error: oklch(0.66 0.25 25);
+  --color-error-content: oklch(0.18 0.06 25);
+}
+
+/* Noir Minimal – high contrast monochrome with teal accent */
+[data-theme="noir-minimal"] {
+  --color-primary: oklch(0.74 0.11 190);
+  --color-primary-content: oklch(0.16 0.03 190);
+  --color-secondary: oklch(0.7 0.02 260);
+  --color-secondary-content: oklch(0.16 0.03 260);
+  --color-accent: oklch(0.82 0.07 250);
+  --color-accent-content: oklch(0.16 0.03 250);
+  --color-neutral: oklch(0.35 0.01 260);
+  --color-neutral-content: oklch(0.97 0.01 260);
+
+  --color-base-100: oklch(0.16 0.01 260);
+  --color-base-200: oklch(0.12 0.01 260);
+  --color-base-300: oklch(0.08 0.01 260);
+  --color-base-content: oklch(0.96 0.01 260);
+
+  --color-info: oklch(0.76 0.08 240);
+  --color-info-content: oklch(0.18 0.03 240);
+  --color-success: oklch(0.78 0.12 150);
+  --color-success-content: oklch(0.18 0.03 150);
+  --color-warning: oklch(0.82 0.16 80);
+  --color-warning-content: oklch(0.22 0.06 80);
+  --color-error: oklch(0.68 0.23 25);
+  --color-error-content: oklch(0.18 0.05 25);
+}
+
+/* Cosmic Fade – deep space purples/blues */
+[data-theme="cosmic-fade"] {
+  --color-primary: oklch(0.75 0.15 280);
+  --color-primary-content: oklch(0.16 0.04 280);
+  --color-secondary: oklch(0.7 0.13 320);
+  --color-secondary-content: oklch(0.18 0.05 320);
+  --color-accent: oklch(0.8 0.16 240);
+  --color-accent-content: oklch(0.18 0.05 240);
+  --color-neutral: oklch(0.28 0.04 270);
+  --color-neutral-content: oklch(0.96 0.02 270);
+
+  --color-base-100: oklch(0.14 0.04 270);
+  --color-base-200: oklch(0.11 0.04 270);
+  --color-base-300: oklch(0.08 0.04 270);
+  --color-base-content: oklch(0.95 0.02 270);
+
+  --color-info: oklch(0.76 0.13 250);
+  --color-info-content: oklch(0.18 0.04 250);
+  --color-success: oklch(0.78 0.16 150);
+  --color-success-content: oklch(0.18 0.05 150);
+  --color-warning: oklch(0.84 0.2 80);
+  --color-warning-content: oklch(0.22 0.06 80);
+  --color-error: oklch(0.7 0.25 25);
+  --color-error-content: oklch(0.18 0.06 25);
 }
 
 @keyframes welcome-fade-up {
@@ -117,7 +244,8 @@
   opacity: 0.04;
   pointer-events: none;
 }
-[data-theme="light"] .homepage-full-bg-layer {
+[data-theme="light"] .homepage-full-bg-layer,
+[data-theme="daylight-pastel"] .homepage-full-bg-layer {
   background-image:
     radial-gradient(2px 2px at 20% 30%, rgba(13, 148, 136, 0.2), transparent),
     radial-gradient(2px 2px at 40% 70%, rgba(13, 148, 136, 0.15), transparent),
@@ -141,7 +269,8 @@
     100% 100%,
     100% 100%;
 }
-[data-theme="light"] .homepage-full-bg-layer::before {
+[data-theme="light"] .homepage-full-bg-layer::before,
+[data-theme="daylight-pastel"] .homepage-full-bg-layer::before {
   opacity: 0.06;
 }
 /* Hero title glow */
@@ -183,32 +312,45 @@
 .header-logo {
   color: #2fd6c4;
 }
-/* Light theme: header bar readable on light background */
-[data-theme="light"] .header-bar {
+/* Light-ish themes: header bar readable on light background */
+[data-theme="light"] .header-bar,
+[data-theme="daylight-pastel"] .header-bar {
   background: rgba(0, 0, 0, 0.06);
 }
 [data-theme="light"] .header-bar .nav-pill-link,
 [data-theme="light"] .header-bar .header-logo,
 [data-theme="light"] .header-bar a,
-[data-theme="light"] .header-bar button {
+[data-theme="light"] .header-bar button,
+[data-theme="daylight-pastel"] .header-bar .nav-pill-link,
+[data-theme="daylight-pastel"] .header-bar .header-logo,
+[data-theme="daylight-pastel"] .header-bar a,
+[data-theme="daylight-pastel"] .header-bar button {
   color: rgba(0, 0, 0, 0.85);
 }
 [data-theme="light"] .header-bar .nav-pill-link:hover,
 [data-theme="light"] .header-bar a:hover,
-[data-theme="light"] .header-bar button:hover {
+[data-theme="light"] .header-bar button:hover,
+[data-theme="daylight-pastel"] .header-bar .nav-pill-link:hover,
+[data-theme="daylight-pastel"] .header-bar a:hover,
+[data-theme="daylight-pastel"] .header-bar button:hover {
   color: #000;
 }
-[data-theme="light"] .header-bar .header-logo {
+[data-theme="light"] .header-bar .header-logo,
+[data-theme="daylight-pastel"] .header-bar .header-logo {
   color: #0d9488;
 }
 [data-theme="light"] .header-bar .nav-pill-link.router-link-active,
-[data-theme="light"] .header-bar .nav-pill-link[aria-current="page"] {
+[data-theme="light"] .header-bar .nav-pill-link[aria-current="page"],
+[data-theme="daylight-pastel"] .header-bar .nav-pill-link.router-link-active,
+[data-theme="daylight-pastel"] .header-bar .nav-pill-link[aria-current="page"] {
   background: rgba(0, 0, 0, 0.08);
 }
-[data-theme="light"] .header-bar .theme-toggle-pill {
+[data-theme="light"] .header-bar .theme-toggle-pill,
+[data-theme="daylight-pastel"] .header-bar .theme-toggle-pill {
   background: rgba(0, 0, 0, 0.08);
 }
-[data-theme="light"] .header-bar .theme-toggle-pill button:hover {
+[data-theme="light"] .header-bar .theme-toggle-pill button:hover,
+[data-theme="daylight-pastel"] .header-bar .theme-toggle-pill button:hover {
   background: rgba(0, 0, 0, 0.12);
   color: #000;
 }
@@ -253,6 +395,10 @@
 }
 
 @media (prefer-reduced-motion: reduce) {
+  .welcome-animate {
+    animation: none;
+  }
+
   .search-result-item {
     animation: none;
   }

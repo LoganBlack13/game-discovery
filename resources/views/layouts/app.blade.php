@@ -16,10 +16,27 @@
         @livewireStyles
         <script>
             (function () {
+                const THEMES = ['arcade-night', 'daylight-pastel', 'retro-crt', 'noir-minimal', 'cosmic-fade'];
                 const stored = localStorage.getItem('game-discovery-theme');
-                const theme = stored === 'light' || stored === 'dark' || stored === 'system' ? stored : 'system';
-                const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-                const effective = theme === 'system' ? (prefersDark ? 'dark' : 'light') : theme;
+
+                function resolveThemeSlug(raw) {
+                    if (raw === 'system' || !raw) {
+                        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                        return prefersDark ? 'arcade-night' : 'daylight-pastel';
+                    }
+
+                    if (raw === 'dark') {
+                        return 'arcade-night';
+                    }
+
+                    if (raw === 'light') {
+                        return 'daylight-pastel';
+                    }
+
+                    return THEMES.includes(raw) ? raw : 'arcade-night';
+                }
+
+                const effective = resolveThemeSlug(stored);
                 document.documentElement.dataset.theme = effective;
             })();
         </script>
@@ -57,13 +74,60 @@
                             <livewire:auth-dropdown />
                             <a href="{{ url('/register') }}" class="hidden text-base font-medium text-white/[0.85] hover:text-white sm:inline">Register</a>
                         @endauth
-                        <div class="theme-toggle-pill flex shrink-0 items-center gap-2 rounded-full bg-white/[0.08] p-2" x-data="themeToggle()" x-init="init()">
-                            <button type="button" class="rounded-full p-1.5 transition-colors" aria-label="Light mode" :class="effectiveTheme === 'light' ? 'bg-white/20 text-white' : 'text-white/[0.7] hover:text-white'" @click="setTheme('light')">
-                                <svg class="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 3v1.5m0 16.5V21m9-9h-1.5m-16.5 0H3m15.364 6.364-1.08-1.08M6.344 6.344 5.264 5.264m12.728 0-1.08 1.08M6.344 17.656l-1.08 1.08M21 12h-1.5M4.5 12H3m3.75-6.364-1.08-1.08" /></svg>
+                        <div
+                            class="theme-toggle-pill flex shrink-0 items-center gap-1.5 rounded-full bg-white/[0.08] px-2 py-1.5"
+                            x-data="themeToggle()"
+                            x-init="init()"
+                        >
+                            <button
+                                type="button"
+                                class="hidden rounded-full px-2 py-1 text-xs font-medium text-white/[0.7] hover:text-white sm:inline-flex"
+                                :class="mode === 'system' ? 'bg-white/15 text-white' : ''"
+                                @click="setMode('system')"
+                            >
+                                System
                             </button>
-                            <button type="button" class="rounded-full p-1.5 transition-colors" aria-label="Dark mode" :class="effectiveTheme === 'dark' ? 'bg-white/20 text-white' : 'text-white/[0.7] hover:text-white'" @click="setTheme('dark')">
-                                <svg class="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21.752 15.002A9.72 9.72 0 0 1 18 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.93.53-3.746 1.436-5.392a9.72 9.72 0 0 1 15.316 5.144Z" /></svg>
-                            </button>
+                            <div class="relative" x-data="{ open: false }" x-on:click.outside="open = false">
+                                <button
+                                    type="button"
+                                    class="flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium text-white/[0.85] hover:bg-white/[0.12]"
+                                    @click="open = !open"
+                                    :aria-expanded="open"
+                                    aria-haspopup="listbox"
+                                >
+                                    <span x-text="labelForTheme(effectiveTheme)"></span>
+                                    <svg class="size-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M6 9l6 6 6-6" />
+                                    </svg>
+                                </button>
+                                <div
+                                    class="absolute right-0 z-50 mt-1 w-44 rounded-xl border border-base-content/10 bg-base-200/95 p-1 shadow-xl backdrop-blur"
+                                    x-show="open"
+                                    x-cloak
+                                >
+                                    <ul class="max-h-64 overflow-auto text-xs" role="listbox">
+                                        <template x-for="theme in themes" :key="theme.slug">
+                                            <li>
+                                                <button
+                                                    type="button"
+                                                    class="flex w-full items-center justify-between gap-2 rounded-lg px-2.5 py-1.5 text-left hover:bg-base-300"
+                                                    :class="theme.slug === effectiveTheme ? 'bg-base-300/80' : ''"
+                                                    @click="setTheme(theme.slug); open = false"
+                                                    role="option"
+                                                    :aria-selected="theme.slug === effectiveTheme"
+                                                >
+                                                    <span x-text="theme.label"></span>
+                                                    <span
+                                                        class="size-3 rounded-full border border-base-content/20"
+                                                        :style="`background: ${theme.swatch}`"
+                                                        aria-hidden="true"
+                                                    ></span>
+                                                </button>
+                                            </li>
+                                        </template>
+                                    </ul>
+                                </div>
+                            </div>
                         </div>
                         <div class="relative md:hidden" x-data="{ open: false }" x-on:click.outside="open = false">
                             <button type="button" class="rounded-full p-2 text-white/[0.85] hover:bg-white/[0.08] hover:text-white" aria-label="Open menu" :aria-expanded="open" @click="open = !open">
@@ -125,24 +189,69 @@
         <script>
             function themeToggle() {
                 return {
-                    theme: 'system',
-                    effectiveTheme: 'dark',
+                    mode: 'system',
+                    effectiveTheme: 'arcade-night',
+                    themes: [
+                        { slug: 'arcade-night', label: 'Arcade night', swatch: '#0f172a' },
+                        { slug: 'daylight-pastel', label: 'Daylight pastel', swatch: '#e0f2f1' },
+                        { slug: 'retro-crt', label: 'Retro CRT', swatch: '#0b1020' },
+                        { slug: 'noir-minimal', label: 'Noir minimal', swatch: '#020617' },
+                        { slug: 'cosmic-fade', label: 'Cosmic fade', swatch: '#020617' },
+                    ],
                     init() {
-                        this.theme = localStorage.getItem('game-discovery-theme') || 'system';
-                        this.updateEffective();
-                        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => this.updateEffective());
+                        const stored = localStorage.getItem('game-discovery-theme');
+                        if (stored === 'system' || !stored) {
+                            this.mode = 'system';
+                        } else if (stored === 'light' || stored === 'dark') {
+                            this.mode = 'explicit';
+                        } else if (this.themes.find((t) => t.slug === stored)) {
+                            this.mode = 'explicit';
+                        }
+
+                        this.updateEffectiveFromStorage(stored);
+
+                        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+                            if (this.mode === 'system') {
+                                this.updateEffectiveFromStorage('system');
+                            }
+                        });
                     },
-                    setTheme(value) {
-                        this.theme = value;
-                        localStorage.setItem('game-discovery-theme', value);
-                        this.updateEffective();
+                    updateEffectiveFromStorage(raw) {
+                        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                        let slug;
+
+                        if (!raw || raw === 'system') {
+                            slug = prefersDark ? 'arcade-night' : 'daylight-pastel';
+                        } else if (raw === 'dark') {
+                            slug = 'arcade-night';
+                        } else if (raw === 'light') {
+                            slug = 'daylight-pastel';
+                        } else if (this.themes.find((t) => t.slug === raw)) {
+                            slug = raw;
+                        } else {
+                            slug = prefersDark ? 'arcade-night' : 'daylight-pastel';
+                        }
+
+                        this.effectiveTheme = slug;
+                        document.documentElement.dataset.theme = slug;
                     },
-                    updateEffective() {
-                        this.effectiveTheme = this.theme === 'system'
-                            ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
-                            : this.theme;
-                        document.documentElement.dataset.theme = this.effectiveTheme;
-                    }
+                    setTheme(slug) {
+                        this.mode = 'explicit';
+                        this.effectiveTheme = slug;
+                        localStorage.setItem('game-discovery-theme', slug);
+                        document.documentElement.dataset.theme = slug;
+                    },
+                    setMode(value) {
+                        this.mode = value;
+                        if (value === 'system') {
+                            localStorage.setItem('game-discovery-theme', 'system');
+                            this.updateEffectiveFromStorage('system');
+                        }
+                    },
+                    labelForTheme(slug) {
+                        const theme = this.themes.find((t) => t.slug === slug);
+                        return theme ? theme.label : 'Arcade night';
+                    },
                 };
             }
         </script>
