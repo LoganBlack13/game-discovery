@@ -113,6 +113,13 @@ new #[Title('Discover your next game')] class extends Component
         </div>
     </section>
 
+    @auth
+    {{-- Request a game (authenticated only) --}}
+    <section aria-label="Request a game" class="mt-8 sm:mt-10">
+        <livewire:game-request-card />
+    </section>
+    @endauth
+
     {{-- Coming soon --}}
     <section id="coming-soon" class="mb-16 sm:mb-20" aria-label="Coming soon">
         <x-ui.card-row
