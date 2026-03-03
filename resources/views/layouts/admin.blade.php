@@ -25,6 +25,7 @@
                         <a href="{{ route('admin.dashboard') }}" class="text-sm underline hover:no-underline">Dashboard</a>
                         <a href="{{ route('admin.games.index') }}" class="text-sm underline hover:no-underline">Games</a>
                         <a href="{{ route('admin.news-enrichment') }}" class="text-sm underline hover:no-underline">News enrichment</a>
+                        <a href="{{ route('admin.game-requests') }}" class="text-sm underline hover:no-underline">Game requests</a>
                     </div>
                     <div class="flex items-center gap-4">
                         <a href="{{ route('profile.edit') }}" class="text-sm underline hover:no-underline">{{ auth()->user()->name }}</a>
