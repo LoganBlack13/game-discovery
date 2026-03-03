@@ -69,40 +69,44 @@ new #[Title('Discover your next game')] class extends Component
 ?>
 
 <div class="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-20 lg:px-8 lg:py-24 space-y-16">
-    {{-- Hero: one value prop, optional featured game (most tracked), real CTAs only --}}
+    {{-- Hero: DaisyUI hero layout with featured game (most tracked), real CTAs only --}}
     <section
         aria-label="Discover your next game"
-        class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-primary/10 via-base-200 to-secondary/10 p-6 sm:p-8 lg:p-10"
+        class="hero relative overflow-hidden rounded-box bg-gradient-to-r from-warning/20 via-secondary/30 to-secondary/50 px-4 py-8 sm:px-6 sm:py-10 lg:px-10 lg:py-12"
     >
-        <div class="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,theme(colors.primary/15),transparent_55%),radial-gradient(circle_at_bottom_right,theme(colors.secondary/15),transparent_55%)]"></div>
-        <div class="relative max-w-3xl space-y-6">
-            <header class="space-y-2">
-                <h1 class="hero-title-glow font-display text-3xl font-semibold leading-tight text-base-content sm:text-4xl">
-                    Discover your next game
-                </h1>
-                <p class="max-w-xl text-sm text-base-content/70">
-                    Track what you want to play. Browse coming soon, most tracked, and recently released.
-                </p>
-            </header>
+        <div class="hero-content relative flex flex-col gap-8 lg:flex-row lg:items-stretch">
+            <div class="max-w-xl space-y-6">
+                <header class="space-y-2">
+                    <h1 class="hero-title-glow font-display text-3xl font-semibold leading-tight text-base-content sm:text-4xl">
+                        Discover your next game
+                    </h1>
+                    <p class="max-w-xl text-sm text-base-content/70">
+                        Track what you want to play. Browse coming soon, most tracked, and recently released.
+                    </p>
+                </header>
 
-            <div>
-                <a
-                    href="#trending"
-                    class="btn btn-primary btn-sm rounded-btn px-5 font-medium"
-                >
-                    Explore games
-                </a>
-            </div>
+                <div>
+                    <a
+                        href="#trending"
+                        class="btn btn-primary btn-sm rounded-btn px-5 font-medium"
+                    >
+                        Explore games
+                    </a>
+                </div>
 
-            @if ($this->getHeroPrimary())
-                <div class="space-y-3">
+                @if ($this->getHeroPrimary())
                     <p class="text-xs font-semibold uppercase tracking-[0.18em] text-primary/80">
                         Most tracked on the site — updates as people track games.
                     </p>
+                @endif
+            </div>
+
+            @if ($this->getHeroPrimary())
+                <div class="w-full max-w-xl lg:max-w-none">
                     <x-game.hero-tile :game="$this->getHeroPrimary()" />
                 </div>
             @else
-                <p class="text-sm text-base-content/70">
+                <p class="max-w-xl text-sm text-base-content/70">
                     We don’t have enough data yet to highlight a featured game. Explore coming soon and trending games below to start building your library.
                 </p>
             @endif
