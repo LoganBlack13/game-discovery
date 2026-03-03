@@ -116,6 +116,14 @@ final class Game extends Model
     }
 
     /**
+     * @return HasMany<GameRequest>
+     */
+    public function gameRequests(): HasMany
+    {
+        return $this->hasMany(GameRequest::class);
+    }
+
+    /**
      * @return BelongsToMany<User>
      */
     public function trackedByUsers(): BelongsToMany

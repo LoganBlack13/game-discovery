@@ -11,6 +11,7 @@ use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Fortify\TwoFactorAuthenticatable;
@@ -90,5 +91,13 @@ final class User extends Authenticatable implements MustVerifyEmail
     public function trackedGames(): BelongsToMany
     {
         return $this->belongsToMany(Game::class, 'tracked_games')->withTimestamps();
+    }
+
+    /**
+     * @return HasMany<GameRequestVote>
+     */
+    public function gameRequestVotes(): HasMany
+    {
+        return $this->hasMany(GameRequestVote::class);
     }
 }
