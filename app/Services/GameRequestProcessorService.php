@@ -9,6 +9,7 @@ use App\Jobs\SyncGameJob;
 use App\Models\Game;
 use App\Models\GameRequest;
 use Illuminate\Support\Facades\Cache;
+use Throwable;
 
 final class GameRequestProcessorService
 {
@@ -36,60 +37,70 @@ final class GameRequestProcessorService
             $this->writeProgress($progressKey, 'running', null, 0, 0, null);
         }
 
-        foreach ($requests as $request) {
+        try {
+            foreach ($requests as $request) {
+                if ($progressKey !== null) {
+                    $this->writeProgress($progressKey, 'running', $request->display_title, $processed, $added, null);
+                }
+
+                $existingByTitle = $this->findExistingGameByTitle($request->normalized_title);
+                if ($existingByTitle !== null) {
+                    $this->markRequestAdded($request, $existingByTitle->id);
+                    $processed++;
+                    $added++;
+
+                    continue;
+                }
+
+                $provider = $this->resolver->resolve(self::DEFAULT_SOURCE);
+                $results = $provider->search($request->display_title);
+
+                if ($results === []) {
+                    $processed++;
+
+                    continue;
+                }
+
+                $first = $results[0];
+                $externalId = $first['external_id'];
+                $externalSource = $first['external_source'];
+
+                $existingByExternal = Game::query()
+                    ->where('external_source', $externalSource)
+                    ->where('external_id', $externalId)
+                    ->first();
+
+                if ($existingByExternal !== null) {
+                    $this->markRequestAdded($request, $existingByExternal->id);
+                    $processed++;
+                    $added++;
+
+                    continue;
+                }
+
+                SyncGameJob::dispatchSync($externalId, $externalSource);
+
+                $game = Game::query()
+                    ->where('external_source', $externalSource)
+                    ->where('external_id', $externalId)
+                    ->first();
+
+                if ($game !== null) {
+                    $this->markRequestAdded($request, $game->id);
+                    $added++;
+                }
+
+                $processed++;
+            }
+
             if ($progressKey !== null) {
-                $this->writeProgress($progressKey, 'running', $request->display_title, $processed, $added, null);
+                $this->writeProgress($progressKey, 'completed', null, $processed, $added, null);
             }
-
-            $existingByTitle = $this->findExistingGameByTitle($request->normalized_title);
-            if ($existingByTitle !== null) {
-                $this->markRequestAdded($request, $existingByTitle->id);
-                $processed++;
-                $added++;
-                continue;
+        } catch (Throwable $e) {
+            if ($progressKey !== null) {
+                $this->writeProgress($progressKey, 'failed', null, $processed, $added, $e->getMessage());
             }
-
-            $provider = $this->resolver->resolve(self::DEFAULT_SOURCE);
-            $results = $provider->search($request->display_title);
-
-            if ($results === []) {
-                $processed++;
-                continue;
-            }
-
-            $first = $results[0];
-            $externalId = $first['external_id'];
-            $externalSource = $first['external_source'];
-
-            $existingByExternal = Game::query()
-                ->where('external_source', $externalSource)
-                ->where('external_id', $externalId)
-                ->first();
-
-            if ($existingByExternal !== null) {
-                $this->markRequestAdded($request, $existingByExternal->id);
-                $processed++;
-                $added++;
-                continue;
-            }
-
-            SyncGameJob::dispatchSync($externalId, $externalSource);
-
-            $game = Game::query()
-                ->where('external_source', $externalSource)
-                ->where('external_id', $externalId)
-                ->first();
-
-            if ($game !== null) {
-                $this->markRequestAdded($request, $game->id);
-                $added++;
-            }
-
-            $processed++;
-        }
-
-        if ($progressKey !== null) {
-            $this->writeProgress($progressKey, 'completed', null, $processed, $added, null);
+            throw $e;
         }
     }
 

@@ -160,6 +160,36 @@ test('links request to existing game by external_id and does not dispatch', func
         ->and($request->added_at)->not->toBeNull();
 });
 
+test('skips request when matching game already in database by title and does not dispatch', function (): void {
+    Bus::fake();
+
+    $existingGame = Game::factory()->create(['title' => 'Elden Ring']);
+
+    $request = GameRequest::factory()->create([
+        'normalized_title' => 'elden ring',
+        'display_title' => 'Elden Ring',
+        'status' => 'pending',
+        'game_id' => null,
+    ]);
+
+    $provider = $this->mock(GameDataProvider::class, function ($mock): void {
+        $mock->shouldReceive('search')->never();
+    });
+
+    $this->mock(GameDataProviderResolver::class, function ($mock): void {
+        $mock->shouldReceive('resolve')->never();
+    });
+
+    $service = app(GameRequestProcessorService::class);
+    $service->process(5, null);
+
+    Bus::assertNotDispatched(SyncGameJob::class);
+    $request->refresh();
+    expect($request->game_id)->toBe($existingGame->id)
+        ->and($request->status)->toBe('added')
+        ->and($request->added_at)->not->toBeNull();
+});
+
 test('writes progress to cache when runId provided', function (): void {
     $runId = 'test-run-123';
     $request = GameRequest::factory()->create([
@@ -185,4 +215,31 @@ test('writes progress to cache when runId provided', function (): void {
     expect($progress)->not->toBeNull()
         ->and($progress['status'])->toBe('completed')
         ->and($progress['processed'])->toBe(1);
+});
+
+test('writes failed progress to cache when exception is thrown', function (): void {
+    $runId = 'fail-run-123';
+    GameRequest::factory()->create([
+        'normalized_title' => 'will throw',
+        'display_title' => 'Will Throw',
+        'status' => 'pending',
+        'game_id' => null,
+    ]);
+
+    $this->mock(GameDataProviderResolver::class, function ($mock): void {
+        $mock->shouldReceive('resolve')->with('rawg')->andThrow(new RuntimeException('Provider error'));
+    });
+
+    $service = app(GameRequestProcessorService::class);
+
+    try {
+        $service->process(5, $runId);
+    } catch (Throwable) {
+        // expected
+    }
+
+    $progress = cache("game_requests:progress:{$runId}");
+    expect($progress)->not->toBeNull()
+        ->and($progress['status'])->toBe('failed')
+        ->and($progress['error'])->toBe('Provider error');
 });
