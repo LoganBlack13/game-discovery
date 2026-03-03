@@ -4,6 +4,10 @@ use App\Models\Game;
 use Livewire\Component;
 use Livewire\Attributes\Title;
 
+/**
+ * Welcome page. Featured hero game = first of getPopularGames() (highest tracked_by_users_count).
+ * Changes when track/untrack or data changes; no time-based rotation.
+ */
 new #[Title('Discover your next game')] class extends Component
 {
     public function getUpcomingGames()
@@ -65,26 +69,23 @@ new #[Title('Discover your next game')] class extends Component
 ?>
 
 <div class="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-20 lg:px-8 lg:py-24 space-y-16">
-    {{-- Hero: Tonight's picks --}}
+    {{-- Hero: one value prop, optional featured game (most tracked), real CTAs only --}}
     <section
-        aria-label="Tonight's picks"
-        class="grid gap-8 lg:grid-cols-[minmax(0,2.1fr)_minmax(0,1.1fr)] lg:items-stretch"
+        aria-label="Discover your next game"
+        class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-primary/10 via-base-200 to-secondary/10 p-6 sm:p-8 lg:p-10"
     >
-        <div class="space-y-4">
+        <div class="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,theme(colors.primary/15),transparent_55%),radial-gradient(circle_at_bottom_right,theme(colors.secondary/15),transparent_55%)]"></div>
+        <div class="relative max-w-3xl space-y-6">
             <header class="space-y-2">
-                <p class="text-[11px] font-semibold uppercase tracking-[0.24em] text-primary/80">
-                    Signal grid arcade
-                </p>
                 <h1 class="hero-title-glow font-display text-3xl font-semibold leading-tight text-base-content sm:text-4xl">
-                    Discover what to play tonight
+                    Discover your next game
                 </h1>
                 <p class="max-w-xl text-sm text-base-content/70">
-                    Tune your mood, platform, and session length to get a focused shortlist of games that actually fit your life
-                    right now.
+                    Track what you want to play. Browse coming soon, most tracked, and recently released.
                 </p>
             </header>
 
-            <div class="mt-4">
+            <div>
                 <a
                     href="#trending"
                     class="btn btn-primary btn-sm rounded-btn px-5 font-medium"
@@ -94,71 +95,18 @@ new #[Title('Discover your next game')] class extends Component
             </div>
 
             @if ($this->getHeroPrimary())
-                <div class="space-y-4">
-                    <x-game.hero-tile
-                        :game="$this->getHeroPrimary()"
-                        :reasons="[
-                            'Popular with players',
-                            'Great fit tonight',
-                        ]"
-                    />
-
-                    @if ($this->getHeroSecondary()->isNotEmpty())
-                        <div class="gap-3 flex">
-                            @foreach ($this->getHeroSecondary() as $game)
-                                <x-game.card
-                                    :game="$game"
-                                    variant="compact"
-                                    :status="$game->release_date?->format('M j, Y')"
-                                />
-                            @endforeach
-                        </div>
-                    @endif
+                <div class="space-y-3">
+                    <p class="text-xs font-semibold uppercase tracking-[0.18em] text-primary/80">
+                        Most tracked on the site — updates as people track games.
+                    </p>
+                    <x-game.hero-tile :game="$this->getHeroPrimary()" />
                 </div>
             @else
                 <p class="text-sm text-base-content/70">
-                    We don’t have enough data yet to suggest tonight’s picks. Explore trending and upcoming games below to start
-                    building your library.
+                    We don’t have enough data yet to highlight a featured game. Explore coming soon and trending games below to start building your library.
                 </p>
             @endif
         </div>
-
-        <aside class="space-y-3 lg:space-y-4">
-            <x-ui.section-header
-                title="Your signals"
-                subtitle="Backlog, progress & hype"
-                class="mb-3 sm:mb-4"
-            />
-
-            <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
-                <x-ui.signal-card
-                    :icon="'🎮'"
-                    label="Now playing"
-                    value="Session planner"
-                    tone="info"
-                >
-                    Quickly jump back into what you started recently.
-                </x-ui.signal-card>
-
-                <x-ui.signal-card
-                    :icon="'🔥'"
-                    label="Backlog heat"
-                    value="Hot this week"
-                    tone="success"
-                >
-                    Focused list of games people can’t stop tracking.
-                </x-ui.signal-card>
-
-                <x-ui.signal-card
-                    :icon="'✨'"
-                    label="Hidden gems"
-                    value="Shortlist"
-                    tone="neutral"
-                >
-                    Underrated picks you might otherwise scroll past.
-                </x-ui.signal-card>
-            </div>
-        </aside>
     </section>
 
     {{-- Coming soon --}}

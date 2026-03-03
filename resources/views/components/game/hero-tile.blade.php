@@ -1,7 +1,6 @@
 @props([
     'game',
     'status' => null,
-    'reasons' => [],
 ])
 
 <?php
@@ -26,9 +25,6 @@
         </div>
         <div class="relative flex flex-col justify-between gap-4 p-6 lg:p-7">
             <header class="space-y-2">
-                <p class="text-xs font-semibold uppercase tracking-[0.18em] text-primary/80">
-                    Tonight’s pick
-                </p>
                 <h3 class="hero-title-glow font-display text-2xl font-semibold leading-tight sm:text-3xl">
                     {{ $game->title }}
                 </h3>
@@ -47,26 +43,13 @@
                 @endif
             </header>
 
-            @if (! empty($reasons))
-                <div class="flex flex-wrap gap-2">
-                    @foreach ($reasons as $reason)
-                        <span class="badge badge-outline badge-sm border-primary/40 bg-primary/5 text-[11px] font-medium text-primary">
-                            {{ $reason }}
-                        </span>
-                    @endforeach
-                </div>
-            @endif
-
-            <div class="mt-2 flex flex-wrap items-center gap-3">
+            <div class="mt-2">
                 <a
                     href="{{ route('games.show', $game) }}"
                     class="btn btn-primary btn-sm rounded-btn px-5 font-medium"
                 >
-                    Play now
+                    View game
                 </a>
-                <button type="button" class="btn btn-ghost btn-sm rounded-btn px-4 text-sm">
-                    View details
-                </button>
             </div>
         </div>
     </div>

@@ -12,6 +12,7 @@ test('welcome page loads and shows hero content', function (): void {
     $response->assertSuccessful();
     $response->assertSee('Discover your next game');
     $response->assertSee('Explore games');
+    $response->assertSee('Track what you want to play', false);
     $response->assertSee('Trending now');
 });
 
