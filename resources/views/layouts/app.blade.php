@@ -72,15 +72,73 @@
                             <kbd class="spotlight-shortcut-badge pointer-events-none hidden rounded border border-base-content/20 bg-base-100/50 px-1.5 py-0.5 font-sans text-[10px] font-medium tabular-nums text-base-content/60 sm:inline-flex">⌘K</kbd>
                         </button>
                         @auth
-                            <a href="{{ route('dashboard') }}" class="hidden text-base font-medium text-base-content/80 hover:text-base-content sm:inline">Dashboard</a>
-                            @if(auth()->user()->isAdmin())
-                                <a href="{{ route('admin.dashboard') }}" class="hidden text-base font-medium text-base-content/80 hover:text-base-content sm:inline">Admin</a>
-                            @endif
-                            <a href="{{ route('profile.edit') }}" class="hidden text-base font-medium text-base-content/80 hover:text-base-content sm:inline">{{ auth()->user()->name }}</a>
-                            <form action="{{ url('/logout') }}" method="POST" class="hidden sm:inline">
-                                @csrf
-                                <button type="submit" class="text-base font-medium text-base-content/80 hover:text-base-content">Log out</button>
-                            </form>
+                            <div
+                                class="relative hidden sm:block"
+                                x-data="{ open: false }"
+                                x-on:click.outside="open = false"
+                            >
+                                <button
+                                    type="button"
+                                    class="flex items-center gap-2 rounded-full bg-base-100/10 px-3 py-1.5 text-sm font-medium text-base-content/80 hover:bg-base-100/20 hover:text-base-content"
+                                    :aria-expanded="open"
+                                    aria-haspopup="menu"
+                                    @click="open = !open"
+                                >
+                                    <span class="inline-flex size-6 items-center justify-center rounded-full bg-base-100/20 text-xs font-semibold uppercase">
+                                        {{ \Illuminate\Support\Str::substr(auth()->user()->name, 0, 1) }}
+                                    </span>
+                                    <span class="max-w-[7rem] truncate text-left">{{ auth()->user()->name }}</span>
+                                    <svg class="size-3 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M6 9l6 6 6-6" />
+                                    </svg>
+                                </button>
+                                <div
+                                    class="absolute right-0 z-40 mt-2 w-48 rounded-2xl border border-base-content/10 bg-base-200/95 p-1.5 shadow-xl backdrop-blur"
+                                    x-show="open"
+                                    x-cloak
+                                    x-transition
+                                    role="menu"
+                                >
+                                    <div class="flex flex-col gap-0.5 text-sm">
+                                        <a
+                                            href="{{ route('dashboard') }}"
+                                            class="rounded-xl px-2.5 py-2 text-base-content/80 hover:bg-base-300/70 hover:text-base-content"
+                                            @click="open = false"
+                                            role="menuitem"
+                                        >
+                                            Dashboard
+                                        </a>
+                                        @if(auth()->user()->isAdmin())
+                                            <a
+                                                href="{{ route('admin.dashboard') }}"
+                                                class="rounded-xl px-2.5 py-2 text-base-content/80 hover:bg-base-300/70 hover:text-base-content"
+                                                @click="open = false"
+                                                role="menuitem"
+                                            >
+                                                Admin
+                                            </a>
+                                        @endif
+                                        <a
+                                            href="{{ route('profile.edit') }}"
+                                            class="rounded-xl px-2.5 py-2 text-base-content/80 hover:bg-base-300/70 hover:text-base-content"
+                                            @click="open = false"
+                                            role="menuitem"
+                                        >
+                                            Profile
+                                        </a>
+                                        <form action="{{ url('/logout') }}" method="POST" role="none">
+                                            @csrf
+                                            <button
+                                                type="submit"
+                                                class="flex w-full items-center justify-between rounded-xl px-2.5 py-2 text-left text-base-content/80 hover:bg-base-300/70 hover:text-base-content"
+                                                role="menuitem"
+                                            >
+                                                <span>Log out</span>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
                         @else
                             <livewire:auth-dropdown />
                             <a href="{{ url('/register') }}" class="hidden text-base font-medium text-base-content/80 hover:text-base-content sm:inline">Register</a>
