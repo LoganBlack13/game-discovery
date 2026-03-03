@@ -60,50 +60,50 @@ new class extends Component
     "
 >
     <div
-        class="absolute inset-0 z-0 bg-black/40 dark:bg-black/60 backdrop-blur-sm"
+        class="spotlight-backdrop absolute inset-0 z-0 bg-black/50 dark:bg-black/70"
         aria-hidden="true"
         @click="$dispatch('close-game-search')"
     ></div>
     <div
         x-ref="spotlightPanel"
-        class="relative z-10 flex w-full max-w-[calc(100%-2rem)] max-h-[85vh] flex-col overflow-hidden rounded-2xl bg-base-100 shadow-lg ring-1 ring-base-300 lg:min-w-[50vw] lg:max-w-2xl"
+        class="spotlight-panel relative z-10 flex w-full max-w-[calc(100%-2rem)] max-h-[85vh] flex-col overflow-hidden rounded-box bg-base-100 shadow-2xl ring-1 ring-base-300 lg:min-w-[50vw] lg:max-w-2xl"
         @click.stop
     >
-        <div class="flex shrink-0 flex-col px-3 pt-3 pb-1.5">
+        <div class="flex shrink-0 flex-col px-4 pt-4 pb-3">
             <input
                 type="search"
                 wire:model.live.debounce.300ms="query"
                 placeholder="Search games…"
-                class="input input-bordered w-full"
+                class="spotlight-input input input-bordered w-full rounded-box border-base-300 bg-base-200/50 py-3.5 text-base placeholder:text-base-content/50 focus:bg-base-100 sm:text-lg"
                 aria-label="Search games"
             />
         </div>
         <div class="min-h-0 flex-1 overflow-hidden">
             @if(trim($query) !== '')
-                <div wire:loading class="px-3 py-1.5 text-sm text-base-content/70">Searching…</div>
+                <div wire:loading class="px-4 py-2 text-sm text-base-content/60">Searching…</div>
             @endif
-            <div class="max-h-[60vh] overflow-y-auto py-1.5 pr-2 pl-3">
-                <ul class="flex flex-col gap-2" role="listbox" aria-label="Search results">
+            <div class="max-h-[60vh] overflow-y-auto py-2 pr-3 pl-4 scrollbar-hidden">
+                <ul class="flex flex-col gap-1.5" role="listbox" aria-label="Search results">
                     @foreach($this->results as $result)
                         @php
                             $game = $result->game;
                         @endphp
                         <li
-                            class="search-result-item flex items-center gap-3 rounded-lg border border-base-300 px-3 py-2 shadow-sm transition-colors bg-base-100"
+                            class="search-result-item flex items-center gap-3 rounded-box border border-base-300/80 px-3 py-2.5 shadow-sm transition-all duration-150 ease-out bg-base-100 hover:border-base-300"
                             style="animation-delay: {{ $loop->index * 0.02 }}s"
                             data-game-url="{{ route('games.show', $game) }}"
                             role="option"
                             :aria-selected="highlightedIndex === {{ $loop->index }}"
-                            :class="highlightedIndex === {{ $loop->index }} ? 'border-primary ring-1 ring-primary/50 bg-primary/10' : 'hover:bg-base-200'"
+                            :class="highlightedIndex === {{ $loop->index }} ? 'border-primary ring-2 ring-primary/30 bg-primary/10' : ''"
                         >
                             <a
                                 href="{{ route('games.show', $game) }}"
                                 class="flex min-w-0 flex-1 items-center gap-3 focus:outline-none"
                             >
                                 @if ($game->cover_image)
-                                    <img src="{{ $game->cover_image }}" alt="" class="h-16 w-12 shrink-0 rounded-lg object-cover ring-1 ring-base-300 shadow-sm" />
+                                    <img src="{{ $game->cover_image }}" alt="" class="h-16 w-12 shrink-0 rounded-box object-cover ring-1 ring-base-300 shadow-sm" />
                                 @else
-                                    <div class="flex h-16 w-12 shrink-0 items-center justify-center rounded-lg bg-base-300 text-sm font-semibold text-base-content/70">{{ substr($game->title, 0, 1) }}</div>
+                                    <div class="flex h-16 w-12 shrink-0 items-center justify-center rounded-box bg-base-300 text-sm font-semibold text-base-content/70">{{ substr($game->title, 0, 1) }}</div>
                                 @endif
                                 <div class="min-w-0 flex-1">
                                     <span class="block truncate font-semibold text-base-content">{{ $game->title }}</span>
@@ -155,9 +155,9 @@ new class extends Component
             </div>
         </div>
         @if (trim($query) === '')
-            <p class="px-3 py-4 text-center text-sm text-base-content/70">Type to search games.</p>
+            <p class="px-4 py-5 text-center text-sm text-base-content/60">Type to search games.</p>
         @elseif($this->results->isEmpty())
-            <p class="px-3 py-4 text-center text-sm text-base-content/70">No games found.</p>
+            <p class="px-4 py-5 text-center text-sm text-base-content/60">No games found.</p>
         @endif
     </div>
 </div>

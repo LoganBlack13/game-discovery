@@ -483,6 +483,36 @@
   }
 }
 
+/* Spotlight / command palette */
+.spotlight-backdrop {
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  transition: opacity 0.15s ease-out;
+}
+
+@keyframes spotlight-panel-in {
+  from {
+    opacity: 0;
+    transform: scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.spotlight-open .spotlight-panel {
+  animation: spotlight-panel-in 0.2s ease-out;
+}
+
+.spotlight-input:focus {
+  outline: none;
+}
+
+.spotlight-shortcut-badge {
+  letter-spacing: 0.02em;
+}
+
 @keyframes search-result-in {
   from {
     opacity: 0;
@@ -495,11 +525,15 @@
 }
 
 .search-result-item {
-  animation: search-result-in 0.15s ease-out both;
+  animation: search-result-in 0.2s ease-out both;
 }
 
 @media (prefer-reduced-motion: reduce) {
   .welcome-animate {
+    animation: none;
+  }
+
+  .spotlight-open .spotlight-panel {
     animation: none;
   }
 
