@@ -195,6 +195,19 @@
             <livewire:game-search-modal />
         </div>
 
+        <script>
+            document.addEventListener('keydown', function (e) {
+                if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+                    var t = e.target;
+                    if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable)) {
+                        return;
+                    }
+                    e.preventDefault();
+                    window.dispatchEvent(new CustomEvent('open-game-search'));
+                }
+            });
+        </script>
+
         @livewireScripts
         <script>
             function themeToggle(config) {
