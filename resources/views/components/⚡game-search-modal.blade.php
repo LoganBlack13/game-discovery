@@ -1,7 +1,9 @@
 <?php
 
 use App\Models\Game;
+use App\Services\UserGameSearchService;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Support\Collection;
 use Livewire\Component;
 
 new class extends Component
@@ -11,34 +13,15 @@ new class extends Component
     public string $query = '';
 
     /**
-     * @return \Illuminate\Support\Collection<int, Game>
+     * @return Collection<int, \App\Services\UserGameSearchResult>
      */
-    public function getResultsProperty(): \Illuminate\Support\Collection
+    public function getResultsProperty(): Collection
     {
-        if (trim($this->query) === '') {
-            return collect();
-        }
-
-        return Game::query()
-            ->where('title', 'like', '%'.trim($this->query).'%')
-            ->limit(10)
-            ->get();
-    }
-
-    /**
-     * @return array<int, int>
-     */
-    public function getTrackedGameIdsProperty(): array
-    {
-        if (! auth()->check() || $this->results->isEmpty()) {
-            return [];
-        }
-
-        return auth()->user()
-            ->trackedGames()
-            ->whereIn('game_id', $this->results->pluck('id'))
-            ->pluck('game_id')
-            ->all();
+        return app(UserGameSearchService::class)->search(
+            auth()->user(),
+            $this->query,
+            10
+        );
     }
 
     public function trackGame(int $gameId): void
@@ -101,9 +84,9 @@ new class extends Component
             @endif
             <div class="max-h-[60vh] overflow-y-auto py-1.5 pr-2 pl-3">
                 <ul class="flex flex-col gap-2" role="listbox" aria-label="Search results">
-                    @foreach($this->results as $game)
+                    @foreach($this->results as $result)
                         @php
-                            $isTracked = in_array($game->id, $this->trackedGameIds);
+                            $game = $result->game;
                         @endphp
                         <li
                             class="search-result-item flex items-center gap-3 rounded-lg border border-base-300 px-3 py-2 shadow-sm transition-colors bg-base-100"
@@ -141,7 +124,7 @@ new class extends Component
                                 @guest
                                     <a href="{{ route('login') }}" class="text-sm font-medium text-primary hover:underline" x-on:click.stop>Log in to track</a>
                                 @else
-                                    @if ($isTracked)
+                                    @if ($result->isTracked)
                                         <button
                                             type="button"
                                             class="btn btn-ghost btn-sm"
