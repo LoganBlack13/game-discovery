@@ -48,3 +48,25 @@ test('authenticated user can untrack a game from search modal', function (): voi
     $user->refresh();
     expect($user->trackedGames()->where('game_id', $game->id)->exists())->toBeFalse();
 });
+
+test('search modal shows at most 10 results', function (): void {
+    foreach (range(1, 15) as $i) {
+        Game::factory()->create(['title' => "Cap Test Game {$i}"]);
+    }
+
+    $component = Livewire::test('game-search-modal')
+        ->set('query', 'Cap Test Game');
+
+    $component->assertSee('Cap Test Game 1');
+    $rendered = $component->html();
+    $count = mb_substr_count($rendered, 'data-game-url=');
+    expect($count)->toBeLessThanOrEqual(10);
+});
+
+test('guest sees log in to track in search results', function (): void {
+    Game::factory()->create(['title' => 'Guest Search Game']);
+
+    Livewire::test('game-search-modal')
+        ->set('query', 'Guest Search')
+        ->assertSee('Log in to track');
+});
