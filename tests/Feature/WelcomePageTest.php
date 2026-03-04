@@ -60,6 +60,22 @@ test('coming soon section shows games with release date before games with no rel
         ->and($posWithDate)->toBeLessThan($posNoDate);
 });
 
+test('welcome page shows upcoming releases section with countdown and news', function (): void {
+    $game = Game::factory()->create([
+        'title' => 'Silksong Demo',
+        'release_date' => now()->addDays(120),
+    ]);
+    News::factory()->create(['game_id' => $game->id, 'title' => 'New trailer']);
+
+    $response = $this->get('/');
+
+    $response->assertSuccessful();
+    $response->assertSee('Upcoming releases', false);
+    $response->assertSee('see exactly how long until they release', false);
+    $response->assertSee('Silksong Demo', false);
+    $response->assertSee('Track your first game', false);
+});
+
 test('welcome page shows latest news section', function (): void {
     $response = $this->get('/');
 

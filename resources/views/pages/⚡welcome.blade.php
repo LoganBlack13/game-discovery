@@ -15,7 +15,8 @@ new #[Title('Track your games')] class extends Component
         return Game::query()
             ->upcoming()
             ->upcomingByReleaseDate()
-            ->limit(12)
+            ->withCount('news')
+            ->limit(6)
             ->get();
     }
 
@@ -121,21 +122,37 @@ new #[Title('Track your games')] class extends Component
     </section>
     @endauth
 
-    {{-- Coming soon --}}
-    <section id="coming-soon" class="mb-16 sm:mb-20" aria-label="Coming soon">
+    {{-- Upcoming releases --}}
+    <section id="features" class="mb-16 sm:mb-20" aria-label="Upcoming releases">
         <x-ui.card-row
-            id="coming-soon-row"
-            title="Coming soon"
-            subtitle="Mark your calendar"
+            id="upcoming-releases-row"
+            title="Upcoming releases"
+            subtitle="Track the games you're waiting for and see exactly how long until they release."
         >
             @foreach($this->getUpcomingGames() as $index => $game)
+                @php
+                    $countdown = $game->release_date ? $game->release_date->diffInDays(now(), false) : null;
+                    $countdownText = $countdown !== null ? abs($countdown) . ' days' : null;
+                    $newsCount = $game->news_count ?? 0;
+                    $statusParts = array_filter([
+                        $game->release_date?->format('M j, Y'),
+                        $countdownText,
+                        $newsCount > 0 ? $newsCount . ' news' : null,
+                    ]);
+                    $status = implode(' · ', $statusParts) ?: null;
+                @endphp
                 <x-game.card
                     :game="$game"
-                    :status="$game->release_date?->format('M j, Y') ?? null"
+                    :status="$status"
                     class="welcome-animate welcome-animate-delay-{{ min(5 + $index, 9) }}"
                 />
             @endforeach
         </x-ui.card-row>
+        <div class="mt-6 px-4">
+            <a href="{{ url('/register') }}" class="btn btn-primary btn-sm rounded-btn">
+                Track your first game
+            </a>
+        </div>
     </section>
 
 
