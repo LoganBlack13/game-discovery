@@ -29,7 +29,7 @@ test('welcome page shows real upcoming games in upcoming releases section', func
     $response->assertSee('Upcoming releases', false);
 });
 
-test('coming soon section shows games with release date before games with no release date', function (): void {
+test('upcoming releases section shows games with release date before games with no release date', function (): void {
     $withDate = Game::factory()->create([
         'title' => 'Upcoming With Date',
         'release_date' => now()->addDays(14),
