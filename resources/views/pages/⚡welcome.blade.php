@@ -67,6 +67,32 @@ new #[Title('Track your games')] class extends Component
             ->limit(6)
             ->get();
     }
+
+    /**
+     * @return \Illuminate\Support\Collection<int, array{title: string, cover_image: string|null, hours: int}>
+     */
+    public function getSampleBacklogItems()
+    {
+        $items = [
+            ['title' => 'Elden Ring', 'slug' => 'elden-ring', 'hours' => 60],
+            ['title' => 'Baldur\'s Gate 3', 'slug' => 'baldurs-gate-3', 'hours' => 80],
+            ['title' => 'Cyberpunk 2077', 'slug' => 'cyberpunk-2077', 'hours' => 25],
+        ];
+        $games = Game::query()
+            ->whereIn('slug', array_column($items, 'slug'))
+            ->get()
+            ->keyBy('slug');
+
+        return collect($items)->map(function (array $row) use ($games): array {
+            $game = $games->get($row['slug']);
+
+            return [
+                'title' => $row['title'],
+                'cover_image' => $game?->cover_image,
+                'hours' => $row['hours'],
+            ];
+        });
+    }
 };
 ?>
 
@@ -186,6 +212,40 @@ new #[Title('Track your games')] class extends Component
         <x-home.game-preview-panel />
     </section>
 
+    {{-- Plan your gaming backlog (sample) --}}
+    <section class="mb-16 sm:mb-20" aria-label="Plan your gaming backlog">
+        <x-ui.section-header
+            title="Plan your gaming backlog"
+            subtitle="See how long your games take to finish and estimate the total time needed to complete your backlog."
+        />
+        <ul class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 mb-6">
+            @foreach ($this->getSampleBacklogItems() as $item)
+                <li class="card bg-base-300 border border-base-content/10 rounded-box overflow-hidden flex flex-row gap-4">
+                    <figure class="aspect-[3/4] w-24 shrink-0 overflow-hidden">
+                        @if ($item['cover_image'])
+                            <img src="{{ $item['cover_image'] }}" alt="" class="size-full object-cover" />
+                        @else
+                            <div class="flex size-full items-center justify-center bg-base-200">
+                                <span class="font-display text-2xl font-bold text-base-content/40">{{ mb_substr($item['title'], 0, 1) }}</span>
+                            </div>
+                        @endif
+                    </figure>
+                    <div class="card-body justify-center p-4 gap-0">
+                        <h3 class="font-display font-semibold text-base-content">{{ $item['title'] }}</h3>
+                        <p class="text-sm text-base-content/70">~{{ $item['hours'] }} hours</p>
+                    </div>
+                </li>
+            @endforeach
+        </ul>
+        @php $totalHours = $this->getSampleBacklogItems()->sum('hours'); @endphp
+        <p class="text-base font-semibold text-base-content mb-4">
+            Total backlog time
+            <span class="block text-2xl text-primary">{{ $totalHours }} hours</span>
+        </p>
+        <a href="{{ url('/register') }}" class="btn btn-primary btn-sm rounded-btn">
+            Plan your backlog
+        </a>
+    </section>
 
     {{-- Trending now --}}
     <section id="trending" class="mt-12 sm:mt-16" aria-label="Trending now">

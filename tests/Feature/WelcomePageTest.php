@@ -86,6 +86,16 @@ test('welcome page upcoming section has game links or preview triggers', functio
     expect($response->getContent())->toContain('Preview Game');
 });
 
+test('welcome page shows backlog planning section with example items', function (): void {
+    $response = $this->get('/');
+
+    $response->assertSuccessful();
+    $response->assertSee('Plan your gaming backlog', false);
+    $response->assertSee('See how long your games take', false);
+    $response->assertSee('Total backlog time', false);
+    $response->assertSee('Plan your backlog', false);
+});
+
 test('welcome page shows latest news section', function (): void {
     $response = $this->get('/');
 
