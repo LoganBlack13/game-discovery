@@ -247,19 +247,6 @@ new #[Title('Track your games')] class extends Component
         </a>
     </section>
 
-    {{-- Trending now --}}
-    <section id="trending" class="mt-12 sm:mt-16" aria-label="Trending now">
-        <x-ui.card-row
-            id="trending-row"
-            title="Trending now"
-            subtitle="What everyone tracks"
-        >
-            @foreach($this->getPopularGames() as $game)
-                <x-game.card :game="$game" status="Trending now" />
-            @endforeach
-        </x-ui.card-row>
-    </section>
-
     {{-- Your backlog (if signed in) --}}
     <section class="mt-12 sm:mt-16" aria-label="Your backlog">
         <x-ui.section-header
@@ -279,19 +266,6 @@ new #[Title('Track your games')] class extends Component
                 </p>
             @endforelse
         </div>
-    </section>
-
-    {{-- Recently released --}}
-    <section class="mt-12 sm:mt-16" aria-label="Recently released">
-        <x-ui.card-row
-            id="recently-released-row"
-            title="Recently released"
-            subtitle="Fresh out of the oven"
-        >
-            @foreach($this->getRecentlyReleasedGames() as $game)
-                <x-game.card :game="$game" />
-            @endforeach
-        </x-ui.card-row>
     </section>
 
     {{-- Stay updated on your games --}}
@@ -360,6 +334,21 @@ new #[Title('Track your games')] class extends Component
         <div class="mt-6">
             <a href="{{ url('/register') }}" class="btn btn-primary btn-sm rounded-btn">
                 Calculate your backlog
+            </a>
+        </div>
+    </section>
+
+    {{-- Final CTA --}}
+    <section class="mt-12 sm:mt-16 py-12 sm:py-16 text-center" aria-label="Get started">
+        <p class="text-lg font-medium text-base-content mb-6">
+            Track your games and plan your backlog.
+        </p>
+        <div class="flex flex-wrap items-center justify-center gap-4">
+            <a href="{{ url('/register') }}" class="btn btn-primary rounded-btn px-6">
+                Start tracking your games
+            </a>
+            <a href="{{ url('/login') }}" class="link link-hover font-medium text-base-content/80">
+                Sign in
             </a>
         </div>
     </section>

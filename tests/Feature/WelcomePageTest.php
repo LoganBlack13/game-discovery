@@ -16,23 +16,17 @@ test('welcome page loads and shows hero content', function (): void {
     $response->assertSee('See how it works', false);
 });
 
-test('welcome page shows real upcoming popular and recently released games', function (): void {
+test('welcome page shows real upcoming games in upcoming releases section', function (): void {
     $upcoming = Game::factory()->create([
         'title' => 'Upcoming Game',
         'release_date' => now()->addDays(30),
-    ]);
-    $released = Game::factory()->create([
-        'title' => 'Released Game',
-        'release_date' => now()->subDays(10),
     ]);
 
     $response = $this->get('/');
 
     $response->assertSuccessful();
     $response->assertSee('Upcoming Game', false);
-    $response->assertSee('Released Game', false);
-    $response->assertSee('Coming soon', false);
-    $response->assertSee('Recently released', false);
+    $response->assertSee('Upcoming releases', false);
 });
 
 test('coming soon section shows games with release date before games with no release date', function (): void {
@@ -94,6 +88,13 @@ test('welcome page shows backlog planning section with example items', function 
     $response->assertSee('See how long your games take', false);
     $response->assertSee('Total backlog time', false);
     $response->assertSee('Plan your backlog', false);
+});
+
+test('welcome page shows final CTA section', function (): void {
+    $response = $this->get('/');
+
+    $response->assertSuccessful();
+    $response->assertSee('Track your games and plan your backlog.', false);
 });
 
 test('welcome page shows playable date insight section', function (): void {
