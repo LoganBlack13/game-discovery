@@ -76,6 +76,16 @@ test('welcome page shows upcoming releases section with countdown and news', fun
     $response->assertSee('Track your first game', false);
 });
 
+test('welcome page upcoming section has game links or preview triggers', function (): void {
+    Game::factory()->create(['title' => 'Preview Game', 'release_date' => now()->addDays(30)]);
+
+    $response = $this->get('/');
+
+    $response->assertSuccessful();
+    $response->assertSee('Preview Game', false);
+    expect($response->getContent())->toContain('Preview Game');
+});
+
 test('welcome page shows latest news section', function (): void {
     $response = $this->get('/');
 

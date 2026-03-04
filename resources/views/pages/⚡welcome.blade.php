@@ -16,6 +16,7 @@ new #[Title('Track your games')] class extends Component
             ->upcoming()
             ->upcomingByReleaseDate()
             ->withCount('news')
+            ->with(['news' => fn ($q) => $q->orderByDesc('published_at')->limit(1)])
             ->limit(6)
             ->get();
     }
@@ -123,7 +124,19 @@ new #[Title('Track your games')] class extends Component
     @endauth
 
     {{-- Upcoming releases --}}
-    <section id="features" class="mb-16 sm:mb-20" aria-label="Upcoming releases">
+    <section
+        id="features"
+        class="mb-16 sm:mb-20"
+        aria-label="Upcoming releases"
+        x-data="{
+            previewOpen: false,
+            previewGame: null,
+            openPreview(payload) {
+                this.previewGame = payload;
+                this.previewOpen = true;
+            },
+        }"
+    >
         <x-ui.card-row
             id="upcoming-releases-row"
             title="Upcoming releases"
@@ -140,12 +153,29 @@ new #[Title('Track your games')] class extends Component
                         $newsCount > 0 ? $newsCount . ' news' : null,
                     ]);
                     $status = implode(' · ', $statusParts) ?: null;
+                    $latestNews = $game->news->first();
+                    $previewPayload = [
+                        'title' => $game->title,
+                        'gameUrl' => route('games.show', $game),
+                        'releaseDate' => $game->release_date?->format('M j, Y'),
+                        'countdown' => $countdownText,
+                        'latestNewsTitle' => $latestNews?->title,
+                    ];
                 @endphp
-                <x-game.card
-                    :game="$game"
-                    :status="$status"
-                    class="welcome-animate welcome-animate-delay-{{ min(5 + $index, 9) }}"
-                />
+                <div
+                    class="cursor-pointer shrink-0"
+                    role="button"
+                    tabindex="0"
+                    data-preview-payload="{{ json_encode($previewPayload) }}"
+                    @click.prevent="openPreview(JSON.parse($event.currentTarget.dataset.previewPayload))"
+                    @keydown.enter.prevent="openPreview(JSON.parse($event.currentTarget.dataset.previewPayload))"
+                >
+                    <x-game.card
+                        :game="$game"
+                        :status="$status"
+                        class="welcome-animate welcome-animate-delay-{{ min(5 + $index, 9) }} pointer-events-none"
+                    />
+                </div>
             @endforeach
         </x-ui.card-row>
         <div class="mt-6 px-4">
@@ -153,6 +183,7 @@ new #[Title('Track your games')] class extends Component
                 Track your first game
             </a>
         </div>
+        <x-home.game-preview-panel />
     </section>
 
 
