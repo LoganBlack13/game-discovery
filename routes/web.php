@@ -10,6 +10,8 @@ use Illuminate\Support\Facades\Route;
 Route::livewire('/', 'pages::welcome');
 
 Route::get('/games/{game:slug}', [App\Http\Controllers\GameController::class, 'show'])->name('games.show');
+Route::get('/privacy', fn () => view('pages.privacy'))->name('privacy');
+Route::get('/terms', fn () => view('pages.terms'))->name('terms');
 
 Route::middleware(['auth', 'verified'])->group(function (): void {
     Route::get('/dashboard', App\Http\Controllers\DashboardController::class)->name('dashboard');

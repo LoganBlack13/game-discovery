@@ -90,6 +90,15 @@ test('welcome page shows backlog planning section with example items', function 
     $response->assertSee('Plan your backlog', false);
 });
 
+test('layout footer contains product name and key links', function (): void {
+    $response = $this->get('/');
+
+    $response->assertSuccessful();
+    $response->assertSee(config('app.name'), false);
+    $response->assertSee('Features', false);
+    $response->assertSee('How it works', false);
+});
+
 test('welcome page shows final CTA section', function (): void {
     $response = $this->get('/');
 

@@ -231,6 +231,25 @@
             <main class="grow">
                 {{ $slot }}
             </main>
+
+            <footer class="mt-auto border-t border-base-content/10 bg-base-200/50">
+                <div class="mx-auto max-w-5xl px-4 py-8 sm:px-6">
+                    <div class="flex flex-col gap-6 sm:flex-row sm:items-start sm:justify-between">
+                        <div class="max-w-sm">
+                            <a href="{{ url('/') }}" class="font-display text-lg font-semibold text-base-content">{{ config('app.name') }}</a>
+                            <p class="mt-2 text-sm text-base-content/70">
+                                Track upcoming releases, follow news for your games, and plan your backlog.
+                            </p>
+                        </div>
+                        <nav class="flex flex-wrap gap-6 text-sm" aria-label="Footer">
+                            <a href="{{ url('/') }}#features" class="link link-hover text-base-content/80">Features</a>
+                            <a href="{{ url('/') }}#how-it-works" class="link link-hover text-base-content/80">How it works</a>
+                            <a href="{{ url('/privacy') }}" class="link link-hover text-base-content/80">Privacy</a>
+                            <a href="{{ url('/terms') }}" class="link link-hover text-base-content/80">Terms</a>
+                        </nav>
+                    </div>
+                </div>
+            </footer>
         </div>
 
         <div
