@@ -8,7 +8,7 @@ use Livewire\Attributes\Title;
  * Welcome page. Featured hero game = first of getPopularGames() (highest tracked_by_users_count).
  * Changes when track/untrack or data changes; no time-based rotation.
  */
-new #[Title('Discover your next game')] class extends Component
+new #[Title('Track your games')] class extends Component
 {
     public function getUpcomingGames()
     {
@@ -69,36 +69,37 @@ new #[Title('Discover your next game')] class extends Component
 ?>
 
 <div class="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-20 lg:px-8 lg:py-24 space-y-16">
-    {{-- Hero: DaisyUI hero layout with featured game (most tracked), real CTAs only --}}
+    {{-- Hero: product value and dashboard preview --}}
     <section
-        aria-label="Discover your next game"
+        aria-label="Track your games"
         class="hero relative overflow-hidden rounded-box bg-gradient-to-r from-warning/20 via-secondary/30 to-secondary/50 px-4 py-8 sm:px-6 sm:py-10 lg:px-10 lg:py-12"
     >
         <div class="hero-content relative flex flex-col gap-8 lg:flex-row lg:items-stretch">
             <div class="max-w-xl space-y-6">
                 <header class="space-y-2">
                     <h1 class="hero-title-glow font-display text-3xl font-semibold leading-tight text-base-content sm:text-4xl">
-                        Discover your next game
+                        Track your games.<br>
+                        Know when you'll actually play them.
                     </h1>
                     <p class="max-w-xl text-sm text-base-content/70">
-                        Track what you want to play. Browse coming soon, most tracked, and recently released.
+                        Follow upcoming releases, see the latest news for your games, and estimate how long your backlog will take to complete.
                     </p>
                 </header>
 
-                <div>
+                <div class="flex flex-wrap items-center gap-3">
                     <a
-                        href="#trending"
+                        href="{{ url('/register') }}"
                         class="btn btn-primary btn-sm rounded-btn px-5 font-medium"
                     >
-                        Explore games
+                        Start tracking your games
+                    </a>
+                    <a
+                        href="#how-it-works"
+                        class="btn btn-ghost btn-sm rounded-btn px-5 font-medium text-base-content/80"
+                    >
+                        See how it works
                     </a>
                 </div>
-
-                @if ($this->getHeroPrimary())
-                    <p class="text-xs font-semibold uppercase tracking-[0.18em] text-primary/80">
-                        Most tracked on the site — updates as people track games.
-                    </p>
-                @endif
             </div>
 
             @if ($this->getHeroPrimary())
@@ -106,9 +107,9 @@ new #[Title('Discover your next game')] class extends Component
                     <x-game.hero-tile :game="$this->getHeroPrimary()" />
                 </div>
             @else
-                <p class="max-w-xl text-sm text-base-content/70">
-                    We don’t have enough data yet to highlight a featured game. Explore coming soon and trending games below to start building your library.
-                </p>
+                <div class="max-w-xl rounded-box bg-base-300/50 p-6 text-sm text-base-content/70">
+                    <p>Start tracking games to see your dashboard with upcoming releases, backlog, and news.</p>
+                </div>
             @endif
         </div>
     </section>

@@ -10,10 +10,10 @@ test('welcome page loads and shows hero content', function (): void {
     $response = $this->get('/');
 
     $response->assertSuccessful();
-    $response->assertSee('Discover your next game');
-    $response->assertSee('Explore games');
-    $response->assertSee('Track what you want to play', false);
-    $response->assertSee('Trending now');
+    $response->assertSee('Track your games.', false);
+    $response->assertSee('Know when you\'ll actually play them.', false);
+    $response->assertSee('Start tracking your games', false);
+    $response->assertSee('See how it works', false);
 });
 
 test('welcome page shows real upcoming popular and recently released games', function (): void {
