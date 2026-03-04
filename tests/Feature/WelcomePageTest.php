@@ -96,6 +96,16 @@ test('welcome page shows backlog planning section with example items', function 
     $response->assertSee('Plan your backlog', false);
 });
 
+test('welcome page shows playable date insight section', function (): void {
+    $response = $this->get('/');
+
+    $response->assertSuccessful();
+    $response->assertSee('When will you actually play it?', false);
+    $response->assertSee('backlog determines when', false);
+    $response->assertSee('start new games', false);
+    $response->assertSee('Calculate your backlog', false);
+});
+
 test('welcome page shows stay updated news section', function (): void {
     $response = $this->get('/');
 

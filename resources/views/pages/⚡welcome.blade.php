@@ -330,4 +330,37 @@ new #[Title('Track your games')] class extends Component
             </aside>
         </div>
     </section>
+
+    {{-- When will you actually play it? --}}
+    <section id="how-it-works" class="mt-12 sm:mt-16" aria-label="When will you actually play it?">
+        <x-ui.section-header
+            title="When will you actually play it?"
+            subtitle="Your backlog determines when you'll start new games."
+        />
+        <div class="overflow-x-auto">
+            <table class="table table-zebra">
+                <thead>
+                    <tr>
+                        <th>Game</th>
+                        <th>Release date</th>
+                        <th>Backlog remaining</th>
+                        <th>Estimated playable date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Silksong</td>
+                        <td>Release in 120 days</td>
+                        <td>Backlog: 90 hours</td>
+                        <td>Playable in about 2 weeks</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="mt-6">
+            <a href="{{ url('/register') }}" class="btn btn-primary btn-sm rounded-btn">
+                Calculate your backlog
+            </a>
+        </div>
+    </section>
 </div>
