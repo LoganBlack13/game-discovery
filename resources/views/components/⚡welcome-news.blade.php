@@ -9,21 +9,28 @@ new class extends Component
 
     public int $perPage = 10;
 
+    public int $limit = 0;
+
+    public string $title = 'Latest news';
+
+    public ?string $subtitle = null;
+
     /**
      * @return array{items: \Illuminate\Support\Collection<int, News>, hasMore: bool}
      */
     public function getItemsProperty(): array
     {
-        $limit = $this->perPage * $this->page + 1;
+        $pageSize = $this->limit > 0 ? $this->limit : $this->perPage;
+        $fetchLimit = $pageSize * $this->page + 1;
         $items = News::query()
             ->with('game')
             ->orderByDesc('published_at')
-            ->limit($limit)
+            ->limit($fetchLimit)
             ->get();
 
         return [
-            'items' => $items->take($this->perPage * $this->page),
-            'hasMore' => $items->count() > $this->perPage * $this->page,
+            'items' => $items->take($pageSize * $this->page),
+            'hasMore' => $items->count() > $pageSize * $this->page,
         ];
     }
 
@@ -34,8 +41,13 @@ new class extends Component
 };
 ?>
 
-<section aria-label="Latest news" class="space-y-0">
-    <h2 class="font-display text-sm font-bold uppercase tracking-widest text-primary mb-6">Latest news</h2>
+<section aria-label="{{ $title }}" class="space-y-0">
+    <h2 class="font-display text-sm font-bold uppercase tracking-widest text-primary mb-2">{{ $title }}</h2>
+    @if ($subtitle)
+        <p class="text-sm text-base-content/70 mb-6">{{ $subtitle }}</p>
+    @else
+        <div class="mb-6"></div>
+    @endif
 
     @if ($this->items['items']->isEmpty())
         <p class="text-sm text-base-content/70">No news yet. Check back later.</p>

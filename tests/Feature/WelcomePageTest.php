@@ -96,11 +96,19 @@ test('welcome page shows backlog planning section with example items', function 
     $response->assertSee('Plan your backlog', false);
 });
 
+test('welcome page shows stay updated news section', function (): void {
+    $response = $this->get('/');
+
+    $response->assertSuccessful();
+    $response->assertSee('Stay updated on your games', false);
+    $response->assertSee('Follow your games', false);
+});
+
 test('welcome page shows latest news section', function (): void {
     $response = $this->get('/');
 
     $response->assertSuccessful();
-    $response->assertSee('Latest news', false);
+    $response->assertSee('Stay updated on your games', false);
 });
 
 test('welcome page shows news items when news exist', function (): void {
@@ -113,6 +121,6 @@ test('welcome page shows news items when news exist', function (): void {
     $response = $this->get('/');
 
     $response->assertSuccessful();
-    $response->assertSee('Latest news', false);
+    $response->assertSee('Stay updated on your games', false);
     $response->assertSee('Unique Headline Alpha Beta', false);
 });

@@ -294,17 +294,20 @@ new #[Title('Track your games')] class extends Component
         </x-ui.card-row>
     </section>
 
-    {{-- Latest news --}}
-    <section id="latest-news" class="mt-12 sm:mt-16" aria-label="Latest news">
-        <x-ui.section-header
-            id="latest-news-heading"
-            title="Latest news"
-            subtitle="Updates, patches & events"
-            class="mb-4"
-        />
+    {{-- Stay updated on your games --}}
+    <section id="latest-news" class="mt-12 sm:mt-16" aria-label="Stay updated on your games">
         <div class="grid gap-8 lg:grid-cols-[minmax(0,1.6fr)_minmax(0,1.2fr)]">
             <div>
-                <livewire:welcome-news />
+                <livewire:welcome-news
+                    :limit="5"
+                    title="Stay updated on your games"
+                    subtitle="Automatically receive the latest news for the games you track."
+                />
+                <div class="mt-6">
+                    <a href="{{ url('/register') }}" class="btn btn-primary btn-sm rounded-btn">
+                        Follow your games
+                    </a>
+                </div>
             </div>
             <aside class="space-y-3">
                 <x-ui.signal-card
