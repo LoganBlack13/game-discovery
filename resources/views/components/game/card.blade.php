@@ -9,14 +9,17 @@
     $statusText = $status ?? ($game->release_date?->format('M j, Y'));
     $platforms = is_array($game->platforms ?? null) ? $game->platforms : [];
 
-    $baseClasses = 'card bg-base-300 border border-base-content/10 text-base-content rounded-box transition-all duration-200 hover:-translate-y-0.5 hover:border-primary hover:shadow-primary/20 hover:ring-2 hover:ring-primary/50 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-base-100';
+    $baseClasses = 'card bg-base-300 border border-base-content/10 text-base-content rounded-box transition-all duration-200 hover:-translate-y-0.5 hover:border-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-base-100';
+    $hoverGlow = 'hover:shadow-[0_0_24px_var(--color-primary)] hover:shadow-primary/30 hover:ring-2 hover:ring-primary/50';
     $variants = [
-        'default' => 'w-[280px] min-w-[280px] max-w-[280px] shadow-xl shrink-0',
-        'compact' => 'w-[280px] min-w-[280px] max-w-[280px] shadow-md shrink-0',
-        'list' => 'w-full shadow-sm',
+        'default' => 'w-[280px] min-w-[280px] max-w-[280px] shadow-xl shrink-0 ' . $hoverGlow,
+        'compact' => 'w-[280px] min-w-[280px] max-w-[280px] shadow-md shrink-0 ' . $hoverGlow,
+        'list' => 'w-full shadow-sm ' . $hoverGlow,
+        'carousel' => 'w-[280px] min-w-[280px] max-w-[280px] h-[460px] flex flex-col shadow-xl shrink-0 overflow-hidden ' . $hoverGlow,
     ];
 
     $variantClasses = $variants[$variant] ?? $variants['default'];
+    $isCarousel = $variant === 'carousel';
 ?>
 
 <a
@@ -24,7 +27,7 @@
     {{ $attributes->class("welcome-game-card {$baseClasses} {$variantClasses}") }}
     aria-label="{{ $game->title }} — view game"
 >
-    <figure class="aspect-[3/4] w-full overflow-hidden">
+    <figure class="w-full shrink-0 overflow-hidden {{ $isCarousel ? 'h-[373px]' : 'aspect-[3/4]' }}">
         @if ($game->cover_image)
             <img src="{{ $game->cover_image }}" alt="" class="size-full object-cover" />
         @else
@@ -35,19 +38,19 @@
             </div>
         @endif
     </figure>
-    <div class="card-body gap-1 p-3">
-        <h3 class="card-title font-display text-base font-semibold text-base-content">
+    <div class="card-body gap-1 p-3 {{ $isCarousel ? 'h-[87px] min-h-[87px] shrink-0 flex flex-col justify-center overflow-hidden' : '' }}">
+        <h3 class="card-title font-display text-base font-semibold text-base-content {{ $isCarousel ? 'line-clamp-2' : '' }}">
             {{ $game->title }}
         </h3>
 
         @if ($statusText)
-            <p class="text-xs text-base-content/70">
+            <p class="text-xs text-base-content/70 {{ $isCarousel ? 'line-clamp-1' : '' }}">
                 {{ $statusText }}
             </p>
         @endif
 
         @if (count($platforms) > 0)
-            <p class="text-[11px] text-base-content/60">
+            <p class="text-[11px] text-base-content/60 {{ $isCarousel ? 'line-clamp-1' : '' }}">
                 {{ implode(', ', array_slice($platforms, 0, 3)) }}
             </p>
         @endif

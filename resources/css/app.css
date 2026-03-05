@@ -310,9 +310,16 @@
 .welcome-animate-delay-8 { animation-delay: 1.15s; }
 .welcome-animate-delay-9 { animation-delay: 1.3s; }
 
-/* Homepage: game card hover — lift and primary ring */
+/* Homepage: game card hover — lift, glow and primary ring */
 .welcome-game-card {
   transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease, ring 0.2s ease;
+}
+
+/* Carousel: glow + ring on hover when card is inside a group (wrapper has pointer, card has pointer-events-none) */
+.group:hover .welcome-game-card {
+  box-shadow:
+    0 0 0 2px color-mix(in srgb, var(--color-primary) 50%, transparent),
+    0 0 24px color-mix(in srgb, var(--color-primary) 35%, transparent);
 }
 
 /* Hero background per spec: radial glow + linear gradient */

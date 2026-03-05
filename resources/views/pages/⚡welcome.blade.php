@@ -142,14 +142,7 @@ new #[Title('Track your games')] class extends Component
         </div>
     </section>
 
-    @auth
-    {{-- Request a game (authenticated only) --}}
-    <section aria-label="Request a game" class="mt-8 sm:mt-10">
-        <livewire:game-request-card />
-    </section>
-    @endauth
-
-    {{-- Upcoming releases --}}
+   {{-- Upcoming releases --}}
     <section
         id="features"
         class="mb-16 sm:mb-20"
@@ -189,7 +182,7 @@ new #[Title('Track your games')] class extends Component
                     ];
                 @endphp
                 <div
-                    class="cursor-pointer shrink-0"
+                    class="group cursor-pointer shrink-0"
                     role="button"
                     tabindex="0"
                     data-preview-payload="{{ json_encode($previewPayload) }}"
@@ -199,6 +192,7 @@ new #[Title('Track your games')] class extends Component
                     <x-game.card
                         :game="$game"
                         :status="$status"
+                        variant="carousel"
                         class="welcome-animate welcome-animate-delay-{{ min(5 + $index, 9) }} pointer-events-none"
                     />
                 </div>
@@ -245,64 +239,6 @@ new #[Title('Track your games')] class extends Component
         <a href="{{ url('/register') }}" class="btn btn-primary btn-sm rounded-btn">
             Plan your backlog
         </a>
-    </section>
-
-    {{-- Your backlog (if signed in) --}}
-    <section class="mt-12 sm:mt-16" aria-label="Your backlog">
-        <x-ui.section-header
-            title="Your backlog"
-            subtitle="Games you’re already tracking"
-        />
-        <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            @forelse ($this->getBacklogGames() as $game)
-                <x-game.card
-                    :game="$game"
-                    variant="compact"
-                    :status="$game->release_date?->format('M j, Y') ?? 'In your backlog'"
-                />
-            @empty
-                <p class="text-sm text-base-content/70">
-                Sign in and start tracking games to see a personalized backlog here.
-                </p>
-            @endforelse
-        </div>
-    </section>
-
-    {{-- Stay updated on your games --}}
-    <section id="latest-news" class="mt-12 sm:mt-16" aria-label="Stay updated on your games">
-        <div class="grid gap-8 lg:grid-cols-[minmax(0,1.6fr)_minmax(0,1.2fr)]">
-            <div>
-                <livewire:welcome-news
-                    :limit="5"
-                    title="Stay updated on your games"
-                    subtitle="Automatically receive the latest news for the games you track."
-                />
-                <div class="mt-6">
-                    <a href="{{ url('/register') }}" class="btn btn-primary btn-sm rounded-btn">
-                        Follow your games
-                    </a>
-                </div>
-            </div>
-            <aside class="space-y-3">
-                <x-ui.signal-card
-                    :icon="'📅'"
-                    label="Major events"
-                    value="Patch notes & showcases"
-                    tone="info"
-                >
-                    Stay ahead of big drops, live events, and seasonal updates.
-                </x-ui.signal-card>
-
-                <x-ui.signal-card
-                    :icon="'👥'"
-                    label="Friends activity"
-                    value="Coming soon"
-                    tone="neutral"
-                >
-                    Soon you’ll see what your friends are returning to this week.
-                </x-ui.signal-card>
-            </aside>
-        </div>
     </section>
 
     {{-- When will you actually play it? --}}
