@@ -1,1 +1,0 @@
-/home/logan/Projects/game-discovery/.agents/skills/./laravel-specialist/references/routing.md
