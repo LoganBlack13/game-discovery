@@ -66,6 +66,39 @@ test('authenticated user sees three next games when they have two to four upcomi
     $response->assertSee('Fourth Game', false);
 });
 
+test('dashboard renders game preview panel in DOM', function (): void {
+    $user = User::factory()->create();
+    $game = Game::factory()->create(['title' => 'Panel Game']);
+    $user->trackedGames()->attach($game);
+
+    $response = $this->actingAs($user)->get(route('dashboard'));
+
+    $response->assertOk();
+    $response->assertSee('game-preview-title', false);
+    $response->assertSee('View game', false);
+    $response->assertSee('Estimated completion:', false);
+});
+
+test('dashboard shows Upcoming releases section with countdown and news count when user has upcoming tracked games', function (): void {
+    $user = User::factory()->create();
+    $game = Game::factory()->create([
+        'title' => 'Upcoming Release',
+        'release_date' => Carbon::now()->addDays(30),
+    ]);
+    $user->trackedGames()->attach($game);
+    News::factory()->create(['game_id' => $game->id, 'title' => 'News one', 'published_at' => now()]);
+    News::factory()->create(['game_id' => $game->id, 'title' => 'News two', 'published_at' => now()->subDay()]);
+
+    $response = $this->actingAs($user)->get(route('dashboard'));
+
+    $response->assertOk();
+    $response->assertSee('Upcoming releases', false);
+    $response->assertSee('Track the games you\'re waiting for', false);
+    $response->assertSee('Upcoming Release', false);
+    $response->assertSee('2 news', false);
+    $response->assertSee('Track more games', false);
+});
+
 test('authenticated user sees Latest news sidebar with news for tracked games only', function (): void {
     $user = User::factory()->create();
     $tracked = Game::factory()->create(['title' => 'My Tracked Game']);
