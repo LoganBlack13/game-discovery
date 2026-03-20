@@ -1,98 +1,121 @@
-- Blade (this project) version: **[github.com/nunomaduro/laravel-starter-kit](https://github.com/nunomaduro/laravel-starter-kit)**
-- Inertia & React version: **[github.com/nunomaduro/laravel-starter-kit-inertia-react](https://github.com/nunomaduro/laravel-starter-kit-inertia-react)**
-- Inertia & Vue version: **[github.com/nunomaduro/laravel-starter-kit-inertia-vue](https://github.com/nunomaduro/laravel-starter-kit-inertia-vue)**
+# Game Discovery
 
+Game Discovery is a Laravel 12 web app for discovering upcoming and released games, tracking titles, and enriching game records with related news.
 
-<p align="center">
-    <a href="https://youtu.be/VhzP0XWGTC4" target="_blank">
-        <img src="/art/banner.png" alt="Overview Laravel Starter Kit" style="width:70%;">
-    </a>
-</p>
+## What It Includes
 
-<p>
-    <a href="https://github.com/nunomaduro/laravel-starter-kit/actions"><img src="https://github.com/nunomaduro/laravel-starter-kit/actions/workflows/tests.yml/badge.svg" alt="Build Status"></a>
-    <a href="https://packagist.org/packages/nunomaduro/laravel-starter-kit"><img src="https://img.shields.io/packagist/dt/nunomaduro/laravel-starter-kit" alt="Total Downloads"></a>
-    <a href="https://packagist.org/packages/nunomaduro/laravel-starter-kit"><img src="https://img.shields.io/packagist/v/nunomaduro/laravel-starter-kit" alt="Latest Stable Version"></a>
-    <a href="https://packagist.org/packages/nunomaduro/laravel-starter-kit"><img src="https://img.shields.io/packagist/l/nunomaduro/laravel-starter-kit" alt="License"></a>
-</p>
+- Public home feed with game discovery content
+- Game detail pages (`/games/{slug}`)
+- Authenticated dashboard for tracked games and personalized activity
+- Admin area for:
+  - adding and reviewing games
+  - processing community game requests
+  - running and monitoring news enrichment
+- Scheduled and queued background processing for enrichment and request workflows
 
-**Laravel Starter Kit** is an ultra-strict, type-safe [Laravel](https://laravel.com) skeleton engineered for developers who refuse to compromise on code quality. This opinionated starter kit enforces rigorous development standards through meticulous tooling configuration and architectural decisions that prioritize type safety, immutability, and fail-fast principles.
+## Tech Stack
 
-## Why This Starter Kit?
+- PHP 8.5
+- Laravel 12
+- Livewire 4 + Flux UI
+- Tailwind CSS v4 + DaisyUI v5
+- Vite 7
+- Pest 4 + PHPStan + Rector + Pint
 
-Modern PHP has evolved into a mature, type-safe language, yet many Laravel projects still operate with loose conventions and optional typing. This starter kit changes that paradigm by enforcing:
+## Prerequisites
 
-- **100% Type Coverage**: Every method, property, and parameter is explicitly typed
-- **Zero Tolerance for Code Smells**: Rector and PHPStan at maximum strictness catch issues before they become bugs
-- **Immutable-First Architecture**: Data structures favor immutability to prevent unexpected mutations
-- **Fail-Fast Philosophy**: Errors are caught at compile-time, not runtime
-- **Automated Code Quality**: Pre-configured tools ensure consistent, pristine code across your entire team
-- **Bun-Powered**: Leveraging Bun for blazing-fast dependency management...
-- **Just Better Laravel Defaults**: Thanks to **[Essentials](https://github.com/nunomaduro/essentials)** / strict models, auto eager loading, immutable dates, and more...
+- PHP 8.5+
+- Composer
+- Bun
+- SQLite (default local setup) or another supported DB driver
 
-This isn't just another Laravel boilerplate—it's a statement that PHP applications can and should be built with the same rigor as strongly-typed languages like Rust or TypeScript.
-
-## Getting Started
-
-> **Requires [PHP 8.4+](https://php.net/releases/)**, [Bun](https://bun.sh) and a code coverage driver like [xdebug](https://xdebug.org/docs/install)**.
-
-Create your type-safe Laravel application using [Composer](https://getcomposer.org):
+## Local Setup
 
 ```bash
-composer create-project nunomaduro/laravel-starter-kit --prefer-dist example-app
+composer setup
 ```
 
-### Initial Setup
+`composer setup` will:
 
-Navigate to your project and complete the setup:
+- install PHP dependencies
+- create `.env` from `.env.example` when missing
+- generate an app key
+- run database migrations
+- install frontend dependencies
+- build frontend assets
+
+## Run in Development
 
 ```bash
-cd example-app
-
-# Setup project
-composer setup
-
-# Start the development server
 composer dev
 ```
 
-### Optional: Browser Testing Setup
+This starts the Laravel server, queue listener, log tailing, and Vite in parallel.
 
-If you plan to use Pest's browser testing capabilities:
+## Environment Configuration
+
+At minimum, configure these values in `.env`:
+
+- `APP_URL`
+- database connection values (if not using default sqlite setup)
+
+For game ingestion and enrichment features, add provider credentials:
+
+- `RAWG_API_KEY`
+- `IGDB_TWITCH_CLIENT_ID`
+- `IGDB_TWITCH_CLIENT_SECRET`
+
+Optional integrations used by the app:
+
+- `SLACK_BOT_USER_OAUTH_TOKEN`
+- `SLACK_BOT_USER_DEFAULT_CHANNEL`
+- `POSTMARK_TOKEN`
+- `RESEND_KEY`
+
+## Queue and Scheduler
+
+The app uses queued jobs for enrichment and request processing. Keep a worker running in development (`composer dev` already does this).
+
+Scheduled commands:
+
+- `news:enrich` daily at `02:00`
+- `game-requests:process` daily at `03:00`
+
+Run them manually if needed:
 
 ```bash
-bun add playwright
-bunx playwright install
+php artisan news:enrich
+php artisan game-requests:process --limit=5
 ```
 
-### Verify Installation
-
-Run the test suite to ensure everything is configured correctly:
-
-```bash
-composer test
-```
-
-You should see 100% test coverage and all quality checks passing.
-
-## Available Tooling
+## Useful Commands
 
 ### Development
-- `composer dev` - Starts Laravel server, queue worker, log monitoring, and Vite dev server concurrently
 
-### Code Quality
-- `composer lint` - Runs Rector (refactoring), Pint (PHP formatting), and Prettier (JS/TS formatting)
-- `composer test:lint` - Dry-run mode for CI/CD pipelines
+- `composer dev` - Run app server, queue worker, logs, and Vite
 
-### Testing
-- `composer test:type-coverage` - Ensures 100% type coverage with Pest
-- `composer test:types` - Runs PHPStan at level 9 (maximum strictness)
-- `composer test:unit` - Runs Pest tests with 100% code coverage requirement
-- `composer test` - Runs the complete test suite (type coverage, unit tests, linting, static analysis)
+### Formatting and Refactoring
 
-### Maintenance
-- `composer update:requirements` - Updates all PHP and Bun dependencies to latest versions
+- `composer lint` - Run Rector, Pint, and Prettier write mode
+- `vendor/bin/pint --dirty --format agent` - Format only changed PHP files
+
+### Tests and Analysis
+
+- `php artisan test --compact` - Run test suite
+- `php artisan test --compact tests/Feature/SomeTest.php` - Run one test file
+- `composer test:type-coverage` - Enforce type coverage
+- `composer test:types` - Run PHPStan
+- `composer test` - Full quality pipeline
+
+## Project Structure (High Level)
+
+- `app/Http/Controllers` - web and admin controllers
+- `app/Services` - game data providers, enrichment, matching, and feed services
+- `app/Jobs` - async processing jobs
+- `app/Console/Commands` - artisan commands for enrichment and request processing
+- `resources/views` - Blade views/components (including interactive server-driven components)
+- `routes/web.php` and `routes/console.php` - HTTP and scheduled command entrypoints
 
 ## License
 
-**Laravel Starter Kit** was created by **[Nuno Maduro](https://x.com/enunomaduro)** under the **[MIT license](https://opensource.org/licenses/MIT)**.
+This project is licensed under the [MIT License](https://opensource.org/licenses/MIT).
