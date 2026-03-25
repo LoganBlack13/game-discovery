@@ -2,7 +2,7 @@
     <div class="mx-auto flex min-h-[calc(100vh-3.5rem)] max-w-md flex-col justify-center px-4 py-12 sm:px-6 lg:px-8">
         <div class="space-y-8">
             <h1 class="text-2xl font-semibold tracking-tight">Two-factor authentication</h1>
-            <p class="text-sm text-zinc-600 dark:text-zinc-400">
+            <p class="text-sm text-base-content/70">
                 Please enter the code from your authenticator app or a recovery code to continue.
             </p>
             <form action="{{ url('/two-factor-challenge') }}" method="POST" class="flex flex-col gap-6">
@@ -16,29 +16,26 @@
                         inputmode="numeric"
                         autocomplete="one-time-code"
                         autofocus
-                        class="rounded-lg border border-zinc-300 bg-white px-3 py-2 text-zinc-900 shadow-sm dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100"
+                        class="input input-bordered w-full"
                     />
                     @error('code')
-                        <p class="text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
+                        <p class="text-sm text-error">{{ $message }}</p>
                     @enderror
                 </div>
-                <p class="text-center text-sm text-zinc-500 dark:text-zinc-400">or</p>
+                <p class="text-center text-sm text-base-content/60">or</p>
                 <div class="flex flex-col gap-2">
                     <label for="recovery_code" class="text-sm font-medium">Recovery code</label>
                     <input
                         id="recovery_code"
                         type="text"
                         name="recovery_code"
-                        class="rounded-lg border border-zinc-300 bg-white px-3 py-2 text-zinc-900 shadow-sm dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100"
+                        class="input input-bordered w-full"
                     />
                     @error('recovery_code')
-                        <p class="text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
+                        <p class="text-sm text-error">{{ $message }}</p>
                     @enderror
                 </div>
-                <button
-                    type="submit"
-                    class="rounded-lg bg-zinc-900 px-4 py-2 font-medium text-white dark:bg-zinc-100 dark:text-zinc-900"
-                >
+                <button type="submit" class="btn btn-primary w-full">
                     Verify
                 </button>
             </form>

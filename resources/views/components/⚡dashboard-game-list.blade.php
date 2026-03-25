@@ -299,10 +299,10 @@ new class extends Component
                 @endforeach
             </div>
             <p class="mt-4">
-                <a href="{{ url('/') }}" class="btn btn-primary btn-sm">Track more games</a>
+                <a href="{{ route('games.index') }}" class="btn btn-primary btn-sm">Browse more games</a>
             </p>
         @else
-            <p class="mt-4 text-sm text-base-content/70">No upcoming releases in your list. <a href="{{ url('/') }}" class="link link-primary">Discover games</a> and track ones you're waiting for.</p>
+            <p class="mt-4 text-sm text-base-content/70">No upcoming releases in your list. <a href="{{ route('games.index') }}" class="link link-primary">Discover games</a> and track ones you're waiting for.</p>
         @endif
     </section>
 

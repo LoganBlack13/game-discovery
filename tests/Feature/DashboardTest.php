@@ -96,10 +96,10 @@ test('dashboard shows Upcoming releases section with countdown and news count wh
     $response->assertSee('Track the games you\'re waiting for', false);
     $response->assertSee('Upcoming Release', false);
     $response->assertSee('2 news', false);
-    $response->assertSee('Track more games', false);
+    $response->assertSee('Browse more games', false);
 });
 
-test('authenticated user sees Latest news sidebar with news for tracked games only', function (): void {
+test('authenticated user sees Recent updates feed with news for tracked games only', function (): void {
     $user = User::factory()->create();
     $tracked = Game::factory()->create(['title' => 'My Tracked Game']);
     $user->trackedGames()->attach($tracked);
@@ -118,7 +118,7 @@ test('authenticated user sees Latest news sidebar with news for tracked games on
     $response = $this->actingAs($user)->get(route('dashboard'));
 
     $response->assertOk();
-    $response->assertSee('Latest news', false);
+    $response->assertSee('Recent updates', false);
     $response->assertSee('Exclusive news for my game', false);
     $response->assertDontSee('News for untracked game', false);
 });

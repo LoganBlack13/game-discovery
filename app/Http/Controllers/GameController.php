@@ -17,7 +17,10 @@ final class GameController extends \Illuminate\Routing\Controller
 
     public function show(Game $game): View
     {
-        $game->load(['news' => fn ($q) => $q->orderByDesc('published_at')]);
+        $game->load([
+            'news' => fn ($q) => $q->orderByDesc('published_at'),
+            'activities',
+        ]);
 
         $isTracked = auth()->check()
             && auth()->user()->trackedGames()->where('game_id', $game->id)->exists();

@@ -8,6 +8,7 @@ use App\Http\Controllers\Admin\NewsEnrichmentProgressController;
 use Illuminate\Support\Facades\Route;
 
 Route::livewire('/', 'pages::welcome');
+Route::livewire('/games', 'pages::games')->name('games.index');
 
 Route::get('/games/{game:slug}', [App\Http\Controllers\GameController::class, 'show'])->name('games.show');
 Route::get('/privacy', fn () => view('pages.privacy'))->name('privacy');

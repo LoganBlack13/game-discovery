@@ -59,9 +59,10 @@
                         <span class="header-logo flex h-8 w-8 items-center justify-center font-display text-xl font-bold">S</span>
                     </a>
                     <nav class="hidden items-center gap-6 md:flex" aria-label="Main">
-                        <a href="{{ url('/') }}#features" class="nav-pill-link rounded-full px-3.5 py-1.5 text-base font-medium text-base-content/80 transition-colors hover:text-base-content">Features</a>
-                        <a href="{{ url('/') }}#how-it-works" class="nav-pill-link rounded-full px-3.5 py-1.5 text-base font-medium text-base-content/80 transition-colors hover:text-base-content">How it works</a>
-                        <a href="{{ url('/login') }}" class="nav-pill-link rounded-full px-3.5 py-1.5 text-base font-medium text-base-content/80 transition-colors hover:text-base-content">Sign in</a>
+                        <a href="{{ route('games.index') }}" class="nav-pill-link rounded-full px-3.5 py-1.5 text-base font-medium text-base-content/80 transition-colors hover:text-base-content">Games</a>
+                        @guest
+                            <a href="{{ url('/') }}#how-it-works" class="nav-pill-link rounded-full px-3.5 py-1.5 text-base font-medium text-base-content/80 transition-colors hover:text-base-content">How it works</a>
+                        @endguest
                     </nav>
                     <div class="flex items-center gap-6">
                         <button type="button" class="flex items-center gap-2 rounded-full px-3 py-2 text-base-content/80 transition-colors hover:bg-base-100/20 hover:text-base-content" aria-label="Search games (⌘K)" @click="$dispatch('open-game-search')">
@@ -139,7 +140,7 @@
                                 </div>
                             </div>
                         @else
-                            <livewire:auth-dropdown />
+                            <a href="{{ url('/login') }}" class="nav-pill-link rounded-full px-3.5 py-1.5 text-sm font-medium text-base-content/80 transition-colors hover:text-base-content">Sign in</a>
                             <a href="{{ url('/register') }}" class="btn btn-primary btn-sm rounded-full px-4 py-2 font-medium">Start tracking</a>
                         @endauth
                         <div
@@ -204,10 +205,12 @@
                             <div class="fixed inset-0 top-[72px] z-40 bg-black/50 backdrop-blur-sm" x-show="open" x-cloak x-transition @click="open = false"></div>
                             <div class="fixed left-4 right-4 top-[72px] z-50 rounded-2xl border border-base-content/10 bg-base-950 p-4 shadow-xl" x-show="open" x-cloak x-transition>
                                 <nav class="flex flex-col gap-1" aria-label="Main">
-                                    <a href="{{ url('/') }}#features" class="rounded-full px-3.5 py-2.5 text-base font-medium text-base-content/80 hover:bg-base-100/10 hover:text-base-content" @click="open = false">Features</a>
-                                    <a href="{{ url('/') }}#how-it-works" class="rounded-full px-3.5 py-2.5 text-base font-medium text-base-content/80 hover:bg-base-100/10 hover:text-base-content" @click="open = false">How it works</a>
-                                    <a href="{{ url('/login') }}" class="rounded-full px-3.5 py-2.5 text-base font-medium text-base-content/80 hover:bg-base-100/10 hover:text-base-content" @click="open = false">Sign in</a>
-                                    <a href="{{ url('/register') }}" class="btn btn-primary btn-sm rounded-full px-4 py-2.5 text-center font-medium" @click="open = false">Start tracking</a>
+                                    <a href="{{ route('games.index') }}" class="rounded-full px-3.5 py-2.5 text-base font-medium text-base-content/80 hover:bg-base-100/10 hover:text-base-content" @click="open = false">Games</a>
+                                    @guest
+                                        <a href="{{ url('/') }}#how-it-works" class="rounded-full px-3.5 py-2.5 text-base font-medium text-base-content/80 hover:bg-base-100/10 hover:text-base-content" @click="open = false">How it works</a>
+                                        <a href="{{ url('/login') }}" class="rounded-full px-3.5 py-2.5 text-base font-medium text-base-content/80 hover:bg-base-100/10 hover:text-base-content" @click="open = false">Sign in</a>
+                                        <a href="{{ url('/register') }}" class="btn btn-primary btn-sm rounded-full px-4 py-2.5 text-center font-medium" @click="open = false">Start tracking</a>
+                                    @endguest
                                 </nav>
                                 @auth
                                     <div class="mt-3 flex flex-col gap-1 border-t border-base-content/10 pt-3">
@@ -242,7 +245,7 @@
                             </p>
                         </div>
                         <nav class="flex flex-wrap gap-6 text-sm" aria-label="Footer">
-                            <a href="{{ url('/') }}#features" class="link link-hover text-base-content/80">Features</a>
+                            <a href="{{ route('games.index') }}" class="link link-hover text-base-content/80">Games</a>
                             <a href="{{ url('/') }}#how-it-works" class="link link-hover text-base-content/80">How it works</a>
                             <a href="{{ url('/privacy') }}" class="link link-hover text-base-content/80">Privacy</a>
                             <a href="{{ url('/terms') }}" class="link link-hover text-base-content/80">Terms</a>

@@ -14,10 +14,10 @@
                         required
                         autofocus
                         autocomplete="email"
-                        class="rounded-lg border border-zinc-300 bg-white px-3 py-2 text-zinc-900 shadow-sm dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100"
+                        class="input input-bordered w-full"
                     />
                     @error('email')
-                        <p class="text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
+                        <p class="text-sm text-error">{{ $message }}</p>
                     @enderror
                 </div>
                 <div class="flex flex-col gap-2">
@@ -28,28 +28,25 @@
                         name="password"
                         required
                         autocomplete="current-password"
-                        class="rounded-lg border border-zinc-300 bg-white px-3 py-2 text-zinc-900 shadow-sm dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100"
+                        class="input input-bordered w-full"
                     />
                     @error('password')
-                        <p class="text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
+                        <p class="text-sm text-error">{{ $message }}</p>
                     @enderror
                 </div>
-                <label class="flex items-center gap-2">
-                    <input type="checkbox" name="remember" class="rounded border-zinc-300" />
+                <label class="flex cursor-pointer items-center gap-2">
+                    <input type="checkbox" name="remember" class="checkbox checkbox-sm" />
                     <span class="text-sm">Remember me</span>
                 </label>
-                <button
-                    type="submit"
-                    class="rounded-lg bg-zinc-900 px-4 py-2 font-medium text-white dark:bg-zinc-100 dark:text-zinc-900"
-                >
+                <button type="submit" class="btn btn-primary w-full">
                     Log in
                 </button>
             </form>
-            <p class="text-sm text-zinc-600 dark:text-zinc-400">
-                <a href="{{ url('/forgot-password') }}" class="underline hover:no-underline">Forgot your password?</a>
+            <p class="text-sm text-base-content/70">
+                <a href="{{ url('/forgot-password') }}" class="link link-hover">Forgot your password?</a>
             </p>
-            <p class="text-sm text-zinc-600 dark:text-zinc-400">
-                Don't have an account? <a href="{{ url('/register') }}" class="underline hover:no-underline">Register</a>
+            <p class="text-sm text-base-content/70">
+                Don't have an account? <a href="{{ url('/register') }}" class="link link-hover">Register</a>
             </p>
         </div>
     </div>

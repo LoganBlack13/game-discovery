@@ -80,14 +80,14 @@ test('welcome page upcoming section has game links or preview triggers', functio
     expect($response->getContent())->toContain('Preview Game');
 });
 
-test('welcome page shows backlog planning section with example items', function (): void {
+test('welcome page shows features overview section', function (): void {
     $response = $this->get('/');
 
     $response->assertSuccessful();
-    $response->assertSee('Plan your gaming backlog', false);
-    $response->assertSee('See how long your games take', false);
-    $response->assertSee('Total backlog time', false);
-    $response->assertSee('Plan your backlog', false);
+    $response->assertSee('Everything you need to stay on top of your games', false);
+    $response->assertSee('Upcoming releases', false);
+    $response->assertSee('Latest news', false);
+    $response->assertSee('Backlog planning', false);
 });
 
 test('layout footer contains product name and key links', function (): void {
@@ -95,7 +95,7 @@ test('layout footer contains product name and key links', function (): void {
 
     $response->assertSuccessful();
     $response->assertSee(config('app.name'), false);
-    $response->assertSee('Features', false);
+    $response->assertSee('Games', false);
     $response->assertSee('How it works', false);
 });
 
@@ -106,14 +106,12 @@ test('welcome page shows final CTA section', function (): void {
     $response->assertSee('Track your games and plan your backlog.', false);
 });
 
-test('welcome page shows playable date insight section', function (): void {
+test('welcome page shows how it works section', function (): void {
     $response = $this->get('/');
 
     $response->assertSuccessful();
-    $response->assertSee('When will you actually play it?', false);
-    $response->assertSee('backlog determines when', false);
-    $response->assertSee('start new games', false);
-    $response->assertSee('Calculate your backlog', false);
+    $response->assertSee('Everything you need to stay on top of your games', false);
+    $response->assertSee('One place for upcoming releases', false);
 });
 
 test('welcome page shows stay updated news section', function (): void {

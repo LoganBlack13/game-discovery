@@ -14,10 +14,10 @@
                         required
                         autofocus
                         autocomplete="name"
-                        class="rounded-lg border border-zinc-300 bg-white px-3 py-2 text-zinc-900 shadow-sm dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100"
+                        class="input input-bordered w-full"
                     />
                     @error('name')
-                        <p class="text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
+                        <p class="text-sm text-error">{{ $message }}</p>
                     @enderror
                 </div>
                 <div class="flex flex-col gap-2">
@@ -29,10 +29,10 @@
                         value="{{ old('username') }}"
                         required
                         autocomplete="username"
-                        class="rounded-lg border border-zinc-300 bg-white px-3 py-2 text-zinc-900 shadow-sm dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100"
+                        class="input input-bordered w-full"
                     />
                     @error('username')
-                        <p class="text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
+                        <p class="text-sm text-error">{{ $message }}</p>
                     @enderror
                 </div>
                 <div class="flex flex-col gap-2">
@@ -44,10 +44,10 @@
                         value="{{ old('email') }}"
                         required
                         autocomplete="email"
-                        class="rounded-lg border border-zinc-300 bg-white px-3 py-2 text-zinc-900 shadow-sm dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100"
+                        class="input input-bordered w-full"
                     />
                     @error('email')
-                        <p class="text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
+                        <p class="text-sm text-error">{{ $message }}</p>
                     @enderror
                 </div>
                 <div class="flex flex-col gap-2">
@@ -58,10 +58,10 @@
                         name="password"
                         required
                         autocomplete="new-password"
-                        class="rounded-lg border border-zinc-300 bg-white px-3 py-2 text-zinc-900 shadow-sm dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100"
+                        class="input input-bordered w-full"
                     />
                     @error('password')
-                        <p class="text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
+                        <p class="text-sm text-error">{{ $message }}</p>
                     @enderror
                 </div>
                 <div class="flex flex-col gap-2">
@@ -72,18 +72,15 @@
                         name="password_confirmation"
                         required
                         autocomplete="new-password"
-                        class="rounded-lg border border-zinc-300 bg-white px-3 py-2 text-zinc-900 shadow-sm dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100"
+                        class="input input-bordered w-full"
                     />
                 </div>
-                <button
-                    type="submit"
-                    class="rounded-lg bg-zinc-900 px-4 py-2 font-medium text-white dark:bg-zinc-100 dark:text-zinc-900"
-                >
+                <button type="submit" class="btn btn-primary w-full">
                     Register
                 </button>
             </form>
-            <p class="text-sm text-zinc-600 dark:text-zinc-400">
-                Already have an account? <a href="{{ url('/login') }}" class="underline hover:no-underline">Log in</a>
+            <p class="text-sm text-base-content/70">
+                Already have an account? <a href="{{ url('/login') }}" class="link link-hover">Log in</a>
             </p>
         </div>
     </div>

@@ -2,13 +2,21 @@
 
 declare(strict_types=1);
 
+use App\Enums\ReleaseStatus;
+use App\Models\Game;
+
 use function Pest\Laravel\get;
 
-it('renders homepage carousels with card rows', function () {
+it('renders homepage with upcoming releases carousel', function () {
+    Game::factory()->create([
+        'title' => 'Upcoming Carousel Game',
+        'release_date' => now()->addDays(30),
+        'release_status' => ReleaseStatus::ComingSoon,
+    ]);
+
     $response = get('/');
 
     $response->assertOk();
-    $response->assertSee('Coming soon', escape: false);
-    $response->assertSee('Trending now', escape: false);
-    $response->assertSee('Recently released', escape: false);
+    $response->assertSee('Upcoming releases', escape: false);
+    $response->assertSee('Upcoming Carousel Game', escape: false);
 });

@@ -10,6 +10,13 @@ use Livewire\Attributes\Title;
  */
 new #[Title('Track your games')] class extends Component
 {
+    public function mount(): void
+    {
+        if (auth()->check()) {
+            $this->redirect(route('dashboard'), navigate: true);
+        }
+    }
+
     public function getUpcomingGames()
     {
         return Game::query()
@@ -30,68 +37,9 @@ new #[Title('Track your games')] class extends Component
             ->get();
     }
 
-    public function getRecentlyReleasedGames()
-    {
-        return Game::query()
-            ->released()
-            ->orderByDesc('release_date')
-            ->limit(12)
-            ->get();
-    }
-
-    public function getHeroGames()
-    {
-        return $this->getPopularGames();
-    }
-
     public function getHeroPrimary()
     {
-        return $this->getHeroGames()->first();
-    }
-
-    public function getHeroSecondary()
-    {
-        return $this->getHeroGames()->slice(1, 3);
-    }
-
-    public function getBacklogGames()
-    {
-        if (! auth()->check()) {
-            return collect();
-        }
-
-        return auth()->user()
-            ->trackedGames()
-            ->with('activities')
-            ->latest('tracked_games.created_at')
-            ->limit(6)
-            ->get();
-    }
-
-    /**
-     * @return \Illuminate\Support\Collection<int, array{title: string, cover_image: string|null, hours: int}>
-     */
-    public function getSampleBacklogItems()
-    {
-        $items = [
-            ['title' => 'Elden Ring', 'slug' => 'elden-ring', 'hours' => 60],
-            ['title' => 'Baldur\'s Gate 3', 'slug' => 'baldurs-gate-3', 'hours' => 80],
-            ['title' => 'Cyberpunk 2077', 'slug' => 'cyberpunk-2077', 'hours' => 25],
-        ];
-        $games = Game::query()
-            ->whereIn('slug', array_column($items, 'slug'))
-            ->get()
-            ->keyBy('slug');
-
-        return collect($items)->map(function (array $row) use ($games): array {
-            $game = $games->get($row['slug']);
-
-            return [
-                'title' => $row['title'],
-                'cover_image' => $game?->cover_image,
-                'hours' => $row['hours'],
-            ];
-        });
+        return $this->getPopularGames()->first();
     }
 };
 ?>
@@ -206,72 +154,40 @@ new #[Title('Track your games')] class extends Component
         <x-home.game-preview-panel />
     </section>
 
-    {{-- Plan your gaming backlog (sample) --}}
-    <section class="mb-16 sm:mb-20" aria-label="Plan your gaming backlog">
-        <x-ui.section-header
-            title="Plan your gaming backlog"
-            subtitle="See how long your games take to finish and estimate the total time needed to complete your backlog."
+    {{-- Latest news --}}
+    <section aria-label="Stay updated on your games">
+        <livewire:welcome-news
+            title="Stay updated on your games"
+            subtitle="Follow your games and never miss an announcement, trailer, or review."
+            :limit="6"
         />
-        <ul class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 mb-6">
-            @foreach ($this->getSampleBacklogItems() as $item)
-                <li class="card bg-base-300 border border-base-content/10 rounded-box overflow-hidden flex flex-row gap-4">
-                    <figure class="aspect-[3/4] w-24 shrink-0 overflow-hidden">
-                        @if ($item['cover_image'])
-                            <img src="{{ $item['cover_image'] }}" alt="" class="size-full object-cover" />
-                        @else
-                            <div class="flex size-full items-center justify-center bg-base-200">
-                                <span class="font-display text-2xl font-bold text-base-content/40">{{ mb_substr($item['title'], 0, 1) }}</span>
-                            </div>
-                        @endif
-                    </figure>
-                    <div class="card-body justify-center p-4 gap-0">
-                        <h3 class="font-display font-semibold text-base-content">{{ $item['title'] }}</h3>
-                        <p class="text-sm text-base-content/70">~{{ $item['hours'] }} hours</p>
-                    </div>
-                </li>
-            @endforeach
-        </ul>
-        @php $totalHours = $this->getSampleBacklogItems()->sum('hours'); @endphp
-        <p class="text-base font-semibold text-base-content mb-4">
-            Total backlog time
-            <span class="block text-2xl text-primary">{{ $totalHours }} hours</span>
-        </p>
-        <a href="{{ url('/register') }}" class="btn btn-primary btn-sm rounded-btn">
-            Plan your backlog
-        </a>
-    </section>
-
-    {{-- When will you actually play it? --}}
-    <section id="how-it-works" class="mt-12 sm:mt-16" aria-label="When will you actually play it?">
-        <x-ui.section-header
-            title="When will you actually play it?"
-            subtitle="Your backlog determines when you'll start new games."
-        />
-        <div class="overflow-x-auto">
-            <table class="table table-zebra">
-                <thead>
-                    <tr>
-                        <th>Game</th>
-                        <th>Release date</th>
-                        <th>Backlog remaining</th>
-                        <th>Estimated playable date</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>Silksong</td>
-                        <td>Release in 120 days</td>
-                        <td>Backlog: 90 hours</td>
-                        <td>Playable in about 2 weeks</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
         <div class="mt-6">
             <a href="{{ url('/register') }}" class="btn btn-primary btn-sm rounded-btn">
-                Calculate your backlog
+                Follow your games
             </a>
         </div>
+    </section>
+
+    {{-- Features overview --}}
+    <section id="how-it-works" class="mt-12 sm:mt-16" aria-label="How it works">
+        <x-ui.section-header
+            title="Everything you need to stay on top of your games"
+            subtitle="One place for upcoming releases, news, and your personal backlog."
+        />
+        <ul class="grid gap-4 sm:grid-cols-3">
+            <li class="card bg-base-300 border border-base-content/10 rounded-box p-6 gap-2">
+                <h3 class="font-display font-semibold text-base-content">Upcoming releases</h3>
+                <p class="text-sm text-base-content/70">Follow games you're waiting for and get a countdown to their release date.</p>
+            </li>
+            <li class="card bg-base-300 border border-base-content/10 rounded-box p-6 gap-2">
+                <h3 class="font-display font-semibold text-base-content">Latest news</h3>
+                <p class="text-sm text-base-content/70">See the latest articles and announcements for every game in your list, all in one feed.</p>
+            </li>
+            <li class="card bg-base-300 border border-base-content/10 rounded-box p-6 gap-2">
+                <h3 class="font-display font-semibold text-base-content">Backlog planning</h3>
+                <p class="text-sm text-base-content/70">Track the games you own and plan when you'll realistically get to play the next one.</p>
+            </li>
+        </ul>
     </section>
 
     {{-- Final CTA --}}

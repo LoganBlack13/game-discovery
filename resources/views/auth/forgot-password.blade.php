@@ -3,7 +3,7 @@
         <div class="space-y-8">
             <h1 class="text-2xl font-semibold tracking-tight">Forgot password</h1>
             @if (session('status'))
-                <p class="text-sm text-green-600 dark:text-green-400">{{ session('status') }}</p>
+                <p class="text-sm text-success">{{ session('status') }}</p>
             @endif
             <form action="{{ url('/forgot-password') }}" method="POST" class="flex flex-col gap-6">
                 @csrf
@@ -17,21 +17,18 @@
                         required
                         autofocus
                         autocomplete="email"
-                        class="rounded-lg border border-zinc-300 bg-white px-3 py-2 text-zinc-900 shadow-sm dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100"
+                        class="input input-bordered w-full"
                     />
                     @error('email')
-                        <p class="text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
+                        <p class="text-sm text-error">{{ $message }}</p>
                     @enderror
                 </div>
-                <button
-                    type="submit"
-                    class="rounded-lg bg-zinc-900 px-4 py-2 font-medium text-white dark:bg-zinc-100 dark:text-zinc-900"
-                >
+                <button type="submit" class="btn btn-primary w-full">
                     Email password reset link
                 </button>
             </form>
-            <p class="text-sm text-zinc-600 dark:text-zinc-400">
-                <a href="{{ url('/login') }}" class="underline hover:no-underline">Back to log in</a>
+            <p class="text-sm text-base-content/70">
+                <a href="{{ url('/login') }}" class="link link-hover">Back to log in</a>
             </p>
         </div>
     </div>
