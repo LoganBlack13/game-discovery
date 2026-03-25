@@ -11,7 +11,8 @@ uses(RefreshDatabase::class);
 it('opens search palette via header button and shows search UI', function (): void {
     $page = visit('/');
 
-    $page->click('button[aria-label="Search games (⌘K)"]')
+    $page->assertNotPresent('[x-cloak]')
+        ->click('button[aria-label="Search games (⌘K)"]')
         ->assertVisible('.spotlight-input')
         ->assertSee('Search games')
         ->assertSee('Type to search games');
@@ -23,7 +24,8 @@ it('shows at most 10 results when searching', function (): void {
     }
 
     $page = visit('/');
-    $page->click('button[aria-label="Search games (⌘K)"]')
+    $page->assertNotPresent('[x-cloak]')
+        ->click('button[aria-label="Search games (⌘K)"]')
         ->assertVisible('.spotlight-input')
         ->type('.spotlight-input', 'Browser Cap Game');
 
@@ -39,7 +41,8 @@ it('authenticated user can track a game from search results', function (): void 
 
     $this->actingAs($user);
     $page = visit('/');
-    $page->click('button[aria-label="Search games (⌘K)"]')
+    $page->assertNotPresent('[x-cloak]')
+        ->click('button[aria-label="Search games (⌘K)"]')
         ->assertVisible('.spotlight-input')
         ->type('.spotlight-input', 'Browser Track Me')
         ->press('Track game');
