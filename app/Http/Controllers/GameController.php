@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers;
 
 use App\Models\Game;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -18,7 +19,7 @@ final class GameController extends \Illuminate\Routing\Controller
     public function show(Game $game): View
     {
         $game->load([
-            'news' => fn ($q) => $q->orderByDesc('published_at'),
+            'news' => fn (HasMany $q) => $q->orderByDesc('published_at'),
             'activities',
         ]);
 
