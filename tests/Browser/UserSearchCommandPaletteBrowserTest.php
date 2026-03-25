@@ -23,7 +23,7 @@ it('shows at most 10 results when searching', function (): void {
 
     $page = visit('/');
     $page->click('button[aria-label="Search games (⌘K)"]')
-        ->type('Search games…', 'Browser Cap Game');
+        ->type('.spotlight-input', 'Browser Cap Game');
 
     $page->assertSee('Browser Cap Game 1');
     $html = $page->content();
@@ -35,10 +35,10 @@ it('authenticated user can track a game from search results', function (): void 
     $user = User::factory()->create();
     $game = Game::factory()->create(['title' => 'Browser Track Me']);
 
-    $page = visit('/');
     $this->actingAs($user);
+    $page = visit('/');
     $page->click('button[aria-label="Search games (⌘K)"]')
-        ->type('Search games…', 'Browser Track Me')
+        ->type('.spotlight-input', 'Browser Track Me')
         ->press('Track game');
 
     $page->assertSee('Remove from tracking');

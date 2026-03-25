@@ -70,7 +70,9 @@ new class extends Component
         @click.stop
     >
         <div class="flex shrink-0 flex-col px-4 pt-4 pb-3">
+            <label class="sr-only" for="game-search-input">Search games</label>
             <input
+                id="game-search-input"
                 type="search"
                 wire:model.live.debounce.300ms="query"
                 placeholder="Search games…"
@@ -155,7 +157,7 @@ new class extends Component
             </div>
         </div>
         @if (trim($query) === '')
-            <p class="px-4 py-5 text-center text-sm text-base-content/60">Type to search games.</p>
+            <p class="px-4 py-5 text-center text-sm text-base-content/60">Type to search games</p>
         @elseif($this->results->isEmpty())
             <p class="px-4 py-5 text-center text-sm text-base-content/60">No games found.</p>
         @endif

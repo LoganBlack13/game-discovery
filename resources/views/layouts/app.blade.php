@@ -65,7 +65,7 @@
                         @endguest
                     </nav>
                     <div class="flex items-center gap-6">
-                        <button type="button" class="flex items-center gap-2 rounded-full px-3 py-2 text-base-content/80 transition-colors hover:bg-base-100/20 hover:text-base-content" aria-label="Search games (⌘K)" @click="$dispatch('open-game-search')">
+                        <button type="button" class="flex items-center gap-2 rounded-full px-3 py-2 text-base-content/80 transition-colors hover:bg-base-100/20 hover:text-base-content" aria-label="Search games (⌘K)" onclick="window.dispatchEvent(new CustomEvent('open-game-search'))">
                             <svg class="size-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
                             </svg>
