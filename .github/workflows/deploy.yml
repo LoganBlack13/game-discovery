@@ -29,7 +29,9 @@ jobs:
           script: |
             cd /opt/apps/game-discovery
             git pull
-            docker compose up --build -d
+            COMMIT=$(git rev-parse --short HEAD)
+            docker compose build --no-cache --build-arg CACHEBUST=$COMMIT
+            docker compose up -d --force-recreate
             docker compose exec -T app php artisan migrate --force
             docker compose exec -T app php artisan config:cache
             docker compose exec -T app php artisan route:cache

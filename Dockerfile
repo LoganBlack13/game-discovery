@@ -36,6 +36,9 @@ FROM dunglas/frankenphp:1-php8.5-alpine
 
 WORKDIR /app
 
+# Bust cache on each deploy (value injected by CI via --build-arg)
+ARG CACHEBUST=1
+
 # Install system deps: pdo_pgsql, pcntl (queue), opcache
 RUN install-php-extensions \
     pdo_pgsql \
