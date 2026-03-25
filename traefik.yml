@@ -1,0 +1,14 @@
+http:
+  routers:
+    game-discovery:
+      rule: 'Host(`discovery.panda-stories.com`)'
+      service: game-discovery-service
+      tls:
+        certResolver: letsencrypt
+      entryPoints:
+        - websecure
+  services:
+    game-discovery-service:
+      loadBalancer:
+        servers:
+          - url: 'http://game-discovery-app:8000'

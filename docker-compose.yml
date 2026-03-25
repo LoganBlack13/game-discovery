@@ -1,0 +1,41 @@
+services:
+  app:
+    build: .
+    image: game-discovery-app
+    container_name: game-discovery-app
+    restart: unless-stopped
+    env_file: .env
+    networks:
+      - web
+      - db
+    volumes:
+      - storage:/app/storage/app
+
+  scheduler:
+    build: .
+    image: game-discovery-app
+    container_name: game-discovery-scheduler
+    restart: unless-stopped
+    env_file: .env
+    networks:
+      - db
+    command: ["php", "artisan", "schedule:work"]
+
+  queue:
+    build: .
+    image: game-discovery-app
+    container_name: game-discovery-queue
+    restart: unless-stopped
+    env_file: .env
+    networks:
+      - db
+    command: ["php", "artisan", "queue:work", "--tries=3", "--backoff=10"]
+
+volumes:
+  storage:
+
+networks:
+  web:
+    external: true
+  db:
+    external: true
