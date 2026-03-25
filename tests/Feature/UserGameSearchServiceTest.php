@@ -41,6 +41,15 @@ test('search result includes tracking state when user tracks some games', functi
     expect($notTrackedResult->isTracked)->toBeFalse();
 });
 
+test('search returns empty collection when query is non-empty but no games match', function (): void {
+    Game::factory()->create(['title' => 'Totally Different Title']);
+    $service = app(UserGameSearchService::class);
+
+    $results = $service->search(null, 'XYZ No Match');
+
+    expect($results)->toHaveCount(0);
+});
+
 test('search returns empty for guest when query is empty', function (): void {
     $service = app(UserGameSearchService::class);
 

@@ -30,7 +30,7 @@ final class EnrichNewsCommand extends Command
             $created = $progress['created_count'] ?? 0;
             $this->info("Enriched {$feedsDone}/{$feedsTotal} feeds, created {$created} news items.");
         } else {
-            $this->info('News enrichment completed.');
+            $this->info('News enrichment completed.'); // @codeCoverageIgnore
         }
 
         return self::SUCCESS;

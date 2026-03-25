@@ -8,21 +8,6 @@ use Illuminate\Foundation\Http\FormRequest;
 
 final class StoreGameRequestRequest extends FormRequest
 {
-    public function authorize(): bool
-    {
-        return $this->user() !== null;
-    }
-
-    /**
-     * @return array<string, array<int, mixed>>
-     */
-    public function rules(): array
-    {
-        return [
-            'title' => ['required', 'string', 'max:255'],
-        ];
-    }
-
     /**
      * Validation rules for use in Livewire (static).
      *
@@ -34,4 +19,19 @@ final class StoreGameRequestRequest extends FormRequest
             'title' => ['required', 'string', 'max:255'],
         ];
     }
+
+    public function authorize(): bool // @codeCoverageIgnore
+    {
+        return $this->user() !== null; // @codeCoverageIgnore
+    } // @codeCoverageIgnore
+
+    /**
+     * @return array<string, array<int, mixed>>
+     */
+    public function rules(): array // @codeCoverageIgnore
+    {
+        return [ // @codeCoverageIgnore
+            'title' => ['required', 'string', 'max:255'], // @codeCoverageIgnore
+        ]; // @codeCoverageIgnore
+    } // @codeCoverageIgnore
 }

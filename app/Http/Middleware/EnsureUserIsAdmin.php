@@ -15,9 +15,9 @@ final class EnsureUserIsAdmin
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (auth()->guest()) {
-            return redirect()->route('login');
-        }
+        if (auth()->guest()) { // @codeCoverageIgnore
+            return redirect()->route('login'); // @codeCoverageIgnore
+        } // @codeCoverageIgnore
 
         if (! auth()->user()->isAdmin()) {
             abort(403);

@@ -36,3 +36,26 @@ test('authenticated user can untrack a game', function (): void {
     $user->refresh();
     expect($user->trackedGames()->where('game_id', $game->id)->exists())->toBeFalse();
 });
+
+test('authenticated user can track a game via JSON request', function (): void {
+    $user = User::factory()->create();
+    $game = Game::factory()->create();
+
+    $response = $this->actingAs($user)->postJson(route('games.track', $game));
+
+    $response->assertSuccessful();
+    $response->assertJson(['tracked' => true]);
+    expect($user->trackedGames()->where('game_id', $game->id)->exists())->toBeTrue();
+});
+
+test('authenticated user can untrack a game via JSON request', function (): void {
+    $user = User::factory()->create();
+    $game = Game::factory()->create();
+    $user->trackedGames()->attach($game);
+
+    $response = $this->actingAs($user)->deleteJson(route('games.untrack', $game));
+
+    $response->assertSuccessful();
+    $response->assertJson(['tracked' => false]);
+    expect($user->trackedGames()->where('game_id', $game->id)->exists())->toBeFalse();
+});

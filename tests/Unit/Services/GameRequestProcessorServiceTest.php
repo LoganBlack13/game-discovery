@@ -190,6 +190,46 @@ test('skips request when matching game already in database by title and does not
         ->and($request->added_at)->not->toBeNull();
 });
 
+test('marks request added when SyncGameJob creates the game synchronously', function (): void {
+    $request = GameRequest::factory()->create([
+        'normalized_title' => 'brand new game',
+        'display_title' => 'Brand New Game',
+        'status' => 'pending',
+        'game_id' => null,
+    ]);
+
+    $gameDetails = [
+        'title' => 'Brand New Game',
+        'slug' => 'brand-new-game',
+        'description' => null,
+        'cover_image' => null,
+        'developer' => null,
+        'publisher' => null,
+        'genres' => [],
+        'platforms' => [],
+        'release_date' => null,
+        'release_status' => 'released',
+        'external_id' => 'ext-brand-new',
+        'external_source' => 'rawg',
+    ];
+
+    $provider = $this->mock(GameDataProvider::class, function ($mock) use ($gameDetails): void {
+        $mock->shouldReceive('search')->with('Brand New Game')->andReturn([$gameDetails]);
+        $mock->shouldReceive('getGameDetails')->with('ext-brand-new')->andReturn($gameDetails);
+    });
+
+    $this->mock(GameDataProviderResolver::class, function ($mock) use ($provider): void {
+        $mock->shouldReceive('resolve')->with('rawg')->andReturn($provider);
+    });
+
+    $service = app(GameRequestProcessorService::class);
+    $service->process(5, null);
+
+    $request->refresh();
+    expect($request->status)->toBe('added')
+        ->and($request->game_id)->not->toBeNull();
+});
+
 test('writes progress to cache when runId provided', function (): void {
     $runId = 'test-run-123';
     $request = GameRequest::factory()->create([

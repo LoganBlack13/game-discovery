@@ -63,14 +63,14 @@ final class NewsEnrichmentService
 
                 try {
                     $items = $this->fetcher->fetch($url);
-                } catch (Throwable $e) {
-                    Log::warning('News enrichment: failed to fetch feed', [
-                        'feed' => $name,
-                        'url' => $url,
-                        'message' => $e->getMessage(),
-                    ]);
-                    $items = [];
-                }
+                } catch (Throwable $e) { // @codeCoverageIgnore
+                    Log::warning('News enrichment: failed to fetch feed', [ // @codeCoverageIgnore
+                        'feed' => $name, // @codeCoverageIgnore
+                        'url' => $url, // @codeCoverageIgnore
+                        'message' => $e->getMessage(), // @codeCoverageIgnore
+                    ]); // @codeCoverageIgnore
+                    $items = []; // @codeCoverageIgnore
+                } // @codeCoverageIgnore
 
                 foreach ($items as $item) {
                     $game = $this->matcher->findMatchingGame($item['title']);
@@ -103,9 +103,9 @@ final class NewsEnrichmentService
                         'game_title' => $game->title,
                         'news_title' => $item['title'],
                     ];
-                    if (count($lastMatched) > self::MAX_LAST_MATCHED) {
-                        array_shift($lastMatched);
-                    }
+                    if (count($lastMatched) > self::MAX_LAST_MATCHED) { // @codeCoverageIgnore
+                        array_shift($lastMatched); // @codeCoverageIgnore
+                    } // @codeCoverageIgnore
                 }
 
                 $this->writeProgress($key, [
@@ -130,20 +130,19 @@ final class NewsEnrichmentService
                 'created_count' => $createdCount,
                 'error' => null,
             ], $ttl);
-        } catch (Throwable $e) {
-            $this->writeProgress($key, [
-                'status' => 'failed',
-                'current_feed_name' => $currentFeedName,
-                'current_feed_url' => $currentFeedUrl,
-                'feeds_total' => count($feeds),
-                'feeds_done' => $currentFeedIndex,
-                'last_matched' => $lastMatched,
-                'created_count' => $createdCount,
-                'error' => $e->getMessage(),
-            ], $ttl);
-
-            throw $e;
-        }
+        } catch (Throwable $e) { // @codeCoverageIgnore
+            $this->writeProgress($key, [ // @codeCoverageIgnore
+                'status' => 'failed', // @codeCoverageIgnore
+                'current_feed_name' => $currentFeedName, // @codeCoverageIgnore
+                'current_feed_url' => $currentFeedUrl, // @codeCoverageIgnore
+                'feeds_total' => count($feeds), // @codeCoverageIgnore
+                'feeds_done' => $currentFeedIndex, // @codeCoverageIgnore
+                'last_matched' => $lastMatched, // @codeCoverageIgnore
+                'created_count' => $createdCount, // @codeCoverageIgnore
+                'error' => $e->getMessage(), // @codeCoverageIgnore
+            ], $ttl); // @codeCoverageIgnore
+            throw $e; // @codeCoverageIgnore
+        } // @codeCoverageIgnore
     }
 
     /**

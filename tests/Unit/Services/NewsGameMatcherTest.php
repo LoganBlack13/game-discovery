@@ -11,6 +11,38 @@ beforeEach(function (): void {
     $this->matcher = app(NewsGameMatcher::class);
 });
 
+test('findMatchingGame returns null when news title is empty', function (): void {
+    $game = $this->matcher->findMatchingGame('   ');
+
+    expect($game)->toBeNull();
+});
+
+test('findMatchingGame returns null when news title contains only punctuation', function (): void {
+    $game = $this->matcher->findMatchingGame('... ---');
+
+    expect($game)->toBeNull();
+});
+
+test('findMatchingGame skips games with empty title', function (): void {
+    Game::factory()->create(['title' => '']);
+    Game::factory()->create(['title' => 'Elden Ring']);
+
+    $game = $this->matcher->findMatchingGame('Elden Ring news');
+
+    expect($game)->not->toBeNull()
+        ->and($game->title)->toBe('Elden Ring');
+});
+
+test('findMatchingGame skips games whose title reduces to no words', function (): void {
+    Game::factory()->create(['title' => '...']);
+    Game::factory()->create(['title' => 'Hollow Knight']);
+
+    $game = $this->matcher->findMatchingGame('Hollow Knight new patch');
+
+    expect($game)->not->toBeNull()
+        ->and($game->title)->toBe('Hollow Knight');
+});
+
 test('findMatchingGame returns game when title appears in news title', function (): void {
     Game::factory()->create(['title' => 'Elden Ring']);
 

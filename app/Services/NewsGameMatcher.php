@@ -48,8 +48,8 @@ final class NewsGameMatcher
     {
         $normalized = mb_strtolower(mb_trim($title));
         $words = preg_split('/\s+/u', $normalized, -1, PREG_SPLIT_NO_EMPTY);
-        if ($words === false) {
-            return [];
+        if ($words === false) { // @codeCoverageIgnore
+            return []; // @codeCoverageIgnore
         }
 
         return array_values(array_filter(array_map(

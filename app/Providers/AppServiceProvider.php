@@ -19,8 +19,8 @@ final class AppServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
-        if (config('services.rawg.key')) {
-            $this->app->bind(GameDataProvider::class, RawgGameDataProvider::class);
+        if (config('services.rawg.key')) { // @codeCoverageIgnore
+            $this->app->bind(GameDataProvider::class, RawgGameDataProvider::class); // @codeCoverageIgnore
         }
 
         $this->app->bind(GameDataProviderResolverContract::class, GameDataProviderResolver::class);

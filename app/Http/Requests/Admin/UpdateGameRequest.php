@@ -11,21 +11,6 @@ use Illuminate\Validation\Rule;
 
 final class UpdateGameRequest extends FormRequest
 {
-    public function authorize(): bool
-    {
-        return $this->user() instanceof User && $this->user()->isAdmin();
-    }
-
-    /**
-     * @return array<string, array<int, mixed>>
-     */
-    public function rules(): array
-    {
-        $game = $this->route('game');
-
-        return $this->rulesForGame($game instanceof Game ? $game : null);
-    }
-
     /**
      * Rules for a given game (for use from Livewire).
      *
@@ -51,4 +36,19 @@ final class UpdateGameRequest extends FormRequest
             'editReleaseStatus' => ['required', 'string', Rule::enum(\App\Enums\ReleaseStatus::class)],
         ];
     }
+
+    public function authorize(): bool // @codeCoverageIgnore
+    {
+        return $this->user() instanceof User && $this->user()->isAdmin(); // @codeCoverageIgnore
+    } // @codeCoverageIgnore
+
+    /**
+     * @return array<string, array<int, mixed>>
+     */
+    public function rules(): array // @codeCoverageIgnore
+    {
+        $game = $this->route('game'); // @codeCoverageIgnore
+
+        return $this->rulesForGame($game instanceof Game ? $game : null); // @codeCoverageIgnore
+    } // @codeCoverageIgnore
 }

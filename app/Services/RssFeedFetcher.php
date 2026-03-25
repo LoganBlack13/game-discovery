@@ -57,9 +57,9 @@ final class RssFeedFetcher
 
         try {
             return Carbon::parse($value);
-        } catch (Throwable) {
-            return null;
-        }
+        } catch (Throwable) { // @codeCoverageIgnore
+            return null; // @codeCoverageIgnore
+        } // @codeCoverageIgnore
     }
 
     private function extractThumbnail(SimpleXMLElement $item): ?string

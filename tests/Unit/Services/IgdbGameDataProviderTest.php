@@ -66,6 +66,38 @@ test('search returns mapped results with external_source igdb when HTTP is faked
     expect($results[0]['publisher'])->toBe('Nintendo');
 });
 
+test('search maps game with no genres, platforms, cover, or release date', function (): void {
+    Config::set('services.igdb.client_id', 'test-client-id');
+    Config::set('services.igdb.client_secret', 'test-client-secret');
+
+    Http::fake([
+        'https://id.twitch.tv/*' => Http::response([
+            'access_token' => 'fake-token',
+            'expires_in' => 3600,
+        ]),
+        'https://api.igdb.com/*' => Http::response([
+            [
+                'id' => 9999,
+                'name' => 'Minimal Game',
+                'slug' => 'minimal-game',
+            ],
+        ]),
+    ]);
+
+    $provider = new IgdbGameDataProvider;
+    $results = $provider->search('minimal');
+
+    expect($results)->toHaveCount(1);
+    expect($results[0]['genres'])->toBe([]);
+    expect($results[0]['platforms'])->toBe([]);
+    expect($results[0]['cover_image'])->toBeNull();
+    expect($results[0]['release_date'])->toBeNull();
+    expect($results[0]['release_status'])->toBe('announced');
+    expect($results[0]['description'])->toBeNull();
+    expect($results[0]['developer'])->toBeNull();
+    expect($results[0]['publisher'])->toBeNull();
+});
+
 test('getGameDetails returns contract shape with external_source igdb when HTTP is faked', function (): void {
     Config::set('services.igdb.client_id', 'test-client-id');
     Config::set('services.igdb.client_secret', 'test-client-secret');
