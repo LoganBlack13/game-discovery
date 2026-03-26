@@ -52,6 +52,21 @@ test('fetch returns empty array when response body is not valid XML', function (
     expect($items)->toBeArray()->and($items)->toBeEmpty();
 });
 
+test('fetch returns null published_at when pubDate is an empty string', function (): void {
+    $rss = <<<'XML'
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0"><channel>
+<item><title>Empty Date Item</title><link>https://example.com/1</link><pubDate></pubDate></item>
+</channel></rss>
+XML;
+    Http::fake(['*' => Http::response($rss, 200)]);
+
+    $fetcher = app(RssFeedFetcher::class);
+    $items = $fetcher->fetch('https://example.com/feed.xml');
+
+    expect($items[0]['published_at'])->toBeNull();
+});
+
 test('fetch returns null published_at when pubDate is absent', function (): void {
     $rss = <<<'XML'
 <?xml version="1.0" encoding="UTF-8"?>

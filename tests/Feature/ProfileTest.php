@@ -83,6 +83,21 @@ test('authenticated user can view recovery codes page without 2FA', function ():
     $response->assertSuccessful();
 });
 
+test('recovery codes page returns codes when 2FA is enabled', function (): void {
+    $user = User::factory()->create([
+        'two_factor_secret' => encrypt('fake-secret'),
+        'two_factor_recovery_codes' => encrypt(json_encode(['code-one', 'code-two'])),
+        'two_factor_confirmed_at' => now(),
+    ]);
+    $this->actingAs($user)
+        ->withSession(['auth.password_confirmed_at' => time()]);
+
+    $response = $this->get(route('profile.recovery-codes'));
+
+    $response->assertSuccessful();
+    $response->assertSee('code-one');
+});
+
 test('changing email triggers verification notification', function (): void {
     Illuminate\Support\Facades\Notification::fake();
     $user = User::factory()->create(['email' => 'original@example.com']);

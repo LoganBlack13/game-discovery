@@ -33,6 +33,14 @@ test('findMatchingGame skips games with empty title', function (): void {
         ->and($game->title)->toBe('Elden Ring');
 });
 
+test('findMatchingGame returns null when only empty-titled games exist', function (): void {
+    Game::factory()->create(['title' => '']);
+
+    $game = $this->matcher->findMatchingGame('some news about something');
+
+    expect($game)->toBeNull();
+});
+
 test('findMatchingGame skips games whose title reduces to no words', function (): void {
     Game::factory()->create(['title' => '...']);
     Game::factory()->create(['title' => 'Hollow Knight']);
@@ -41,6 +49,14 @@ test('findMatchingGame skips games whose title reduces to no words', function ()
 
     expect($game)->not->toBeNull()
         ->and($game->title)->toBe('Hollow Knight');
+});
+
+test('findMatchingGame returns null when only punctuation-titled games exist', function (): void {
+    Game::factory()->create(['title' => '...']);
+
+    $game = $this->matcher->findMatchingGame('some news about something');
+
+    expect($game)->toBeNull();
 });
 
 test('findMatchingGame returns game when title appears in news title', function (): void {

@@ -86,3 +86,20 @@ test('UpdateUserProfileInformation clears email_verified_at when email changes f
     expect($user->email)->toBe('after@example.com')
         ->and($user->email_verified_at)->toBeNull();
 });
+
+test('UpdateUserProfileInformation updates name without changing email', function (): void {
+    $user = User::factory()->create([
+        'name' => 'Old Name',
+        'email' => 'same@example.com',
+    ]);
+
+    $action = app(UpdateUserProfileInformation::class);
+    $action->update($user, [
+        'name' => 'New Name',
+        'email' => 'same@example.com',
+    ]);
+
+    $user->refresh();
+    expect($user->name)->toBe('New Name')
+        ->and($user->email)->toBe('same@example.com');
+});
