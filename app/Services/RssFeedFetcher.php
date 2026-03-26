@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Services;
 
 use Carbon\Carbon;
-use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\Http;
 use SimpleXMLElement;
 use Throwable;
@@ -57,7 +56,7 @@ final class RssFeedFetcher
         }
 
         try {
-            return Date::parse($value);
+            return Carbon::parse($value);
         } catch (Throwable) { // @codeCoverageIgnore
             return null; // @codeCoverageIgnore
         } // @codeCoverageIgnore

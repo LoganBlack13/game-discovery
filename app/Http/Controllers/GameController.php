@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers;
 
 use App\Models\Game;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\JsonResponse;
@@ -24,8 +25,9 @@ final class GameController extends Controller
             'activities',
         ]);
 
-        $isTracked = auth()->check()
-            && auth()->user()->trackedGames()->where('game_id', $game->id)->exists();
+        $authUser = auth()->user();
+        $isTracked = $authUser instanceof User
+            && $authUser->trackedGames()->where('game_id', $game->id)->exists();
 
         return view('games.show', [
             'game' => $game,
@@ -37,7 +39,9 @@ final class GameController extends Controller
     {
         $this->authorize('track', $game);
 
-        $request->user()->trackedGames()->syncWithoutDetaching([$game->id]);
+        $user = $request->user();
+        assert($user instanceof User);
+        $user->trackedGames()->syncWithoutDetaching([$game->id]);
 
         if ($request->expectsJson()) {
             return response()->json(['tracked' => true]);
@@ -50,7 +54,9 @@ final class GameController extends Controller
     {
         $this->authorize('untrack', $game);
 
-        $request->user()->trackedGames()->detach($game->id);
+        $user = $request->user();
+        assert($user instanceof User);
+        $user->trackedGames()->detach($game->id);
 
         if ($request->expectsJson()) {
             return response()->json(['tracked' => false]);

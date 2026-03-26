@@ -69,7 +69,7 @@ final class SyncGameJob implements ShouldQueue
     }
 
     /**
-     * @param  array{title: string, slug: string, description: string|null, cover_image: string|null, developer: string|null, publisher: string|null, genres: array, platforms: array, release_date: string|null, release_status: string, external_id: string, external_source: string}  $details
+     * @param  array{title: string, slug: string, description: string|null, cover_image: string|null, developer: string|null, publisher: string|null, genres: array<string>, platforms: array<string>, release_date: string|null, release_status: string, external_id: string, external_source: string}  $details
      * @return array<string, mixed>
      */
     private function normalizeDetailsForComparison(array $details): array

@@ -51,7 +51,7 @@ final class GameActivity extends Model
     }
 
     /**
-     * @return BelongsTo<Game>
+     * @return BelongsTo<Game, $this>
      */
     public function game(): BelongsTo
     {

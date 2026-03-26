@@ -55,7 +55,7 @@ final class NewsGameMatcher
         }
 
         return array_values(array_filter(array_map(
-            fn (string $w): string => preg_replace('/^\p{P}+|\p{P}+$/u', '', $w),
+            fn (string $w): string => (string) preg_replace('/^\p{P}+|\p{P}+$/u', '', $w),
             $words,
         ), fn (string $w): bool => $w !== ''));
     }

@@ -22,8 +22,10 @@ final readonly class NewsEnrichmentService
 
     public function enrich(string $runId): void
     {
+        /** @var array<int, array{name: string, url: string}> $feeds */
         $feeds = config('news_enrichment.feeds', []);
-        $ttl = (int) config('news_enrichment.progress_ttl_seconds', 3600);
+        $rawTtl = config('news_enrichment.progress_ttl_seconds');
+        $ttl = is_int($rawTtl) ? max(1, $rawTtl) : 3600;
         $key = 'news_enrichment:progress:'.$runId;
 
         $createdCount = 0;
@@ -46,9 +48,9 @@ final readonly class NewsEnrichmentService
         try {
             foreach ($feeds as $index => $feed) {
                 $currentFeedIndex = $index;
-                $name = $feed['name'] ?? 'Unknown';
+                $name = $feed['name'];
                 $currentFeedName = $name;
-                $url = $feed['url'] ?? '';
+                $url = $feed['url'];
                 $currentFeedUrl = $url;
 
                 $this->writeProgress($key, [

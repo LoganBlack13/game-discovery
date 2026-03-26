@@ -7,7 +7,6 @@ namespace App\Models;
 use App\Enums\ReleaseStatus;
 use Carbon\CarbonInterface;
 use Database\Factories\GameFactory;
-use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -23,8 +22,8 @@ use Override;
  * @property string|null $cover_image
  * @property string|null $developer
  * @property string|null $publisher
- * @property array $genres
- * @property array $platforms
+ * @property array<string> $genres
+ * @property array<string> $platforms
  * @property CarbonInterface|null $release_date
  * @property ReleaseStatus $release_status
  * @property string|null $external_id
@@ -76,7 +75,7 @@ final class Game extends Model
     }
 
     /**
-     * @return HasMany<News>
+     * @return HasMany<News, $this>
      */
     public function news(): HasMany
     {
@@ -84,7 +83,7 @@ final class Game extends Model
     }
 
     /**
-     * @return HasMany<GameActivity>
+     * @return HasMany<GameActivity, $this>
      */
     public function activities(): HasMany
     {
@@ -92,7 +91,7 @@ final class Game extends Model
     }
 
     /**
-     * @return HasMany<GameRequest>
+     * @return HasMany<GameRequest, $this>
      */
     public function gameRequests(): HasMany
     {
@@ -100,15 +99,18 @@ final class Game extends Model
     }
 
     /**
-     * @return BelongsToMany<User>
+     * @return BelongsToMany<User, $this>
      */
     public function trackedByUsers(): BelongsToMany
     {
         return $this->belongsToMany(User::class, 'tracked_games')->withTimestamps();
     }
 
-    #[Scope]
-    public function upcoming(Builder $query): Builder
+    /**
+     * @param  Builder<self>  $query
+     * @return Builder<self>
+     */
+    public function scopeUpcoming(Builder $query): Builder
     {
         return $query->where(function (Builder $q): void {
             $q->where('release_date', '>', now())
@@ -116,8 +118,11 @@ final class Game extends Model
         });
     }
 
-    #[Scope]
-    public function released(Builder $query): Builder
+    /**
+     * @param  Builder<self>  $query
+     * @return Builder<self>
+     */
+    public function scopeReleased(Builder $query): Builder
     {
         return $query->where(function (Builder $q): void {
             $q->where('release_date', '<=', now())
@@ -125,17 +130,22 @@ final class Game extends Model
         });
     }
 
-    #[Scope]
-    public function byReleaseDate(Builder $query): Builder
+    /**
+     * @param  Builder<self>  $query
+     * @return Builder<self>
+     */
+    public function scopeByReleaseDate(Builder $query): Builder
     {
         return $query->oldest('release_date');
     }
 
     /**
      * Order by release date ascending with games that have no release date last.
+     *
+     * @param  Builder<self>  $query
+     * @return Builder<self>
      */
-    #[Scope]
-    public function upcomingByReleaseDate(Builder $query): Builder
+    public function scopeUpcomingByReleaseDate(Builder $query): Builder
     {
         return $query->orderByRaw('release_date IS NULL')->oldest('release_date');
     }

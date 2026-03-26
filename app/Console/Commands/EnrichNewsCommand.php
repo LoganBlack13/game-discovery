@@ -25,13 +25,14 @@ final class EnrichNewsCommand extends Command
         $service->enrich($runId);
 
         $key = 'news_enrichment:progress:'.$runId;
+        /** @var array{feeds_done: int, feeds_total: int, created_count: int}|null $progress */
         $progress = Cache::get($key);
 
         if ($progress !== null) {
-            $feedsDone = $progress['feeds_done'] ?? 0;
-            $feedsTotal = $progress['feeds_total'] ?? 0;
-            $created = $progress['created_count'] ?? 0;
-            $this->info(sprintf('Enriched %s/%s feeds, created %s news items.', $feedsDone, $feedsTotal, $created));
+            $feedsDone = $progress['feeds_done'];
+            $feedsTotal = $progress['feeds_total'];
+            $created = $progress['created_count'];
+            $this->info(sprintf('Enriched %d/%d feeds, created %d news items.', $feedsDone, $feedsTotal, $created));
         } else {
             $this->info('News enrichment completed.'); // @codeCoverageIgnore
         }

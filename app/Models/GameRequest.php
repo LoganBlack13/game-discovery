@@ -6,7 +6,6 @@ namespace App\Models;
 
 use Carbon\CarbonInterface;
 use Database\Factories\GameRequestFactory;
-use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -69,8 +68,11 @@ final class GameRequest extends Model
         return $this->hasMany(GameRequestVote::class);
     }
 
-    #[Scope]
-    public function pending(Builder $query): Builder
+    /**
+     * @param  Builder<self>  $query
+     * @return Builder<self>
+     */
+    public function scopePending(Builder $query): Builder
     {
         return $query->where('status', 'pending')->whereNull('game_id');
     }

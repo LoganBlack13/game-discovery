@@ -22,7 +22,10 @@ final class UserGameSearchService
     {
         $term = mb_trim($query);
         if ($term === '') {
-            return collect();
+            /** @var Collection<int, UserGameSearchResult> $empty */
+            $empty = collect();
+
+            return $empty;
         }
 
         $games = Game::query()
@@ -32,15 +35,23 @@ final class UserGameSearchService
             ->get();
 
         if ($games->isEmpty()) {
-            return collect();
+            /** @var Collection<int, UserGameSearchResult> $empty */
+            $empty = collect();
+
+            return $empty;
         }
 
-        $trackedIds = $this->trackedGameIdsForUser($user, $games->pluck('id')->all());
+        /** @var array<int> $gameIds */
+        $gameIds = $games->pluck('id')->all();
+        $trackedIds = $this->trackedGameIdsForUser($user, $gameIds);
 
-        return $games->map(fn (Game $game): UserGameSearchResult => new UserGameSearchResult(
+        /** @var Collection<int, UserGameSearchResult> $result */
+        $result = $games->map(fn (Game $game): UserGameSearchResult => new UserGameSearchResult(
             game: $game,
             isTracked: in_array($game->id, $trackedIds, true),
-        ));
+        ))->values();
+
+        return $result;
     }
 
     /**
@@ -53,9 +64,12 @@ final class UserGameSearchService
             return [];
         }
 
-        return $user->trackedGames()
+        /** @var array<int> $ids */
+        $ids = $user->trackedGames()
             ->whereIn('game_id', $gameIds)
             ->pluck('game_id')
             ->all();
+
+        return $ids;
     }
 }

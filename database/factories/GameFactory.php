@@ -19,7 +19,7 @@ final class GameFactory extends Factory
      */
     public function definition(): array
     {
-        $title = fake()->words(3, true);
+        $title = fake()->sentence(3, true);
 
         return [
             'title' => $title,

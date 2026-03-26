@@ -28,7 +28,7 @@ final class IgdbGameDataProvider implements GameDataProvider
     private const int SEARCH_LIMIT = 10;
 
     /**
-     * @return array<int, array{title: string, slug: string, description: string|null, cover_image: string|null, developer: string|null, publisher: string|null, genres: array, platforms: array, release_date: string|null, release_status: string, external_id: string, external_source: string}>
+     * @return array<int, array{title: string, slug: string, description: string|null, cover_image: string|null, developer: string|null, publisher: string|null, genres: array<string>, platforms: array<string>, release_date: string|null, release_status: string, external_id: string, external_source: string}>
      */
     public function search(string $query, ?string $platform = null, ?string $releaseStatus = null): array
     {
@@ -68,7 +68,7 @@ final class IgdbGameDataProvider implements GameDataProvider
     }
 
     /**
-     * @return array{title: string, slug: string, description: string|null, cover_image: string|null, developer: string|null, publisher: string|null, genres: array, platforms: array, release_date: string|null, release_status: string, external_id: string, external_source: string}
+     * @return array{title: string, slug: string, description: string|null, cover_image: string|null, developer: string|null, publisher: string|null, genres: array<string>, platforms: array<string>, release_date: string|null, release_status: string, external_id: string, external_source: string}
      */
     public function getGameDetails(string $externalId): array
     {
@@ -94,7 +94,12 @@ final class IgdbGameDataProvider implements GameDataProvider
             throw new RuntimeException('Game not found in IGDB.'); // @codeCoverageIgnore
         }
 
-        return $this->mapGameDetails($data[0]);
+        $first = $data[0];
+        if (! is_array($first)) { // @codeCoverageIgnore
+            throw new RuntimeException('Game not found in IGDB.'); // @codeCoverageIgnore
+        }
+
+        return $this->mapGameDetails($first);
     }
 
     /**
@@ -107,10 +112,11 @@ final class IgdbGameDataProvider implements GameDataProvider
     {
         $clientId = config('services.igdb.client_id');
         $clientSecret = config('services.igdb.client_secret');
-        if (empty($clientId) || empty($clientSecret)) {
+        if (! is_string($clientId) || $clientId === '' || ! is_string($clientSecret) || $clientSecret === '') {
             return null;
         }
 
+        /** @var string|null $token */
         $token = Cache::get(self::CACHE_KEY_TOKEN);
         if ($token === null) {
             $token = $this->fetchAccessToken($clientId, $clientSecret);
@@ -137,10 +143,15 @@ final class IgdbGameDataProvider implements GameDataProvider
         }
 
         $data = $response->json();
-        $token = $data['access_token'] ?? null;
-        $expiresIn = (int) ($data['expires_in'] ?? 0);
+        if (! is_array($data)) { // @codeCoverageIgnore
+            throw new RuntimeException('Invalid IGDB (Twitch) token response.'); // @codeCoverageIgnore
+        }
 
-        if (empty($token)) { // @codeCoverageIgnore
+        $token = $data['access_token'] ?? null;
+        $rawExpires = $data['expires_in'] ?? null;
+        $expiresIn = is_numeric($rawExpires) ? (int) $rawExpires : 0;
+
+        if (! is_string($token) || empty($token)) { // @codeCoverageIgnore
             throw new RuntimeException('Invalid IGDB (Twitch) token response.'); // @codeCoverageIgnore
         }
 
@@ -152,22 +163,26 @@ final class IgdbGameDataProvider implements GameDataProvider
     }
 
     /**
-     * @param  array<string, mixed>  $item
-     * @return array{title: string, slug: string, description: string|null, cover_image: string|null, developer: string|null, publisher: string|null, genres: array, platforms: array, release_date: string|null, release_status: string, external_id: string, external_source: string}
+     * @return array{title: string, slug: string, description: string|null, cover_image: string|null, developer: string|null, publisher: string|null, genres: array<string>, platforms: array<string>, release_date: string|null, release_status: string, external_id: string, external_source: string}|null
      */
-    private function mapGameFromList(array $item): array
+    private function mapGameFromList(mixed $item): ?array
     {
+        if (! is_array($item)) { // @codeCoverageIgnore
+            return null; // @codeCoverageIgnore
+        }
+
         return $this->mapGameDetails($item);
     }
 
     /**
-     * @param  array<string, mixed>  $data
-     * @return array{title: string, slug: string, description: string|null, cover_image: string|null, developer: string|null, publisher: string|null, genres: array, platforms: array, release_date: string|null, release_status: string, external_id: string, external_source: string}
+     * @param  array<array-key, mixed>  $data
+     * @return array{title: string, slug: string, description: string|null, cover_image: string|null, developer: string|null, publisher: string|null, genres: array<string>, platforms: array<string>, release_date: string|null, release_status: string, external_id: string, external_source: string}
      */
     private function mapGameDetails(array $data): array
     {
-        $id = (string) ($data['id'] ?? '');
-        $firstReleaseDate = isset($data['first_release_date']) ? (int) $data['first_release_date'] : null;
+        $id = $this->str($data['id'] ?? null);
+        $rawRelease = $data['first_release_date'] ?? null;
+        $firstReleaseDate = is_numeric($rawRelease) ? (int) $rawRelease : null;
         $releaseDate = $firstReleaseDate > 0
             ? date('Y-m-d', $firstReleaseDate)
             : null;
@@ -180,41 +195,46 @@ final class IgdbGameDataProvider implements GameDataProvider
                 continue; // @codeCoverageIgnore
             }
 
-            $companyName = $inv['company']['name'] ?? null;
+            $company = $inv['company'] ?? null;
+            $companyData = is_array($company) ? $company : [];
+            $companyName = $companyData['name'] ?? null;
             if ($companyName === null) { // @codeCoverageIgnore
                 continue; // @codeCoverageIgnore
             }
 
             if (! empty($inv['developer']) && $developer === null) {
-                $developer = (string) $companyName;
+                $developer = $this->str($companyName);
             }
 
             if (! empty($inv['publisher']) && $publisher === null) {
-                $publisher = (string) $companyName;
+                $publisher = $this->str($companyName);
             }
         }
 
         $genres = isset($data['genres']) && is_array($data['genres'])
-            ? array_values(array_map(fn (array $g): string => (string) ($g['name'] ?? ''), $data['genres']))
+            ? array_values(array_map(fn (mixed $g): string => is_array($g) ? $this->str($g['name'] ?? null) : '', $data['genres']))
             : [];
         $platforms = isset($data['platforms']) && is_array($data['platforms'])
-            ? array_values(array_map(fn (array $p): string => (string) ($p['name'] ?? ''), $data['platforms']))
+            ? array_values(array_map(fn (mixed $p): string => is_array($p) ? $this->str($p['name'] ?? null) : '', $data['platforms']))
             : [];
 
-        $coverImageId = $data['cover']['image_id'] ?? null;
-        $coverImage = $coverImageId !== null
+        $coverData = is_array($data['cover'] ?? null) ? $data['cover'] : [];
+        $coverImageId = $coverData['image_id'] ?? null;
+        $coverImage = is_string($coverImageId) && $coverImageId !== ''
             ? 'https://images.igdb.com/igdb/image/upload/t_cover_big/'.$coverImageId.'.jpg'
             : null;
 
+        $name = $this->str($data['name'] ?? null);
+
         return [
-            'title' => (string) ($data['name'] ?? ''),
-            'slug' => (string) ($data['slug'] ?? Str::slug($data['name'] ?? '')),
-            'description' => isset($data['summary']) ? (string) $data['summary'] : null,
+            'title' => $name,
+            'slug' => $this->str($data['slug'] ?? null) ?: Str::slug($name),
+            'description' => isset($data['summary']) ? $this->str($data['summary']) : null,
             'cover_image' => $coverImage,
             'developer' => $developer,
             'publisher' => $publisher,
-            'genres' => array_filter($genres),
-            'platforms' => array_filter($platforms),
+            'genres' => array_values(array_filter($genres)),
+            'platforms' => array_values(array_filter($platforms)),
             'release_date' => $releaseDate,
             'release_status' => $this->mapReleaseStatus($firstReleaseDate),
             'external_id' => $id,
@@ -231,5 +251,10 @@ final class IgdbGameDataProvider implements GameDataProvider
         $date = Date::createFromTimestamp($firstReleaseDate);
 
         return $date->isFuture() ? ReleaseStatus::ComingSoon->value : ReleaseStatus::Released->value;
+    }
+
+    private function str(mixed $value): string
+    {
+        return is_scalar($value) ? (string) $value : '';
     }
 }

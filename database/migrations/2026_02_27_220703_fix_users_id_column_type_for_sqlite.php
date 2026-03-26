@@ -23,9 +23,11 @@ return new class extends Migration
             return;
         }
 
+        /** @var array<int, array{name: string, type: string, notnull: int, pk: int, dflt_value: mixed, cid: int}> $columns */
         $columns = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        /** @var array{name: string, type: string, notnull: int, pk: int}|null $idColumn */
         $idColumn = collect($columns)->firstWhere('name', 'id');
-        if ($idColumn === null || mb_stripos((string) $idColumn['type'], 'int') === false) {
+        if ($idColumn === null || mb_stripos($idColumn['type'], 'int') === false) {
             return;
         }
 
@@ -33,13 +35,13 @@ return new class extends Migration
         $newTableColumns = [];
         foreach ($columns as $col) {
             $name = $col['name'];
-            $type = $name === 'id' ? 'VARCHAR(36)' : mb_strtoupper((string) $col['type']);
+            $type = $name === 'id' ? 'VARCHAR(36)' : mb_strtoupper($col['type']);
             if ($type === '') {
                 $type = 'TEXT';
             }
 
-            $notnull = (int) $col['notnull'] === 1 ? ' NOT NULL' : '';
-            $pk = (int) $col['pk'] === 1 ? ' PRIMARY KEY' : '';
+            $notnull = $col['notnull'] === 1 ? ' NOT NULL' : '';
+            $pk = $col['pk'] === 1 ? ' PRIMARY KEY' : '';
             $newTableColumns[] = sprintf('"%s" %s%s%s', $name, $type, $notnull, $pk);
         }
 
@@ -49,7 +51,7 @@ return new class extends Migration
         $rows = DB::table('users')->get();
         foreach ($rows as $row) {
             $newId = (string) Str::uuid();
-            $idMap[$row->id] = $newId;
+            $idMap[is_scalar($row->id) ? (string) $row->id : ''] = $newId;
             $rowArray = (array) $row;
             $rowArray['id'] = $newId;
             $values = [];

@@ -50,15 +50,11 @@ final class User extends Authenticatable implements MustVerifyEmail
         'two_factor_recovery_codes',
     ];
 
-    /**
-     * @return array<string, string>
-     */
     public function hasPendingTwoFactorConfirmation(): bool
     {
         $attrs = $this->getAttributes();
 
-        return isset($attrs['two_factor_secret']) && $attrs['two_factor_secret'] !== null
-            && (empty($attrs['two_factor_confirmed_at']) || $attrs['two_factor_confirmed_at'] === null);
+        return isset($attrs['two_factor_secret']) && empty($attrs['two_factor_confirmed_at']);
     }
 
     /**
@@ -88,7 +84,7 @@ final class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
-     * @return BelongsToMany<Game>
+     * @return BelongsToMany<Game, $this>
      */
     public function trackedGames(): BelongsToMany
     {
@@ -96,7 +92,7 @@ final class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
-     * @return HasMany<GameRequestVote>
+     * @return HasMany<GameRequestVote, $this>
      */
     public function gameRequestVotes(): HasMany
     {

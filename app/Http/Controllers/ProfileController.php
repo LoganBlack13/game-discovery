@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers;
 
 use App\Http\Requests\UpdateProfileRequest;
-use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
@@ -24,6 +24,7 @@ final class ProfileController extends Controller
     public function update(UpdateProfileRequest $request): RedirectResponse
     {
         $user = $request->user();
+        assert($user instanceof User);
         $validated = $request->validated();
 
         if ($request->hasFile('photo')) {
@@ -43,11 +44,7 @@ final class ProfileController extends Controller
             'profile_photo_path',
         ])->all())->save();
 
-        if (
-            isset($validated['email'])
-            && $validated['email'] !== $oldEmail
-            && $user instanceof MustVerifyEmail
-        ) {
+        if (isset($validated['email']) && $validated['email'] !== $oldEmail) {
             $user->forceFill(['email_verified_at' => null])->save();
             $user->sendEmailVerificationNotification();
         }
@@ -58,6 +55,7 @@ final class ProfileController extends Controller
     public function recoveryCodes(Request $request): View
     {
         $user = $request->user();
+        assert($user instanceof User);
         $codes = $user->two_factor_secret && $user->two_factor_recovery_codes
             ? $user->recoveryCodes()
             : [];

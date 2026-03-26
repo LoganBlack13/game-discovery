@@ -74,12 +74,19 @@ final class DashboardFeedService
             }
         }
 
-        return $items
-            ->sortByDesc(fn (array $row) => $row['occurred_at'])
+        /** @var array<int, array{game_id: int, game: Game, type: string, type_label: string, title: string, description: string|null, url: string, occurred_at: Carbon}> $result */
+        $result = $items
+            ->sortByDesc(function (mixed $row): string {
+                $occurred = is_array($row) ? ($row['occurred_at'] ?? null) : null;
+
+                return ($occurred instanceof Carbon ? $occurred : now())->toDateTimeString();
+            })
             ->values()
             ->skip($offset)
             ->take($limit)
             ->all();
+
+        return $result;
     }
 
     private function activityTypeLabel(GameActivityType $type): string

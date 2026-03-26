@@ -22,7 +22,7 @@ final class GameRequestFactory extends Factory
      */
     public function definition(): array
     {
-        $displayTitle = fake()->words(2, true);
+        $displayTitle = fake()->sentence(2, true);
 
         return [
             'normalized_title' => GameRequestNormalizer::normalize($displayTitle),
