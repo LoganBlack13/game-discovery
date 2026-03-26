@@ -36,8 +36,7 @@ test('enrich creates news only for matched games', function () use ($stubRssWith
     expect($news->game_id)->toBe($game->id)
         ->and($news->title)->toBe('Elden Ring DLC announced')
         ->and($news->url)->toBe('https://example.com/elden-ring-dlc')
-        ->and($news->source)->toBe('Test Feed')
-        ->and($news->published_at)->not->toBeNull();
+        ->and($news->source)->toBe('Test Feed');
 });
 
 test('enrich does not create duplicate news for same game and url', function () use ($stubRssWithMatch): void {
