@@ -193,3 +193,44 @@ test('feed filter Release updates only shows only activity items', function (): 
     $component->assertSee('Game released today');
     $component->assertDontSee('News headline');
 });
+
+test('user can update the status of a tracked game', function (): void {
+    $user = User::factory()->create();
+    $game = Game::factory()->create();
+    $user->trackedGames()->attach($game);
+
+    Livewire::actingAs($user)
+        ->test('dashboard-game-list')
+        ->call('updateStatus', $game->id, 'playing');
+
+    expect($user->trackedGames()->where('game_id', $game->id)->first()?->pivot?->status)
+        ->toBe('playing');
+});
+
+test('user can clear the status of a tracked game', function (): void {
+    $user = User::factory()->create();
+    $game = Game::factory()->create();
+    $user->trackedGames()->attach($game, ['status' => 'playing']);
+
+    Livewire::actingAs($user)
+        ->test('dashboard-game-list')
+        ->call('updateStatus', $game->id, '');
+
+    expect($user->trackedGames()->where('game_id', $game->id)->first()?->pivot?->status)
+        ->toBeNull();
+});
+
+test('status filter only shows games with matching status', function (): void {
+    $user = User::factory()->create();
+    $playing = Game::factory()->create(['title' => 'Playing Game']);
+    $dropped = Game::factory()->create(['title' => 'Dropped Game']);
+    $user->trackedGames()->attach($playing, ['status' => 'playing']);
+    $user->trackedGames()->attach($dropped, ['status' => 'dropped']);
+
+    $component = Livewire::actingAs($user)
+        ->test('dashboard-game-list')
+        ->set('statusFilter', 'playing');
+
+    $component->assertSee('Playing Game');
+    $component->assertDontSee('Dropped Game');
+});

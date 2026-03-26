@@ -88,7 +88,7 @@ final class User extends Authenticatable implements MustVerifyEmail
      */
     public function trackedGames(): BelongsToMany
     {
-        return $this->belongsToMany(Game::class, 'tracked_games')->withTimestamps();
+        return $this->belongsToMany(Game::class, 'tracked_games')->withTimestamps()->withPivot('status');
     }
 
     /**
