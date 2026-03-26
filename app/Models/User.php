@@ -26,6 +26,7 @@ use Override;
  * @property-read CarbonInterface|null $email_verified_at
  * @property-read string $password
  * @property-read string|null $remember_token
+ * @property-read CarbonInterface|null $last_feed_read_at
  * @property-read CarbonInterface $created_at
  * @property-read CarbonInterface $updated_at
  * @property-read UserRole $role
@@ -73,6 +74,7 @@ final class User extends Authenticatable implements MustVerifyEmail
             'password' => 'hashed',
             'remember_token' => 'string',
             'two_factor_confirmed_at' => 'datetime',
+            'last_feed_read_at' => 'datetime',
             'created_at' => 'datetime',
             'updated_at' => 'datetime',
         ];

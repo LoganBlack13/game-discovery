@@ -1,6 +1,8 @@
 <?php
 
+use App\Models\User;
 use App\Services\DashboardFeedService;
+use Carbon\Carbon;
 use Livewire\Component;
 
 new class extends Component
@@ -11,19 +13,33 @@ new class extends Component
 
     public int $perPage = 15;
 
+    public ?string $feedReadAt = null;
+
+    public function mount(): void
+    {
+        $user = auth()->user();
+        if (! $user instanceof User) {
+            return;
+        }
+
+        $this->feedReadAt = $user->last_feed_read_at?->toIso8601String();
+        $user->forceFill(['last_feed_read_at' => now()])->save();
+    }
+
     /**
      * @return array{items: array<int, array>, hasMore: bool}
      */
     public function getFeedDataProperty(): array
     {
         $user = auth()->user();
-        if ($user === null) {
+        if (! $user instanceof User) {
             return ['items' => [], 'hasMore' => false];
         }
 
         $service = app(DashboardFeedService::class);
         $limit = $this->perPage * $this->page + 1;
-        $result = $service->getFeedItems($user, $this->filter, $limit, 0);
+        $since = $this->feedReadAt !== null ? Carbon::parse($this->feedReadAt) : null;
+        $result = $service->getFeedItems($user, $this->filter, $limit, 0, $since);
 
         return [
             'items' => array_slice($result, 0, $this->perPage * $this->page),
@@ -79,7 +95,12 @@ new class extends Component
                             @endif
                         </div>
                         <div class="min-w-0 flex-1">
-                            <p class="font-display text-sm font-semibold text-base-content">{{ $item['game']->title ?? 'Game' }}</p>
+                            <div class="flex items-center gap-2">
+                                <p class="font-display text-sm font-semibold text-base-content">{{ $item['game']->title ?? 'Game' }}</p>
+                                @if ($item['is_new'])
+                                    <span class="badge badge-primary badge-xs">New</span>
+                                @endif
+                            </div>
                             @php
                                 $badgeClass = match ($item['type']) {
                                     'new_article' => 'badge badge-info badge-sm',
@@ -90,7 +111,7 @@ new class extends Component
                                     default => 'badge badge-ghost badge-sm',
                                 };
                             @endphp
-                            <span class="mt-0.5 {{ $badgeClass }}">{{ $item['type_label'] }}</span>
+                            <span class="{{ $badgeClass }}">{{ $item['type_label'] }}</span>
                             <p class="mt-1 text-sm text-base-content/70" title="{{ $item['title'] }}">{{ $item['title'] }}</p>
                             @if (! empty($item['description']))
                                 <p class="mt-0.5 text-xs text-base-content/60">{{ $item['description'] }}</p>
