@@ -8,7 +8,7 @@ final class GameRequestNormalizer
 {
     public static function normalize(string $title): string
     {
-        $trimmed = trim($title);
+        $trimmed = mb_trim($title);
         $lower = mb_strtolower($trimmed);
 
         return (string) preg_replace('/\s+/', ' ', $lower);

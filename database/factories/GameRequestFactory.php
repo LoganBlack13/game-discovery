@@ -32,9 +32,6 @@ final class GameRequestFactory extends Factory
         ];
     }
 
-    /**
-     * @return static
-     */
     public function added(?int $gameId = null): static
     {
         return $this->state(fn (array $attributes): array => [

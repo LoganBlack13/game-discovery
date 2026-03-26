@@ -28,7 +28,7 @@ test('job runs enrichment and progress is completed in cache', function () use (
     $runId = Str::uuid()->toString();
 
     $job = new EnrichNewsJob($runId);
-    $job->handle(app(\App\Services\NewsEnrichmentService::class));
+    $job->handle(app(App\Services\NewsEnrichmentService::class));
 
     $progress = Cache::get("news_enrichment:progress:{$runId}");
     expect($progress)->not->toBeNull()

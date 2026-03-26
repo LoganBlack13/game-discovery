@@ -6,6 +6,7 @@ namespace App\Console\Commands;
 
 use App\Services\IgdbGameDataProvider;
 use Illuminate\Console\Command;
+use Throwable;
 
 final class IgdbTestCommand extends Command
 {
@@ -33,7 +34,7 @@ final class IgdbTestCommand extends Command
 
         try {
             $results = $provider->search($query);
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             $this->error('IGDB request failed: '.$e->getMessage());
 
             return self::FAILURE;
