@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\TrackedGameStatus;
 use App\Models\Game;
 use App\Models\User;
 use Livewire\Component;
@@ -11,6 +12,17 @@ new class extends Component
     public string $filter = '';
 
     public string $platform = '';
+
+    public string $statusFilter = '';
+
+    public function updateStatus(int $gameId, string $statusValue): void
+    {
+        $user = auth()->user();
+        assert($user instanceof User);
+        $user->trackedGames()->updateExistingPivot($gameId, [
+            'status' => $statusValue !== '' ? $statusValue : null,
+        ]);
+    }
 
     /**
      * @return \Illuminate\Support\Collection<int, Game>
@@ -36,6 +48,10 @@ new class extends Component
 
         if ($this->platform !== '') {
             $query->whereJsonContains('platforms', $this->platform);
+        }
+
+        if ($this->statusFilter !== '') {
+            $query->wherePivot('status', $this->statusFilter);
         }
 
         return match ($this->sort) {
@@ -345,6 +361,15 @@ new class extends Component
                 <option value="Switch">Switch</option>
             </select>
         </div>
+        <div class="flex items-center gap-2">
+            <label for="dashboard-status" class="text-sm font-medium text-base-content">Status</label>
+            <select id="dashboard-status" wire:model.live="statusFilter" class="select select-bordered select-sm">
+                <option value="">All</option>
+                @foreach (\App\Enums\TrackedGameStatus::cases() as $status)
+                    <option value="{{ $status->value }}">{{ $status->label() }}</option>
+                @endforeach
+            </select>
+        </div>
     </div>
     @if ($this->games->isEmpty())
         <p class="text-base-content/70">You haven’t tracked any games yet. <a href="{{ url('/') }}" class="underline hover:no-underline">Discover games</a> and tap “Track game” on any title.</p>
@@ -393,6 +418,21 @@ new class extends Component
                         @if ($game->news->isNotEmpty() && $game->news->first()->published_at)
                             <p class="mt-1 text-xs text-base-content/60">Latest news: {{ $game->news->first()->published_at->format('M j') }}</p>
                         @endif
+                        <div class="mt-2" @click.stop @keydown.stop>
+                            <select
+                                wire:change="updateStatus({{ $game->id }}, $event.target.value)"
+                                class="select select-bordered select-xs w-full"
+                                aria-label="Status for {{ $game->title }}"
+                            >
+                                <option value="">No status</option>
+                                @foreach (\App\Enums\TrackedGameStatus::cases() as $status)
+                                    <option
+                                        value="{{ $status->value }}"
+                                        @selected($game->pivot?->status === $status->value)
+                                    >{{ $status->label() }}</option>
+                                @endforeach
+                            </select>
+                        </div>
                     </div>
                 </div>
             @endforeach

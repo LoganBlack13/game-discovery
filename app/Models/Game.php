@@ -103,7 +103,7 @@ final class Game extends Model
      */
     public function trackedByUsers(): BelongsToMany
     {
-        return $this->belongsToMany(User::class, 'tracked_games')->withTimestamps();
+        return $this->belongsToMany(User::class, 'tracked_games')->withTimestamps()->withPivot('status');
     }
 
     /**
