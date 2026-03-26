@@ -72,6 +72,19 @@
                             <kbd class="spotlight-shortcut-badge pointer-events-none hidden rounded border border-base-content/20 bg-base-100/50 px-1.5 py-0.5 font-sans text-[10px] font-medium tabular-nums text-base-content/60 sm:inline-flex">⌘K</kbd>
                         </button>
                         @auth
+                            <a
+                                href="{{ route('notifications.index') }}"
+                                class="relative flex items-center justify-center rounded-full p-2 text-base-content/70 transition-colors hover:bg-base-100/20 hover:text-base-content"
+                                aria-label="Notifications"
+                            >
+                                <svg class="size-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0" />
+                                </svg>
+                                @php($unreadCount = auth()->user()->unreadNotifications()->count())
+                                @if ($unreadCount > 0)
+                                    <span class="absolute right-1 top-1 flex size-2 rounded-full bg-primary"></span>
+                                @endif
+                            </a>
                             <div
                                 class="relative hidden sm:block"
                                 x-data="{ open: false }"
