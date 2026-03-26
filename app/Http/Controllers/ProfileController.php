@@ -34,6 +34,9 @@ final class ProfileController extends Controller
 
             $path = $request->file('photo')->store('profile-photos', 'public');
             $validated['profile_photo_path'] = $path;
+        } elseif ($request->boolean('remove_photo') && $user->profile_photo_path) {
+            Storage::disk('public')->delete($user->profile_photo_path);
+            $validated['profile_photo_path'] = null;
         }
 
         $oldEmail = $user->email;

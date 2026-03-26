@@ -37,6 +37,7 @@ final class UpdateProfileRequest extends FormRequest
                 Rule::unique('users')->ignore($user?->id),
             ],
             'photo' => ['nullable', 'image', 'max:2048'],
+            'remove_photo' => ['nullable', 'boolean'],
         ];
     }
 }
