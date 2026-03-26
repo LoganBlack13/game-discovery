@@ -89,3 +89,25 @@ test('games index links to individual game pages', function (): void {
     $response->assertSuccessful();
     $response->assertSee(route('games.show', $game), false);
 });
+
+test('games index filters by genre', function (): void {
+    Game::factory()->create(['title' => 'RPG Adventure', 'genres' => ['RPG', 'Adventure']]);
+    Game::factory()->create(['title' => 'Pure Shooter', 'genres' => ['Shooter']]);
+
+    $response = $this->get(route('games.index', ['genre' => 'RPG']));
+
+    $response->assertSuccessful();
+    $response->assertSee('RPG Adventure', false);
+    $response->assertDontSee('Pure Shooter', false);
+});
+
+test('games index shows all games when genre is empty', function (): void {
+    Game::factory()->create(['title' => 'RPG Game', 'genres' => ['RPG']]);
+    Game::factory()->create(['title' => 'Shooter Game', 'genres' => ['Shooter']]);
+
+    $response = $this->get(route('games.index', ['genre' => '']));
+
+    $response->assertSuccessful();
+    $response->assertSee('RPG Game', false);
+    $response->assertSee('Shooter Game', false);
+});

@@ -2,9 +2,11 @@
 
 use App\Enums\ReleaseStatus;
 use App\Models\Game;
-use Livewire\Component;
+use Illuminate\Database\Eloquent\Builder;
+use Livewire\Attributes\Computed;
 use Livewire\Attributes\Title;
 use Livewire\Attributes\Url;
+use Livewire\Component;
 use Livewire\WithPagination;
 
 new #[Title('Games')] class extends Component
@@ -17,6 +19,9 @@ new #[Title('Games')] class extends Component
     #[Url]
     public string $status = '';
 
+    #[Url]
+    public string $genre = '';
+
     public function updatedSearch(): void
     {
         $this->resetPage();
@@ -25,6 +30,31 @@ new #[Title('Games')] class extends Component
     public function updatedStatus(): void
     {
         $this->resetPage();
+    }
+
+    public function updatedGenre(): void
+    {
+        $this->resetPage();
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    #[Computed]
+    public function availableGenres(): array
+    {
+        /** @var \Illuminate\Support\Collection<int, array<int, string>> $genresCollection */
+        $genresCollection = Game::query()
+            ->whereNotNull('genres')
+            ->pluck('genres');
+
+        return $genresCollection
+            ->flatten()
+            ->filter(fn (mixed $g): bool => is_string($g) && $g !== '')
+            ->unique()
+            ->sort()
+            ->values()
+            ->all();
     }
 
     public function getGamesProperty(): \Illuminate\Contracts\Pagination\LengthAwarePaginator
@@ -36,6 +66,7 @@ new #[Title('Games')] class extends Component
             ->when($this->status === 'upcoming', fn ($q) => $q->upcoming()->upcomingByReleaseDate())
             ->when($this->status === 'released', fn ($q) => $q->released()->orderByDesc('release_date'))
             ->when($this->status === '', fn ($q) => $q->upcomingByReleaseDate())
+            ->when($this->genre !== '', fn (Builder $q): Builder => $q->whereJsonContains('genres', $this->genre))
             ->paginate(24);
     }
 };
@@ -69,12 +100,22 @@ new #[Title('Games')] class extends Component
                 aria-selected="{{ $status === 'released' ? 'true' : 'false' }}"
             >Released</button>
         </div>
-        <div class="w-full max-w-xs">
+        <div class="flex flex-col gap-2 sm:flex-row sm:items-center">
+            <select
+                wire:model.live="genre"
+                class="select select-bordered select-sm w-full sm:w-auto"
+                aria-label="Filter by genre"
+            >
+                <option value="">All genres</option>
+                @foreach ($this->availableGenres as $availableGenre)
+                    <option value="{{ $availableGenre }}">{{ $availableGenre }}</option>
+                @endforeach
+            </select>
             <input
                 type="search"
                 wire:model.live.debounce.300ms="search"
                 placeholder="Search games…"
-                class="input input-bordered input-sm w-full"
+                class="input input-bordered input-sm w-full sm:max-w-xs"
                 aria-label="Search games"
             />
         </div>
