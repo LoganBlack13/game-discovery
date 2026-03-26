@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Models\EnrichmentRun;
 use App\Models\Game;
 use App\Models\News;
 use Carbon\Carbon;
@@ -33,6 +34,15 @@ final readonly class NewsEnrichmentService
         $currentFeedIndex = 0;
         $currentFeedName = null;
         $currentFeedUrl = null;
+
+        $dbRun = EnrichmentRun::query()->create([
+            'run_id' => $runId,
+            'status' => 'running',
+            'feeds_total' => count($feeds),
+            'feeds_done' => 0,
+            'created_count' => 0,
+            'started_at' => now(),
+        ]);
 
         $this->writeProgress($key, [
             'status' => 'running',
@@ -121,6 +131,13 @@ final readonly class NewsEnrichmentService
                 ], $ttl);
             }
 
+            $dbRun->update([
+                'status' => 'completed',
+                'feeds_done' => count($feeds),
+                'created_count' => $createdCount,
+                'finished_at' => now(),
+            ]);
+
             $this->writeProgress($key, [
                 'status' => 'completed',
                 'current_feed_name' => null,
@@ -132,6 +149,13 @@ final readonly class NewsEnrichmentService
                 'error' => null,
             ], $ttl);
         } catch (Throwable $throwable) { // @codeCoverageIgnore
+            $dbRun->update([ // @codeCoverageIgnore
+                'status' => 'failed', // @codeCoverageIgnore
+                'feeds_done' => $currentFeedIndex, // @codeCoverageIgnore
+                'created_count' => $createdCount, // @codeCoverageIgnore
+                'error' => $throwable->getMessage(), // @codeCoverageIgnore
+                'finished_at' => now(), // @codeCoverageIgnore
+            ]); // @codeCoverageIgnore
             $this->writeProgress($key, [ // @codeCoverageIgnore
                 'status' => 'failed', // @codeCoverageIgnore
                 'current_feed_name' => $currentFeedName, // @codeCoverageIgnore

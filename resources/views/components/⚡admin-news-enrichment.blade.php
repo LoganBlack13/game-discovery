@@ -1,6 +1,7 @@
 <?php
 
 use App\Jobs\EnrichNewsJob;
+use App\Models\EnrichmentRun;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 use Livewire\Component;
@@ -53,6 +54,14 @@ new class extends Component
         $this->runId = null;
         $this->status = 'idle';
         $this->progress = [];
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Collection<int, EnrichmentRun>
+     */
+    public function getRecentRunsProperty(): \Illuminate\Database\Eloquent\Collection
+    {
+        return EnrichmentRun::query()->latest()->limit(10)->get();
     }
 };
 ?>
@@ -115,3 +124,49 @@ new class extends Component
         @endif
     @endif
 </div>
+
+@if ($this->recentRuns->isNotEmpty())
+    <div class="mt-8">
+        <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100">Recent runs</h2>
+        <div class="mt-3 overflow-x-auto rounded-lg border border-zinc-200 dark:border-zinc-700">
+            <table class="min-w-full divide-y divide-zinc-200 dark:divide-zinc-700 text-sm">
+                <thead class="bg-zinc-50 dark:bg-zinc-800">
+                    <tr>
+                        <th class="px-4 py-2 text-left font-medium text-zinc-600 dark:text-zinc-400">Started</th>
+                        <th class="px-4 py-2 text-left font-medium text-zinc-600 dark:text-zinc-400">Status</th>
+                        <th class="px-4 py-2 text-left font-medium text-zinc-600 dark:text-zinc-400">Feeds</th>
+                        <th class="px-4 py-2 text-left font-medium text-zinc-600 dark:text-zinc-400">Created</th>
+                        <th class="px-4 py-2 text-left font-medium text-zinc-600 dark:text-zinc-400">Duration</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-zinc-100 dark:divide-zinc-800 bg-white dark:bg-zinc-900">
+                    @foreach ($this->recentRuns as $run)
+                        <tr>
+                            <td class="px-4 py-2 text-zinc-700 dark:text-zinc-300 whitespace-nowrap">
+                                <span title="{{ $run->started_at->format('Y-m-d H:i:s') }}">{{ $run->started_at->diffForHumans() }}</span>
+                            </td>
+                            <td class="px-4 py-2 whitespace-nowrap">
+                                @if ($run->status === 'completed')
+                                    <span class="inline-flex items-center rounded-full bg-green-100 dark:bg-green-900/30 px-2 py-0.5 text-xs font-medium text-green-700 dark:text-green-400">Completed</span>
+                                @elseif ($run->status === 'failed')
+                                    <span class="inline-flex items-center rounded-full bg-red-100 dark:bg-red-900/30 px-2 py-0.5 text-xs font-medium text-red-700 dark:text-red-400" title="{{ $run->error }}">Failed</span>
+                                @else
+                                    <span class="inline-flex items-center rounded-full bg-zinc-100 dark:bg-zinc-800 px-2 py-0.5 text-xs font-medium text-zinc-600 dark:text-zinc-400">Running</span>
+                                @endif
+                            </td>
+                            <td class="px-4 py-2 text-zinc-600 dark:text-zinc-400">{{ $run->feeds_done }}/{{ $run->feeds_total }}</td>
+                            <td class="px-4 py-2 text-zinc-600 dark:text-zinc-400">{{ $run->created_count }}</td>
+                            <td class="px-4 py-2 text-zinc-600 dark:text-zinc-400 whitespace-nowrap">
+                                @if ($run->finished_at)
+                                    {{ gmdate('H:i:s', (int) $run->started_at->diffInSeconds($run->finished_at)) }}
+                                @else
+                                    —
+                                @endif
+                            </td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+    </div>
+@endif
