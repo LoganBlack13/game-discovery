@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Models\User;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
@@ -36,9 +37,10 @@ return new class extends Migration
             if ($type === '') {
                 $type = 'TEXT';
             }
+
             $notnull = (int) $col['notnull'] === 1 ? ' NOT NULL' : '';
             $pk = (int) $col['pk'] === 1 ? ' PRIMARY KEY' : '';
-            $newTableColumns[] = "\"{$name}\" {$type}{$notnull}{$pk}";
+            $newTableColumns[] = sprintf('"%s" %s%s%s', $name, $type, $notnull, $pk);
         }
 
         DB::statement('CREATE TABLE users_new ('.implode(', ', $newTableColumns).')');
@@ -54,6 +56,7 @@ return new class extends Migration
             foreach ($columnNames as $colName) {
                 $values[] = $rowArray[$colName] ?? null;
             }
+
             $placeholders = implode(', ', array_fill(0, count($columnNames), '?'));
             $sql = 'INSERT INTO users_new ("'.implode('", "', $columnNames).'") VALUES ('.$placeholders.')';
             DB::insert($sql, $values);
@@ -66,7 +69,7 @@ return new class extends Migration
         if (Schema::hasTable('personal_access_tokens')) {
             foreach ($idMap as $oldId => $newId) {
                 DB::table('personal_access_tokens')
-                    ->where('tokenable_type', 'App\Models\User')
+                    ->where('tokenable_type', User::class)
                     ->where('tokenable_id', (string) $oldId)
                     ->update(['tokenable_id' => $newId]);
             }

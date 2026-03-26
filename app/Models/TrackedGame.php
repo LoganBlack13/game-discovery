@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use Database\Factories\TrackedGameFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Override;
 
 /**
  * @property int $id
@@ -15,12 +17,13 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  */
 final class TrackedGame extends Model
 {
-    /** @use HasFactory<\Database\Factories\TrackedGameFactory> */
+    /** @use HasFactory<TrackedGameFactory> */
     use HasFactory;
 
     /**
      * @var list<string>
      */
+    #[Override]
     protected $fillable = [
         'user_id',
         'game_id',

@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Models\Game;
 use App\Models\News;
 use App\Services\NewsEnrichmentService;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
 
@@ -27,7 +28,7 @@ test('enrich creates news only for matched games', function () use ($stubRssWith
 
     $game = Game::factory()->create(['title' => 'Elden Ring']);
 
-    $service = app(NewsEnrichmentService::class);
+    $service = resolve(NewsEnrichmentService::class);
     $service->enrich(Str::uuid()->toString());
 
     expect(News::query()->count())->toBe(1);
@@ -49,7 +50,7 @@ test('enrich does not create duplicate news for same game and url', function () 
 
     Game::factory()->create(['title' => 'Elden Ring']);
 
-    $service = app(NewsEnrichmentService::class);
+    $service = resolve(NewsEnrichmentService::class);
     $service->enrich(Str::uuid()->toString());
     $service->enrich(Str::uuid()->toString());
 

@@ -16,12 +16,10 @@ final class EnsureUserIsAdmin
     public function handle(Request $request, Closure $next): Response
     {
         if (auth()->guest()) { // @codeCoverageIgnore
-            return redirect()->route('login'); // @codeCoverageIgnore
+            return to_route('login'); // @codeCoverageIgnore
         } // @codeCoverageIgnore
 
-        if (! auth()->user()->isAdmin()) {
-            abort(403);
-        }
+        abort_unless(auth()->user()->isAdmin(), 403);
 
         return $next($request);
     }

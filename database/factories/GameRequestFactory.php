@@ -7,12 +7,14 @@ namespace Database\Factories;
 use App\Models\GameRequest;
 use App\Services\GameRequestNormalizer;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Override;
 
 /**
  * @extends Factory<GameRequest>
  */
 final class GameRequestFactory extends Factory
 {
+    #[Override]
     protected $model = GameRequest::class;
 
     /**

@@ -8,10 +8,11 @@ use App\Http\Requests\UpdateProfileRequest;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 
-final class ProfileController extends \Illuminate\Routing\Controller
+final class ProfileController extends Controller
 {
     public function edit(): View
     {
@@ -29,6 +30,7 @@ final class ProfileController extends \Illuminate\Routing\Controller
             if ($user->profile_photo_path) {
                 Storage::disk('public')->delete($user->profile_photo_path);
             }
+
             $path = $request->file('photo')->store('profile-photos', 'public');
             $validated['profile_photo_path'] = $path;
         }

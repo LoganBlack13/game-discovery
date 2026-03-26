@@ -46,12 +46,10 @@ test('dispatches SyncGameJob and updates request when provider returns result an
         $mock->shouldReceive('resolve')->with('rawg')->andReturn($provider);
     });
 
-    $service = app(GameRequestProcessorService::class);
-    $service->process(5, null);
+    $service = resolve(GameRequestProcessorService::class);
+    $service->process(5);
 
-    Bus::assertDispatched(SyncGameJob::class, function (SyncGameJob $job): bool {
-        return $job->externalId === '12345' && $job->externalSource === 'rawg';
-    });
+    Bus::assertDispatched(SyncGameJob::class, fn (SyncGameJob $job): bool => $job->externalId === '12345' && $job->externalSource === 'rawg');
 });
 
 test('does not load requests that already have game_id (pending scope excludes them)', function (): void {
@@ -77,8 +75,8 @@ test('does not load requests that already have game_id (pending scope excludes t
         $mock->shouldReceive('resolve')->with('rawg')->andReturn($provider);
     });
 
-    $service = app(GameRequestProcessorService::class);
-    $service->process(5, null);
+    $service = resolve(GameRequestProcessorService::class);
+    $service->process(5);
 
     Bus::assertNotDispatched(SyncGameJob::class);
     $pendingRequest->refresh();
@@ -103,8 +101,8 @@ test('does not dispatch when search returns no results and request stays pending
         $mock->shouldReceive('resolve')->with('rawg')->andReturn($provider);
     });
 
-    $service = app(GameRequestProcessorService::class);
-    $service->process(5, null);
+    $service = resolve(GameRequestProcessorService::class);
+    $service->process(5);
 
     Bus::assertNotDispatched(SyncGameJob::class);
     $request->refresh();
@@ -150,8 +148,8 @@ test('links request to existing game by external_id and does not dispatch', func
         $mock->shouldReceive('resolve')->with('rawg')->andReturn($provider);
     });
 
-    $service = app(GameRequestProcessorService::class);
-    $service->process(5, null);
+    $service = resolve(GameRequestProcessorService::class);
+    $service->process(5);
 
     Bus::assertNotDispatched(SyncGameJob::class);
     $request->refresh();
@@ -180,8 +178,8 @@ test('skips request when matching game already in database by title and does not
         $mock->shouldReceive('resolve')->never();
     });
 
-    $service = app(GameRequestProcessorService::class);
-    $service->process(5, null);
+    $service = resolve(GameRequestProcessorService::class);
+    $service->process(5);
 
     Bus::assertNotDispatched(SyncGameJob::class);
     $request->refresh();
@@ -222,8 +220,8 @@ test('marks request added when SyncGameJob creates the game synchronously', func
         $mock->shouldReceive('resolve')->with('rawg')->andReturn($provider);
     });
 
-    $service = app(GameRequestProcessorService::class);
-    $service->process(5, null);
+    $service = resolve(GameRequestProcessorService::class);
+    $service->process(5);
 
     $request->refresh();
     expect($request->status)->toBe('added')
@@ -247,10 +245,10 @@ test('writes progress to cache when runId provided', function (): void {
         $mock->shouldReceive('resolve')->with('rawg')->andReturn($provider);
     });
 
-    $service = app(GameRequestProcessorService::class);
+    $service = resolve(GameRequestProcessorService::class);
     $service->process(5, $runId);
 
-    $key = "game_requests:progress:{$runId}";
+    $key = 'game_requests:progress:'.$runId;
     $progress = cache($key);
     expect($progress)->not->toBeNull()
         ->and($progress['status'])->toBe('completed')
@@ -270,7 +268,7 @@ test('writes failed progress to cache when exception is thrown', function (): vo
         $mock->shouldReceive('resolve')->with('rawg')->andThrow(new RuntimeException('Provider error'));
     });
 
-    $service = app(GameRequestProcessorService::class);
+    $service = resolve(GameRequestProcessorService::class);
 
     try {
         $service->process(5, $runId);
@@ -278,7 +276,7 @@ test('writes failed progress to cache when exception is thrown', function (): vo
         // expected
     }
 
-    $progress = cache("game_requests:progress:{$runId}");
+    $progress = cache('game_requests:progress:'.$runId);
     expect($progress)->not->toBeNull()
         ->and($progress['status'])->toBe('failed')
         ->and($progress['error'])->toBe('Provider error');

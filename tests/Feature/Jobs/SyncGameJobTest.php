@@ -9,7 +9,8 @@ use App\Enums\ReleaseStatus;
 use App\Jobs\SyncGameJob;
 use App\Models\Game;
 use App\Models\GameActivity;
-use Carbon\Carbon;
+use App\Services\GameActivityRecorder;
+use Illuminate\Support\Facades\Date;
 
 beforeEach(function (): void {
     $this->externalId = '12345';
@@ -21,11 +22,11 @@ test('sync creates GameActivity when release date changes', function (): void {
         'external_id' => $this->externalId,
         'external_source' => $this->externalSource,
         'title' => 'Existing Game',
-        'release_date' => Carbon::now()->addMonths(2),
+        'release_date' => Date::now()->addMonths(2),
         'release_status' => ReleaseStatus::ComingSoon,
     ]);
 
-    $newReleaseDate = Carbon::now()->addMonth()->format('Y-m-d');
+    $newReleaseDate = Date::now()->addMonth()->format('Y-m-d');
     $details = [
         'title' => 'Existing Game',
         'slug' => $game->slug,
@@ -55,7 +56,7 @@ test('sync creates GameActivity when release date changes', function (): void {
             ->andReturn($provider);
     });
 
-    (new SyncGameJob($this->externalId, $this->externalSource, $game->id))->handle($resolver, app(App\Services\GameActivityRecorder::class));
+    new SyncGameJob($this->externalId, $this->externalSource, $game->id)->handle($resolver, resolve(GameActivityRecorder::class));
 
     $activity = GameActivity::query()
         ->where('game_id', $game->id)
@@ -75,7 +76,7 @@ test('sync creates GameActivity when release date is announced for first time', 
         'release_status' => ReleaseStatus::Announced,
     ]);
 
-    $newReleaseDate = Carbon::now()->addMonths(3)->format('Y-m-d');
+    $newReleaseDate = Date::now()->addMonths(3)->format('Y-m-d');
     $details = [
         'title' => $game->title,
         'slug' => $game->slug,
@@ -105,7 +106,7 @@ test('sync creates GameActivity when release date is announced for first time', 
             ->andReturn($provider);
     });
 
-    (new SyncGameJob($this->externalId, $this->externalSource, $game->id))->handle($resolver, app(App\Services\GameActivityRecorder::class));
+    new SyncGameJob($this->externalId, $this->externalSource, $game->id)->handle($resolver, resolve(GameActivityRecorder::class));
 
     $activity = GameActivity::query()
         ->where('game_id', $game->id)
@@ -120,11 +121,11 @@ test('sync creates GameActivity when game becomes released', function (): void {
     $game = Game::factory()->create([
         'external_id' => $this->externalId,
         'external_source' => $this->externalSource,
-        'release_date' => Carbon::now()->addWeek(),
+        'release_date' => Date::now()->addWeek(),
         'release_status' => ReleaseStatus::ComingSoon,
     ]);
 
-    $pastDate = Carbon::now()->subDay()->format('Y-m-d');
+    $pastDate = Date::now()->subDay()->format('Y-m-d');
     $details = [
         'title' => $game->title,
         'slug' => $game->slug,
@@ -154,7 +155,7 @@ test('sync creates GameActivity when game becomes released', function (): void {
             ->andReturn($provider);
     });
 
-    (new SyncGameJob($this->externalId, $this->externalSource, $game->id))->handle($resolver, app(App\Services\GameActivityRecorder::class));
+    new SyncGameJob($this->externalId, $this->externalSource, $game->id)->handle($resolver, resolve(GameActivityRecorder::class));
 
     $activity = GameActivity::query()
         ->where('game_id', $game->id)
@@ -171,7 +172,7 @@ test('sync does not update when existing game has identical details', function (
         'external_source' => $this->externalSource,
         'title' => 'Existing Game',
         'slug' => 'existing-game',
-        'release_date' => Carbon::now()->addMonths(2),
+        'release_date' => Date::now()->addMonths(2),
         'release_status' => ReleaseStatus::ComingSoon,
     ]);
     $originalUpdatedAt = $game->updated_at;
@@ -206,7 +207,7 @@ test('sync does not update when existing game has identical details', function (
             ->andReturn($provider);
     });
 
-    (new SyncGameJob($this->externalId, $this->externalSource, $game->id))->handle($resolver, app(App\Services\GameActivityRecorder::class));
+    new SyncGameJob($this->externalId, $this->externalSource, $game->id)->handle($resolver, resolve(GameActivityRecorder::class));
 
     $game->refresh();
     expect($game->updated_at->eq($originalUpdatedAt))->toBeTrue()
@@ -249,7 +250,7 @@ test('sync updates game and sets last_synced_at when one field differs', functio
             ->andReturn($provider);
     });
 
-    (new SyncGameJob($this->externalId, $this->externalSource, $game->id))->handle($resolver, app(App\Services\GameActivityRecorder::class));
+    new SyncGameJob($this->externalId, $this->externalSource, $game->id)->handle($resolver, resolve(GameActivityRecorder::class));
 
     $game->refresh();
     expect($game->title)->toBe('New Title')
@@ -286,7 +287,7 @@ test('sync sets last_synced_at when creating new game', function (): void {
             ->andReturn($provider);
     });
 
-    (new SyncGameJob($this->externalId, $this->externalSource))->handle($resolver, app(App\Services\GameActivityRecorder::class));
+    new SyncGameJob($this->externalId, $this->externalSource)->handle($resolver, resolve(GameActivityRecorder::class));
 
     $game = Game::query()
         ->where('external_source', $this->externalSource)

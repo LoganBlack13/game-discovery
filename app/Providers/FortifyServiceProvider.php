@@ -9,6 +9,8 @@ use App\Actions\Fortify\ResetUserPassword;
 use App\Actions\Fortify\UpdateUserPassword;
 use App\Actions\Fortify\UpdateUserProfileInformation;
 use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
@@ -31,13 +33,13 @@ final class FortifyServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        Fortify::loginView(fn () => view('auth.login'));
-        Fortify::registerView(fn () => view('auth.register'));
-        Fortify::requestPasswordResetLinkView(fn () => view('auth.forgot-password'));
-        Fortify::resetPasswordView(fn (Request $request) => view('auth.reset-password', ['request' => $request]));
-        Fortify::verifyEmailView(fn () => view('auth.verify-email'));
-        Fortify::twoFactorChallengeView(fn () => view('auth.two-factor-challenge'));
-        Fortify::confirmPasswordView(fn () => view('auth.confirm-password'));
+        Fortify::loginView(fn (): Factory|View => view('auth.login'));
+        Fortify::registerView(fn (): Factory|View => view('auth.register'));
+        Fortify::requestPasswordResetLinkView(fn (): Factory|View => view('auth.forgot-password'));
+        Fortify::resetPasswordView(fn (Request $request): Factory|View => view('auth.reset-password', ['request' => $request]));
+        Fortify::verifyEmailView(fn (): Factory|View => view('auth.verify-email'));
+        Fortify::twoFactorChallengeView(fn (): Factory|View => view('auth.two-factor-challenge'));
+        Fortify::confirmPasswordView(fn (): Factory|View => view('auth.confirm-password'));
 
         Fortify::createUsersUsing(CreateNewUser::class);
         Fortify::updateUserProfileInformationUsing(UpdateUserProfileInformation::class);

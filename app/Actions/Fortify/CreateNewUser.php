@@ -42,7 +42,7 @@ final class CreateNewUser implements CreatesNewUsers
             'password' => $this->passwordRules(),
         ])->validate();
 
-        return User::create([
+        return User::query()->create([
             'name' => $input['name'],
             'username' => $input['username'],
             'email' => $input['email'],

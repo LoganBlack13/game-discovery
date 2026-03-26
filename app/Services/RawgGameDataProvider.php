@@ -6,7 +6,9 @@ namespace App\Services;
 
 use App\Contracts\GameDataProvider;
 use App\Enums\ReleaseStatus;
+use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Str;
 use InvalidArgumentException;
 use RuntimeException;
 use Throwable;
@@ -42,11 +44,12 @@ final class RawgGameDataProvider implements GameDataProvider
             if (! $response->successful()) {
                 return [];
             }
+
             $data = $response->json();
             $results = $data['results'] ?? [];
 
             return array_values(array_filter(array_map(
-                fn (array $item): array => $this->mapGameFromList($item),
+                $this->mapGameFromList(...),
                 $results
             )));
         } catch (Throwable) {
@@ -60,14 +63,10 @@ final class RawgGameDataProvider implements GameDataProvider
     public function getGameDetails(string $externalId): array
     {
         $key = config('services.rawg.key');
-        if (empty($key)) {
-            throw new InvalidArgumentException('RAWG API key is not configured.');
-        }
+        throw_if(empty($key), InvalidArgumentException::class, 'RAWG API key is not configured.');
 
         $response = Http::timeout(10)->get(self::BASE_URL.'/games/'.$externalId, ['key' => $key]);
-        if (! $response->successful()) {
-            throw new RuntimeException('Failed to fetch game details from RAWG.');
-        }
+        throw_unless($response->successful(), RuntimeException::class, 'Failed to fetch game details from RAWG.');
 
         $data = $response->json();
 
@@ -94,6 +93,7 @@ final class RawgGameDataProvider implements GameDataProvider
                 if (is_array($p) && isset($p['platform']['name'])) {
                     return (string) $p['platform']['name'];
                 }
+
                 if (is_array($p) && isset($p['name'])) {
                     return (string) $p['name'];
                 }
@@ -104,7 +104,7 @@ final class RawgGameDataProvider implements GameDataProvider
 
         return [
             'title' => (string) ($item['name'] ?? ''),
-            'slug' => (string) ($item['slug'] ?? \Illuminate\Support\Str::slug($item['name'] ?? '')),
+            'slug' => (string) ($item['slug'] ?? Str::slug($item['name'] ?? '')),
             'description' => null,
             'cover_image' => $item['background_image'] ?? null ? (string) $item['background_image'] : null,
             'developer' => $firstDeveloper !== null ? (string) $firstDeveloper : null,
@@ -139,7 +139,7 @@ final class RawgGameDataProvider implements GameDataProvider
 
         return [
             'title' => (string) ($data['name'] ?? ''),
-            'slug' => (string) ($data['slug'] ?? \Illuminate\Support\Str::slug($data['name'] ?? '')),
+            'slug' => (string) ($data['slug'] ?? Str::slug($data['name'] ?? '')),
             'description' => isset($data['description_raw']) ? (string) $data['description_raw'] : null,
             'cover_image' => $data['background_image'] ?? null ? (string) $data['background_image'] : null,
             'developer' => $firstDeveloper !== null ? (string) $firstDeveloper : null,
@@ -158,10 +158,12 @@ final class RawgGameDataProvider implements GameDataProvider
         if ($tba) {
             return ReleaseStatus::ComingSoon->value;
         }
+
         if (empty($released)) {
             return ReleaseStatus::Announced->value;
         }
-        $date = \Carbon\Carbon::parse((string) $released);
+
+        $date = Date::parse((string) $released);
 
         return $date->isFuture() ? ReleaseStatus::ComingSoon->value : ReleaseStatus::Released->value;
     }

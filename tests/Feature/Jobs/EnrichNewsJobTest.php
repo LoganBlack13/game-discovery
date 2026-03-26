@@ -5,7 +5,9 @@ declare(strict_types=1);
 use App\Jobs\EnrichNewsJob;
 use App\Models\Game;
 use App\Models\News;
+use App\Services\NewsEnrichmentService;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
 
@@ -28,9 +30,9 @@ test('job runs enrichment and progress is completed in cache', function () use (
     $runId = Str::uuid()->toString();
 
     $job = new EnrichNewsJob($runId);
-    $job->handle(app(App\Services\NewsEnrichmentService::class));
+    $job->handle(resolve(NewsEnrichmentService::class));
 
-    $progress = Cache::get("news_enrichment:progress:{$runId}");
+    $progress = Cache::get('news_enrichment:progress:'.$runId);
     expect($progress)->not->toBeNull()
         ->and($progress['status'])->toBe('completed')
         ->and($progress['created_count'])->toBe(1);

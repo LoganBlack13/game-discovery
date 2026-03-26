@@ -5,10 +5,12 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Enums\GameActivityType;
+use Carbon\CarbonInterface;
 use Database\Factories\GameActivityFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Override;
 
 /**
  * @property int $id
@@ -17,7 +19,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string $title
  * @property string|null $description
  * @property string|null $url
- * @property \Carbon\CarbonInterface $occurred_at
+ * @property CarbonInterface $occurred_at
  */
 final class GameActivity extends Model
 {
@@ -27,6 +29,7 @@ final class GameActivity extends Model
     /**
      * @var list<string>
      */
+    #[Override]
     protected $fillable = [
         'game_id',
         'type',

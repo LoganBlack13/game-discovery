@@ -11,7 +11,7 @@ test('welcome page loads and shows hero content', function (): void {
 
     $response->assertSuccessful();
     $response->assertSee('Track your games.', false);
-    $response->assertSee('Know when you\'ll actually play them.', false);
+    $response->assertSee("Know when you'll actually play them.", false);
     $response->assertSee('Start tracking your games', false);
     $response->assertSee('See how it works', false);
 });
@@ -46,9 +46,10 @@ test('upcoming releases section shows games with release date before games with 
     $response->assertSuccessful();
     $response->assertSee('Upcoming With Date', false);
     $response->assertSee('Upcoming No Date', false);
+
     $body = $response->getContent();
-    $posWithDate = mb_strpos($body, 'Upcoming With Date');
-    $posNoDate = mb_strpos($body, 'Upcoming No Date');
+    $posWithDate = mb_strpos((string) $body, 'Upcoming With Date');
+    $posNoDate = mb_strpos((string) $body, 'Upcoming No Date');
     expect($posWithDate)->not->toBeFalse()
         ->and($posNoDate)->not->toBeFalse()
         ->and($posWithDate)->toBeLessThan($posNoDate);
@@ -77,6 +78,7 @@ test('welcome page upcoming section has game links or preview triggers', functio
 
     $response->assertSuccessful();
     $response->assertSee('Preview Game', false);
+
     expect($response->getContent())->toContain('Preview Game');
 });
 

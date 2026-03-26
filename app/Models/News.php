@@ -4,9 +4,12 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use Carbon\CarbonInterface;
+use Database\Factories\NewsFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Override;
 
 /**
  * @property int $id
@@ -15,16 +18,17 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string|null $thumbnail
  * @property string|null $source
  * @property string $url
- * @property \Carbon\CarbonInterface|null $published_at
+ * @property CarbonInterface|null $published_at
  */
 final class News extends Model
 {
-    /** @use HasFactory<\Database\Factories\NewsFactory> */
+    /** @use HasFactory<NewsFactory> */
     use HasFactory;
 
     /**
      * @var list<string>
      */
+    #[Override]
     protected $fillable = [
         'game_id',
         'title',

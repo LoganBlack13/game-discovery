@@ -4,27 +4,26 @@ declare(strict_types=1);
 
 namespace App\Policies;
 
-use App\Models\Game;
 use App\Models\User;
 
 final class GamePolicy
 {
-    public function track(?User $user, Game $game): bool
+    public function track(?User $user): bool
     {
-        return $user !== null;
+        return $user instanceof User;
     }
 
-    public function untrack(?User $user, Game $game): bool
+    public function untrack(?User $user): bool
     {
-        return $user !== null;
+        return $user instanceof User;
     }
 
-    public function update(User $user, Game $game): bool
+    public function update(User $user): bool
     {
         return $user->isAdmin();
     }
 
-    public function delete(User $user, Game $game): bool
+    public function delete(User $user): bool
     {
         return $user->isAdmin();
     }

@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Contracts\GameDataProvider;
+use App\Contracts\GameDataProviderResolver;
 use App\Enums\ReleaseStatus;
 use App\Models\Game;
 use App\Models\User;
@@ -14,6 +15,7 @@ test('guest is redirected to login when visiting add-game page', function (): vo
     $response = $this->get(route('admin.add-game'));
 
     $response->assertRedirect();
+
     expect($response->headers->get('Location'))->toContain('login');
 });
 
@@ -61,7 +63,7 @@ test('admin can add game to database via Livewire action', function (): void {
             ->andReturn($gameDetails);
     });
 
-    $this->mock(App\Contracts\GameDataProviderResolver::class, function ($mock) use ($provider, $externalSource): void {
+    $this->mock(GameDataProviderResolver::class, function ($mock) use ($provider, $externalSource): void {
         $mock->shouldReceive('resolve')
             ->once()
             ->with($externalSource)
@@ -126,7 +128,7 @@ test('admin can add IGDB-sourced game to database via Livewire action', function
             ->andReturn($gameDetails);
     });
 
-    $this->mock(App\Contracts\GameDataProviderResolver::class, function ($mock) use ($provider, $externalSource): void {
+    $this->mock(GameDataProviderResolver::class, function ($mock) use ($provider, $externalSource): void {
         $mock->shouldReceive('resolve')
             ->once()
             ->with($externalSource)
@@ -191,7 +193,7 @@ test('add-game page shows RAWG and IGDB column headings and results per source',
         $mock->shouldReceive('search')->andReturn($igdbResults);
     });
 
-    $resolver = $this->mock(App\Contracts\GameDataProviderResolver::class, function ($mock) use ($rawgProvider, $igdbProvider): void {
+    $resolver = $this->mock(GameDataProviderResolver::class, function ($mock) use ($rawgProvider, $igdbProvider): void {
         $mock->shouldReceive('resolve')->with('rawg')->andReturn($rawgProvider);
         $mock->shouldReceive('resolve')->with('igdb')->andReturn($igdbProvider);
     });
@@ -240,7 +242,7 @@ test('update existing game via add-game does not change updated_at when details 
             ->andReturn($details);
     });
 
-    $this->mock(App\Contracts\GameDataProviderResolver::class, function ($mock) use ($provider, $externalSource): void {
+    $this->mock(GameDataProviderResolver::class, function ($mock) use ($provider, $externalSource): void {
         $mock->shouldReceive('resolve')
             ->once()
             ->with($externalSource)
@@ -288,7 +290,7 @@ test('update existing game via add-game updates title and sets last_synced_at wh
             ->andReturn($details);
     });
 
-    $this->mock(App\Contracts\GameDataProviderResolver::class, function ($mock) use ($provider, $externalSource): void {
+    $this->mock(GameDataProviderResolver::class, function ($mock) use ($provider, $externalSource): void {
         $mock->shouldReceive('resolve')
             ->once()
             ->with($externalSource)
@@ -338,7 +340,7 @@ test('add-game shows Already in database and Update for game already in DB', fun
         $mock->shouldReceive('search')->andReturn($searchResults);
     });
 
-    $this->mock(App\Contracts\GameDataProviderResolver::class, function ($mock) use ($provider): void {
+    $this->mock(GameDataProviderResolver::class, function ($mock) use ($provider): void {
         $mock->shouldReceive('resolve')->with('rawg')->andReturn($provider);
         $mock->shouldReceive('resolve')->with('igdb')->andReturn($this->mock(GameDataProvider::class, fn ($m) => $m->shouldReceive('search')->andReturn([])));
     });

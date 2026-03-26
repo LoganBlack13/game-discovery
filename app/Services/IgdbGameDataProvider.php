@@ -7,7 +7,9 @@ namespace App\Services;
 use App\Contracts\GameDataProvider;
 use App\Enums\ReleaseStatus;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Str;
 use InvalidArgumentException;
 use RuntimeException;
 use Throwable;
@@ -57,7 +59,7 @@ final class IgdbGameDataProvider implements GameDataProvider
             }
 
             return array_values(array_filter(array_map(
-                fn (array $item): array => $this->mapGameFromList($item),
+                $this->mapGameFromList(...),
                 $results
             )));
         } catch (Throwable) { // @codeCoverageIgnore
@@ -71,9 +73,7 @@ final class IgdbGameDataProvider implements GameDataProvider
     public function getGameDetails(string $externalId): array
     {
         $headers = $this->requestHeaders();
-        if ($headers === null) {
-            throw new InvalidArgumentException('IGDB (Twitch) credentials are not configured.');
-        }
+        throw_if($headers === null, InvalidArgumentException::class, 'IGDB (Twitch) credentials are not configured.');
 
         $body = sprintf(
             'where id = %s; fields id,name,slug,summary,first_release_date,genres.name,involved_companies.company.name,involved_companies.developer,involved_companies.publisher,cover.image_id,platforms.name;',
@@ -90,7 +90,7 @@ final class IgdbGameDataProvider implements GameDataProvider
         }
 
         $data = $response->json();
-        if (! is_array($data) || count($data) === 0) { // @codeCoverageIgnore
+        if (! is_array($data) || $data === []) { // @codeCoverageIgnore
             throw new RuntimeException('Game not found in IGDB.'); // @codeCoverageIgnore
         }
 
@@ -179,13 +179,16 @@ final class IgdbGameDataProvider implements GameDataProvider
             if (! is_array($inv)) { // @codeCoverageIgnore
                 continue; // @codeCoverageIgnore
             }
+
             $companyName = $inv['company']['name'] ?? null;
             if ($companyName === null) { // @codeCoverageIgnore
                 continue; // @codeCoverageIgnore
             }
+
             if (! empty($inv['developer']) && $developer === null) {
                 $developer = (string) $companyName;
             }
+
             if (! empty($inv['publisher']) && $publisher === null) {
                 $publisher = (string) $companyName;
             }
@@ -200,12 +203,12 @@ final class IgdbGameDataProvider implements GameDataProvider
 
         $coverImageId = $data['cover']['image_id'] ?? null;
         $coverImage = $coverImageId !== null
-            ? 'https://images.igdb.com/igdb/image/upload/t_cover_big/'.(string) $coverImageId.'.jpg'
+            ? 'https://images.igdb.com/igdb/image/upload/t_cover_big/'.$coverImageId.'.jpg'
             : null;
 
         return [
             'title' => (string) ($data['name'] ?? ''),
-            'slug' => (string) ($data['slug'] ?? \Illuminate\Support\Str::slug($data['name'] ?? '')),
+            'slug' => (string) ($data['slug'] ?? Str::slug($data['name'] ?? '')),
             'description' => isset($data['summary']) ? (string) $data['summary'] : null,
             'cover_image' => $coverImage,
             'developer' => $developer,
@@ -224,7 +227,8 @@ final class IgdbGameDataProvider implements GameDataProvider
         if ($firstReleaseDate === null || $firstReleaseDate <= 0) {
             return ReleaseStatus::Announced->value;
         }
-        $date = \Carbon\Carbon::createFromTimestamp($firstReleaseDate);
+
+        $date = Date::createFromTimestamp($firstReleaseDate);
 
         return $date->isFuture() ? ReleaseStatus::ComingSoon->value : ReleaseStatus::Released->value;
     }

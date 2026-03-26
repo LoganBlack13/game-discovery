@@ -49,7 +49,7 @@ final class UserGameSearchService
      */
     private function trackedGameIdsForUser(?User $user, array $gameIds): array
     {
-        if ($user === null || $gameIds === []) {
+        if (! $user instanceof User || $gameIds === []) {
             return [];
         }
 

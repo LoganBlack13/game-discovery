@@ -4,11 +4,15 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use Carbon\CarbonInterface;
+use Database\Factories\GameRequestFactory;
+use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Override;
 
 /**
  * @property int $id
@@ -17,18 +21,19 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property int $request_count
  * @property string $status
  * @property int|null $game_id
- * @property \Carbon\CarbonInterface|null $added_at
- * @property \Carbon\CarbonInterface $created_at
- * @property \Carbon\CarbonInterface $updated_at
+ * @property CarbonInterface|null $added_at
+ * @property CarbonInterface $created_at
+ * @property CarbonInterface $updated_at
  */
 final class GameRequest extends Model
 {
-    /** @use HasFactory<\Database\Factories\GameRequestFactory> */
+    /** @use HasFactory<GameRequestFactory> */
     use HasFactory;
 
     /**
      * @var list<string>
      */
+    #[Override]
     protected $fillable = [
         'normalized_title',
         'display_title',
@@ -48,11 +53,6 @@ final class GameRequest extends Model
         ];
     }
 
-    public function scopePending(Builder $query): Builder
-    {
-        return $query->where('status', 'pending')->whereNull('game_id');
-    }
-
     /**
      * @return BelongsTo<Game, $this>
      */
@@ -67,5 +67,11 @@ final class GameRequest extends Model
     public function votes(): HasMany
     {
         return $this->hasMany(GameRequestVote::class);
+    }
+
+    #[Scope]
+    public function pending(Builder $query): Builder
+    {
+        return $query->where('status', 'pending')->whereNull('game_id');
     }
 }

@@ -5,32 +5,36 @@ declare(strict_types=1);
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\GameRequestProgressController;
 use App\Http\Controllers\Admin\NewsEnrichmentProgressController;
+use App\Http\Controllers\GameController;
+use App\Http\Controllers\ProfileController;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Route;
 
 Route::livewire('/', 'pages::welcome');
 Route::livewire('/games', 'pages::games')->name('games.index');
 
-Route::get('/games/{game:slug}', [App\Http\Controllers\GameController::class, 'show'])->name('games.show');
-Route::get('/privacy', fn () => view('pages.privacy'))->name('privacy');
-Route::get('/terms', fn () => view('pages.terms'))->name('terms');
+Route::get('/games/{game:slug}', [GameController::class, 'show'])->name('games.show');
+Route::get('/privacy', fn (): Factory|View => view('pages.privacy'))->name('privacy');
+Route::get('/terms', fn (): Factory|View => view('pages.terms'))->name('terms');
 
 Route::middleware(['auth', 'verified'])->group(function (): void {
     Route::get('/dashboard', App\Http\Controllers\DashboardController::class)->name('dashboard');
 
     Route::prefix('admin')->name('admin.')->middleware('admin')->group(function (): void {
         Route::get('/', [DashboardController::class, '__invoke'])->name('dashboard');
-        Route::get('/add-game', fn () => view('admin.add-game'))->name('add-game');
+        Route::get('/add-game', fn (): Factory|View => view('admin.add-game'))->name('add-game');
         Route::get('/games', [App\Http\Controllers\Admin\GameController::class, 'index'])->name('games.index');
-        Route::get('/news-enrichment', fn () => view('admin.news-enrichment'))->name('news-enrichment');
+        Route::get('/news-enrichment', fn (): Factory|View => view('admin.news-enrichment'))->name('news-enrichment');
         Route::get('/news-enrichment/progress', [NewsEnrichmentProgressController::class, '__invoke'])->name('news-enrichment.progress');
-        Route::get('/game-requests', fn () => view('admin.game-requests'))->name('game-requests');
+        Route::get('/game-requests', fn (): Factory|View => view('admin.game-requests'))->name('game-requests');
         Route::get('/game-requests/progress', [GameRequestProgressController::class, '__invoke'])->name('game-requests.progress');
     });
-    Route::post('/games/{game:slug}/track', [App\Http\Controllers\GameController::class, 'track'])->name('games.track');
-    Route::delete('/games/{game:slug}/track', [App\Http\Controllers\GameController::class, 'untrack'])->name('games.untrack');
-    Route::get('/profile', [App\Http\Controllers\ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [App\Http\Controllers\ProfileController::class, 'update'])->name('profile.update');
-    Route::get('/profile/recovery-codes', [App\Http\Controllers\ProfileController::class, 'recoveryCodes'])
+    Route::post('/games/{game:slug}/track', [GameController::class, 'track'])->name('games.track');
+    Route::delete('/games/{game:slug}/track', [GameController::class, 'untrack'])->name('games.untrack');
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::get('/profile/recovery-codes', [ProfileController::class, 'recoveryCodes'])
         ->middleware('password.confirm')
         ->name('profile.recovery-codes');
 });

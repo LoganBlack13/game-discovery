@@ -29,7 +29,7 @@ test('fetch returns array of items with title url and published_at', function ()
         '*' => Http::response($stubRss, 200, ['Content-Type' => 'application/xml']),
     ]);
 
-    $fetcher = app(RssFeedFetcher::class);
+    $fetcher = resolve(RssFeedFetcher::class);
     $items = $fetcher->fetch('https://example.com/feed.xml');
 
     expect($items)->toBeArray()
@@ -46,7 +46,7 @@ test('fetch returns empty array when response body is not valid XML', function (
         '*' => Http::response('this is not xml', 200),
     ]);
 
-    $fetcher = app(RssFeedFetcher::class);
+    $fetcher = resolve(RssFeedFetcher::class);
     $items = $fetcher->fetch('https://example.com/feed.xml');
 
     expect($items)->toBeArray()->and($items)->toBeEmpty();
@@ -61,7 +61,7 @@ test('fetch returns null published_at when pubDate is an empty string', function
 XML;
     Http::fake(['*' => Http::response($rss, 200)]);
 
-    $fetcher = app(RssFeedFetcher::class);
+    $fetcher = resolve(RssFeedFetcher::class);
     $items = $fetcher->fetch('https://example.com/feed.xml');
 
     expect($items[0]['published_at'])->toBeNull();
@@ -76,7 +76,7 @@ test('fetch returns null published_at when pubDate is absent', function (): void
 XML;
     Http::fake(['*' => Http::response($rss, 200)]);
 
-    $fetcher = app(RssFeedFetcher::class);
+    $fetcher = resolve(RssFeedFetcher::class);
     $items = $fetcher->fetch('https://example.com/feed.xml');
 
     expect($items[0]['published_at'])->toBeNull();
@@ -95,7 +95,7 @@ test('fetch extracts thumbnail from media:content element', function (): void {
 XML;
     Http::fake(['*' => Http::response($rss, 200)]);
 
-    $fetcher = app(RssFeedFetcher::class);
+    $fetcher = resolve(RssFeedFetcher::class);
     $items = $fetcher->fetch('https://example.com/feed.xml');
 
     expect($items[0]['thumbnail'])->toBe('https://example.com/thumb.jpg');
@@ -114,7 +114,7 @@ test('fetch extracts thumbnail from enclosure element with image type', function
 XML;
     Http::fake(['*' => Http::response($rss, 200)]);
 
-    $fetcher = app(RssFeedFetcher::class);
+    $fetcher = resolve(RssFeedFetcher::class);
     $items = $fetcher->fetch('https://example.com/feed.xml');
 
     expect($items[0]['thumbnail'])->toBe('https://example.com/cover.png');
@@ -125,7 +125,7 @@ test('fetch returns empty array on failed request', function (): void {
         '*' => Http::response('Server Error', 500),
     ]);
 
-    $fetcher = app(RssFeedFetcher::class);
+    $fetcher = resolve(RssFeedFetcher::class);
     $items = $fetcher->fetch('https://example.com/feed.xml');
 
     expect($items)->toBeArray()->and($items)->toBeEmpty();

@@ -6,12 +6,15 @@ namespace App\Console\Commands;
 
 use App\Services\IgdbGameDataProvider;
 use Illuminate\Console\Command;
+use Override;
 use Throwable;
 
 final class IgdbTestCommand extends Command
 {
+    #[Override]
     protected $signature = 'igdb:test {query=subnautica 2 : Search term to test IGDB}';
 
+    #[Override]
     protected $description = 'Test IGDB API connection and search (Twitch OAuth). Use this to confirm IGDB returns results.';
 
     public function handle(IgdbGameDataProvider $provider): int
@@ -34,8 +37,8 @@ final class IgdbTestCommand extends Command
 
         try {
             $results = $provider->search($query);
-        } catch (Throwable $e) {
-            $this->error('IGDB request failed: '.$e->getMessage());
+        } catch (Throwable $throwable) {
+            $this->error('IGDB request failed: '.$throwable->getMessage());
 
             return self::FAILURE;
         }

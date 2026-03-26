@@ -7,7 +7,7 @@ use App\Models\Game;
 
 use function Pest\Laravel\get;
 
-it('renders homepage with upcoming releases carousel', function () {
+it('renders homepage with upcoming releases carousel', function (): void {
     Game::factory()->create([
         'title' => 'Upcoming Carousel Game',
         'release_date' => now()->addDays(30),

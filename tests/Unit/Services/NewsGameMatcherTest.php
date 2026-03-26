@@ -8,7 +8,7 @@ use App\Services\NewsGameMatcher;
 uses()->group('unit');
 
 beforeEach(function (): void {
-    $this->matcher = app(NewsGameMatcher::class);
+    $this->matcher = resolve(NewsGameMatcher::class);
 });
 
 test('findMatchingGame returns null when news title is empty', function (): void {

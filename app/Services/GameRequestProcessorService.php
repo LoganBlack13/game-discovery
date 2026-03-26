@@ -11,14 +11,14 @@ use App\Models\GameRequest;
 use Illuminate\Support\Facades\Cache;
 use Throwable;
 
-final class GameRequestProcessorService
+final readonly class GameRequestProcessorService
 {
     private const string DEFAULT_SOURCE = 'rawg';
 
     private const int PROGRESS_TTL_SECONDS = 3600;
 
     public function __construct(
-        private readonly GameDataProviderResolver $resolver
+        private GameDataProviderResolver $resolver
     ) {}
 
     public function process(int $limit = 5, ?string $runId = null): void
@@ -31,7 +31,7 @@ final class GameRequestProcessorService
 
         $processed = 0;
         $added = 0;
-        $progressKey = $runId !== null ? "game_requests:progress:{$runId}" : null;
+        $progressKey = $runId !== null ? 'game_requests:progress:'.$runId : null;
 
         if ($progressKey !== null) {
             $this->writeProgress($progressKey, 'running', null, 0, 0, null);
@@ -44,7 +44,7 @@ final class GameRequestProcessorService
                 }
 
                 $existingByTitle = $this->findExistingGameByTitle($request->normalized_title);
-                if ($existingByTitle !== null) {
+                if ($existingByTitle instanceof Game) {
                     $this->markRequestAdded($request, $existingByTitle->id);
                     $processed++;
                     $added++;
@@ -78,7 +78,7 @@ final class GameRequestProcessorService
                     continue;
                 }
 
-                SyncGameJob::dispatchSync($externalId, $externalSource);
+                dispatch_sync(new SyncGameJob($externalId, $externalSource));
 
                 $game = Game::query()
                     ->where('external_source', $externalSource)
@@ -96,11 +96,12 @@ final class GameRequestProcessorService
             if ($progressKey !== null) {
                 $this->writeProgress($progressKey, 'completed', null, $processed, $added, null);
             }
-        } catch (Throwable $e) {
+        } catch (Throwable $throwable) {
             if ($progressKey !== null) {
-                $this->writeProgress($progressKey, 'failed', null, $processed, $added, $e->getMessage());
+                $this->writeProgress($progressKey, 'failed', null, $processed, $added, $throwable->getMessage());
             }
-            throw $e;
+
+            throw $throwable;
         }
     }
 

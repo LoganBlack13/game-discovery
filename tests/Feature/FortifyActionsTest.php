@@ -6,6 +6,7 @@ use App\Actions\Fortify\UpdateUserPassword;
 use App\Actions\Fortify\UpdateUserProfileInformation;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Validation\ValidationException;
 
 test('UpdateUserPassword updates password when current password is correct', function (): void {
@@ -14,7 +15,7 @@ test('UpdateUserPassword updates password when current password is correct', fun
     ]);
     $this->actingAs($user);
 
-    $action = app(UpdateUserPassword::class);
+    $action = resolve(UpdateUserPassword::class);
     $action->update($user, [
         'current_password' => 'OldPassword1!',
         'password' => 'NewPassword1!',
@@ -31,7 +32,7 @@ test('UpdateUserPassword throws validation error when current password is wrong'
     ]);
     $this->actingAs($user);
 
-    $action = app(UpdateUserPassword::class);
+    $action = resolve(UpdateUserPassword::class);
 
     expect(fn () => $action->update($user, [
         'current_password' => 'WrongPassword1!',
@@ -46,7 +47,7 @@ test('UpdateUserProfileInformation updates name and email', function (): void {
         'email' => 'old@example.com',
     ]);
 
-    $action = app(UpdateUserProfileInformation::class);
+    $action = resolve(UpdateUserProfileInformation::class);
     $action->update($user, [
         'name' => 'New Name',
         'email' => 'new@example.com',
@@ -61,7 +62,7 @@ test('UpdateUserProfileInformation throws validation error when email is not uni
     User::factory()->create(['email' => 'taken@example.com']);
     $user = User::factory()->create(['email' => 'mine@example.com']);
 
-    $action = app(UpdateUserProfileInformation::class);
+    $action = resolve(UpdateUserProfileInformation::class);
 
     expect(fn () => $action->update($user, [
         'name' => $user->name,
@@ -70,13 +71,13 @@ test('UpdateUserProfileInformation throws validation error when email is not uni
 });
 
 test('UpdateUserProfileInformation clears email_verified_at when email changes for MustVerifyEmail user', function (): void {
-    Illuminate\Support\Facades\Notification::fake();
+    Notification::fake();
     $user = User::factory()->create([
         'email' => 'before@example.com',
         'email_verified_at' => now(),
     ]);
 
-    $action = app(UpdateUserProfileInformation::class);
+    $action = resolve(UpdateUserProfileInformation::class);
     $action->update($user, [
         'name' => $user->name,
         'email' => 'after@example.com',
@@ -93,7 +94,7 @@ test('UpdateUserProfileInformation updates name without changing email', functio
         'email' => 'same@example.com',
     ]);
 
-    $action = app(UpdateUserProfileInformation::class);
+    $action = resolve(UpdateUserProfileInformation::class);
     $action->update($user, [
         'name' => 'New Name',
         'email' => 'same@example.com',

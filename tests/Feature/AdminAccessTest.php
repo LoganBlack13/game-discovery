@@ -10,6 +10,7 @@ test('guest is redirected to login when visiting admin', function (): void {
     $response = $this->get(route('admin.dashboard'));
 
     $response->assertRedirect();
+
     expect($response->headers->get('Location'))->toContain('login');
 });
 

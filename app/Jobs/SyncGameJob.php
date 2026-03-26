@@ -55,13 +55,10 @@ final class SyncGameJob implements ShouldQueue
             'last_synced_at' => now(),
         ];
 
-        $game = Game::updateOrCreate(
-            [
-                'external_source' => $details['external_source'],
-                'external_id' => $details['external_id'],
-            ],
-            $attributes
-        );
+        $game = Game::query()->updateOrCreate([
+            'external_source' => $details['external_source'],
+            'external_id' => $details['external_id'],
+        ], $attributes);
 
         $recorder->recordReleaseChanges(
             $game,

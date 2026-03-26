@@ -61,7 +61,7 @@ test('GameRequest belongs to game', function (): void {
 test('GameRequestVote belongs to game request', function (): void {
     $user = User::factory()->create();
     $request = GameRequest::factory()->create();
-    $vote = GameRequestVote::create([
+    $vote = GameRequestVote::query()->create([
         'game_request_id' => $request->id,
         'user_id' => $user->id,
     ]);
@@ -73,7 +73,7 @@ test('GameRequestVote belongs to game request', function (): void {
 test('GameRequestVote belongs to user', function (): void {
     $user = User::factory()->create();
     $request = GameRequest::factory()->create();
-    $vote = GameRequestVote::create([
+    $vote = GameRequestVote::query()->create([
         'game_request_id' => $request->id,
         'user_id' => $user->id,
     ]);
@@ -85,7 +85,7 @@ test('GameRequestVote belongs to user', function (): void {
 test('User hasMany gameRequestVotes', function (): void {
     $user = User::factory()->create();
     $request = GameRequest::factory()->create();
-    GameRequestVote::create([
+    GameRequestVote::query()->create([
         'game_request_id' => $request->id,
         'user_id' => $user->id,
     ]);

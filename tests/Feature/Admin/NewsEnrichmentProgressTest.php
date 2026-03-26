@@ -26,7 +26,7 @@ test('admin can get progress when run_id exists in cache', function (): void {
         'created_count' => 5,
         'error' => null,
     ];
-    Cache::put("news_enrichment:progress:{$runId}", $payload, 3600);
+    Cache::put('news_enrichment:progress:'.$runId, $payload, 3600);
 
     $response = $this->actingAs($admin)->getJson(route('admin.news-enrichment.progress', ['run_id' => $runId]));
 

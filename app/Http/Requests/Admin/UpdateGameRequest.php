@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Requests\Admin;
 
+use App\Enums\ReleaseStatus;
 use App\Models\Game;
 use App\Models\User;
 use Illuminate\Foundation\Http\FormRequest;
@@ -19,7 +20,7 @@ final class UpdateGameRequest extends FormRequest
     public static function rulesForGame(?Game $game): array
     {
         $slugUnique = Rule::unique('games', 'slug');
-        if ($game !== null) {
+        if ($game instanceof Game) {
             $slugUnique->ignore($game->id);
         }
 
@@ -33,7 +34,7 @@ final class UpdateGameRequest extends FormRequest
             'editGenres' => ['nullable', 'string', 'max:1000'],
             'editPlatforms' => ['nullable', 'string', 'max:1000'],
             'editReleaseDate' => ['nullable', 'date'],
-            'editReleaseStatus' => ['required', 'string', Rule::enum(\App\Enums\ReleaseStatus::class)],
+            'editReleaseStatus' => ['required', 'string', Rule::enum(ReleaseStatus::class)],
         ];
     }
 
@@ -49,6 +50,6 @@ final class UpdateGameRequest extends FormRequest
     {
         $game = $this->route('game'); // @codeCoverageIgnore
 
-        return $this->rulesForGame($game instanceof Game ? $game : null); // @codeCoverageIgnore
+        return self::rulesForGame($game instanceof Game ? $game : null); // @codeCoverageIgnore
     } // @codeCoverageIgnore
 }

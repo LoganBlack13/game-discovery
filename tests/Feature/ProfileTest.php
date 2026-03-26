@@ -3,7 +3,9 @@
 declare(strict_types=1);
 
 use App\Models\User;
+use Illuminate\Auth\Notifications\VerifyEmail;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Storage;
 
 test('guest cannot access profile', function (): void {
@@ -34,6 +36,7 @@ test('authenticated user can update profile', function (): void {
     ]);
 
     $response->assertRedirect();
+
     $user->refresh();
     expect($user->name)->toBe('New Name');
 });
@@ -51,6 +54,7 @@ test('authenticated user can upload a profile photo', function (): void {
     ]);
 
     $response->assertRedirect();
+
     $user->refresh();
     expect($user->profile_photo_path)->not->toBeNull();
     Storage::disk('public')->assertExists($user->profile_photo_path);
@@ -99,7 +103,7 @@ test('recovery codes page returns codes when 2FA is enabled', function (): void 
 });
 
 test('changing email triggers verification notification', function (): void {
-    Illuminate\Support\Facades\Notification::fake();
+    Notification::fake();
     $user = User::factory()->create(['email' => 'original@example.com']);
     $this->actingAs($user);
 
@@ -112,5 +116,5 @@ test('changing email triggers verification notification', function (): void {
     $user->refresh();
     expect($user->email)->toBe('changed@example.com')
         ->and($user->email_verified_at)->toBeNull();
-    Illuminate\Support\Facades\Notification::assertSentTo($user, Illuminate\Auth\Notifications\VerifyEmail::class);
+    Notification::assertSentTo($user, VerifyEmail::class);
 });

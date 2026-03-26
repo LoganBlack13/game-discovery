@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Services;
 
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\Http;
 use SimpleXMLElement;
 use Throwable;
@@ -35,7 +36,7 @@ final class RssFeedFetcher
         foreach ($channel->item ?? [] as $item) {
             $title = (string) ($item->title ?? '');
             $link = (string) ($item->link ?? $item->guid ?? '');
-            $pubDate = isset($item->pubDate) ? $this->parsePubDate((string) $item->pubDate) : null;
+            $pubDate = property_exists($item, 'pubDate') && $item->pubDate !== null ? $this->parsePubDate((string) $item->pubDate) : null;
             $thumbnail = $this->extractThumbnail($item);
 
             $items[] = [
@@ -56,7 +57,7 @@ final class RssFeedFetcher
         }
 
         try {
-            return Carbon::parse($value);
+            return Date::parse($value);
         } catch (Throwable) { // @codeCoverageIgnore
             return null; // @codeCoverageIgnore
         } // @codeCoverageIgnore
@@ -64,7 +65,7 @@ final class RssFeedFetcher
 
     private function extractThumbnail(SimpleXMLElement $item): ?string
     {
-        if (isset($item->children('media', true)->content)) {
+        if (property_exists($item->children('media', true), 'content') && $item->children('media', true)->content !== null) {
             $content = $item->children('media', true)->content;
             $attrs = $content->attributes();
             if (isset($attrs['url'])) {
@@ -72,7 +73,7 @@ final class RssFeedFetcher
             }
         }
 
-        if (isset($item->enclosure)) {
+        if (property_exists($item, 'enclosure') && $item->enclosure !== null) {
             $enc = $item->enclosure;
             $type = (string) ($enc['type'] ?? '');
             if (str_starts_with($type, 'image/')) {

@@ -11,6 +11,7 @@ test('guest cannot access game requests page', function (): void {
     $response = $this->get(route('admin.game-requests'));
 
     $response->assertRedirect();
+
     expect($response->headers->get('Location'))->toContain('login');
 });
 
@@ -48,7 +49,7 @@ test('admin can get progress when run_id exists in cache', function (): void {
         'added' => 1,
         'error' => null,
     ];
-    Cache::put("game_requests:progress:{$runId}", $payload, 3600);
+    Cache::put('game_requests:progress:'.$runId, $payload, 3600);
 
     $response = $this->actingAs($admin)->getJson(route('admin.game-requests.progress', ['run_id' => $runId]));
 

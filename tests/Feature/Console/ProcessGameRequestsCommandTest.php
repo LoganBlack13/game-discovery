@@ -36,9 +36,9 @@ test('game-requests:process dispatches job and job writes progress to cache when
         $mock->shouldReceive('resolve')->with('rawg')->andReturn($provider);
     });
 
-    ProcessGameRequestsJob::dispatch($runId, 5);
+    dispatch(new ProcessGameRequestsJob($runId, 5));
 
-    $progress = cache("game_requests:progress:{$runId}");
+    $progress = cache('game_requests:progress:'.$runId);
     expect($progress)->not->toBeNull()
         ->and($progress['status'])->toBe('completed')
         ->and($progress)->toHaveKey('processed');

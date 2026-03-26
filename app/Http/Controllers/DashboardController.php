@@ -4,9 +4,10 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use Illuminate\Routing\Controller;
 use Illuminate\View\View;
 
-final class DashboardController extends \Illuminate\Routing\Controller
+final class DashboardController extends Controller
 {
     public function __invoke(): View
     {

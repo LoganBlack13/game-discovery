@@ -4,26 +4,27 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Models\Game;
 use App\Models\News;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Throwable;
 
-final class NewsEnrichmentService
+final readonly class NewsEnrichmentService
 {
     private const int MAX_LAST_MATCHED = 50;
 
     public function __construct(
-        private readonly RssFeedFetcher $fetcher,
-        private readonly NewsGameMatcher $matcher
+        private RssFeedFetcher $fetcher,
+        private NewsGameMatcher $matcher
     ) {}
 
     public function enrich(string $runId): void
     {
         $feeds = config('news_enrichment.feeds', []);
         $ttl = (int) config('news_enrichment.progress_ttl_seconds', 3600);
-        $key = "news_enrichment:progress:{$runId}";
+        $key = 'news_enrichment:progress:'.$runId;
 
         $createdCount = 0;
         $lastMatched = [];
@@ -74,7 +75,7 @@ final class NewsEnrichmentService
 
                 foreach ($items as $item) {
                     $game = $this->matcher->findMatchingGame($item['title']);
-                    if ($game === null) {
+                    if (! $game instanceof Game) {
                         continue;
                     }
 
@@ -130,7 +131,7 @@ final class NewsEnrichmentService
                 'created_count' => $createdCount,
                 'error' => null,
             ], $ttl);
-        } catch (Throwable $e) { // @codeCoverageIgnore
+        } catch (Throwable $throwable) { // @codeCoverageIgnore
             $this->writeProgress($key, [ // @codeCoverageIgnore
                 'status' => 'failed', // @codeCoverageIgnore
                 'current_feed_name' => $currentFeedName, // @codeCoverageIgnore
@@ -139,9 +140,9 @@ final class NewsEnrichmentService
                 'feeds_done' => $currentFeedIndex, // @codeCoverageIgnore
                 'last_matched' => $lastMatched, // @codeCoverageIgnore
                 'created_count' => $createdCount, // @codeCoverageIgnore
-                'error' => $e->getMessage(), // @codeCoverageIgnore
+                'error' => $throwable->getMessage(), // @codeCoverageIgnore
             ], $ttl); // @codeCoverageIgnore
-            throw $e; // @codeCoverageIgnore
+            throw $throwable; // @codeCoverageIgnore
         } // @codeCoverageIgnore
     }
 

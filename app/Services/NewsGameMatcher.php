@@ -29,10 +29,12 @@ final class NewsGameMatcher
             if ($game->title === '') {
                 continue;
             }
+
             $gameWords = $this->titleToWords($game->title);
             if ($gameWords === []) {
                 continue;
             }
+
             if ($this->allWordsPresent($gameWords, $newsWords)) {
                 return $game;
             }
@@ -66,12 +68,6 @@ final class NewsGameMatcher
     {
         $newsSet = array_flip($newsWords);
 
-        foreach ($gameWords as $word) {
-            if (! isset($newsSet[$word])) {
-                return false;
-            }
-        }
-
-        return true;
+        return array_all($gameWords, fn (string $word): bool => isset($newsSet[$word]));
     }
 }

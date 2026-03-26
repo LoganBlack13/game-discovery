@@ -10,16 +10,17 @@ use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Controller;
 use Illuminate\View\View;
 
-final class GameController extends \Illuminate\Routing\Controller
+final class GameController extends Controller
 {
     use AuthorizesRequests;
 
     public function show(Game $game): View
     {
         $game->load([
-            'news' => fn (HasMany $q) => $q->orderByDesc('published_at'),
+            'news' => fn (HasMany $q) => $q->latest('published_at'),
             'activities',
         ]);
 

@@ -28,7 +28,7 @@ final class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
-        Gate::define('accessAdmin', fn (User $user) => $user->role === UserRole::Admin);
+        Gate::define('accessAdmin', fn (User $user): bool => $user->role === UserRole::Admin);
 
         Game::observe(GameObserver::class);
     }

@@ -51,13 +51,14 @@ test('authenticated user can untrack a game from search modal', function (): voi
 
 test('search modal shows at most 10 results', function (): void {
     foreach (range(1, 15) as $i) {
-        Game::factory()->create(['title' => "Cap Test Game {$i}"]);
+        Game::factory()->create(['title' => 'Cap Test Game '.$i]);
     }
 
     $component = Livewire::test('game-search-modal')
         ->set('query', 'Cap Test Game');
 
     $component->assertSee('Cap Test Game 1');
+
     $rendered = $component->html();
     $count = mb_substr_count($rendered, 'data-game-url=');
     expect($count)->toBeLessThanOrEqual(10);

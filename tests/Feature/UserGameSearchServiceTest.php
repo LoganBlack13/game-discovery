@@ -11,10 +11,11 @@ uses(RefreshDatabase::class);
 
 test('search returns at most 10 results when more match', function (): void {
     foreach (range(1, 15) as $i) {
-        Game::factory()->create(['title' => "Matching Game {$i}"]);
+        Game::factory()->create(['title' => 'Matching Game '.$i]);
     }
+
     $user = User::factory()->create();
-    $service = app(UserGameSearchService::class);
+    $service = resolve(UserGameSearchService::class);
 
     $results = $service->search($user, 'Matching Game', 10);
 
@@ -30,20 +31,20 @@ test('search result includes tracking state when user tracks some games', functi
     $tracked = Game::factory()->create(['title' => 'Tracked Game One']);
     $notTracked = Game::factory()->create(['title' => 'Not Tracked Game Two']);
     $user->trackedGames()->attach($tracked);
-    $service = app(UserGameSearchService::class);
+    $service = resolve(UserGameSearchService::class);
 
     $results = $service->search($user, 'Game');
 
     expect($results)->toHaveCount(2);
-    $trackedResult = $results->first(fn ($r) => $r->game->id === $tracked->id);
-    $notTrackedResult = $results->first(fn ($r) => $r->game->id === $notTracked->id);
+    $trackedResult = $results->first(fn ($r): bool => $r->game->id === $tracked->id);
+    $notTrackedResult = $results->first(fn ($r): bool => $r->game->id === $notTracked->id);
     expect($trackedResult->isTracked)->toBeTrue();
     expect($notTrackedResult->isTracked)->toBeFalse();
 });
 
 test('search returns empty collection when query is non-empty but no games match', function (): void {
     Game::factory()->create(['title' => 'Totally Different Title']);
-    $service = app(UserGameSearchService::class);
+    $service = resolve(UserGameSearchService::class);
 
     $results = $service->search(null, 'XYZ No Match');
 
@@ -51,7 +52,7 @@ test('search returns empty collection when query is non-empty but no games match
 });
 
 test('search returns empty for guest when query is empty', function (): void {
-    $service = app(UserGameSearchService::class);
+    $service = resolve(UserGameSearchService::class);
 
     $results = $service->search(null, '   ', 10);
 
@@ -61,7 +62,7 @@ test('search returns empty for guest when query is empty', function (): void {
 test('search returns results with cover image or title', function (): void {
     Game::factory()->create(['title' => 'Game With Cover', 'cover_image' => 'https://example.com/cover.jpg']);
     Game::factory()->create(['title' => 'Game No Cover', 'cover_image' => null]);
-    $service = app(UserGameSearchService::class);
+    $service = resolve(UserGameSearchService::class);
 
     $results = $service->search(null, 'Game');
 

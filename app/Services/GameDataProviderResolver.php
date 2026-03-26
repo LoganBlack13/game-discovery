@@ -8,11 +8,11 @@ use App\Contracts\GameDataProvider;
 use App\Contracts\GameDataProviderResolver as GameDataProviderResolverContract;
 use InvalidArgumentException;
 
-final class GameDataProviderResolver implements GameDataProviderResolverContract
+final readonly class GameDataProviderResolver implements GameDataProviderResolverContract
 {
     public function __construct(
-        private readonly RawgGameDataProvider $rawg,
-        private readonly IgdbGameDataProvider $igdb
+        private RawgGameDataProvider $rawg,
+        private IgdbGameDataProvider $igdb
     ) {}
 
     public function resolve(string $source): GameDataProvider
@@ -20,7 +20,7 @@ final class GameDataProviderResolver implements GameDataProviderResolverContract
         return match (mb_strtolower($source)) {
             'rawg' => $this->rawg,
             'igdb' => $this->igdb,
-            default => throw new InvalidArgumentException("Unknown or unsupported game data source: {$source}."),
+            default => throw new InvalidArgumentException(sprintf('Unknown or unsupported game data source: %s.', $source)),
         };
     }
 }

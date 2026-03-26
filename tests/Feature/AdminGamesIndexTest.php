@@ -7,7 +7,7 @@ use App\Enums\ReleaseStatus;
 use App\Models\Game;
 use App\Models\GameActivity;
 use App\Models\User;
-use Carbon\Carbon;
+use Illuminate\Support\Facades\Date;
 use Livewire\Livewire;
 
 uses()->group('admin');
@@ -16,6 +16,7 @@ test('guest is redirected to login when visiting admin games index', function ()
     $response = $this->get(route('admin.games.index'));
 
     $response->assertRedirect();
+
     expect($response->headers->get('Location'))->toContain('login');
 });
 
@@ -98,11 +99,11 @@ test('non-admin cannot open edit drawer', function (): void {
 
 test('admin update that changes release date creates GameActivity', function (): void {
     $game = Game::factory()->create([
-        'release_date' => Carbon::now()->addMonths(2),
+        'release_date' => Date::now()->addMonths(2),
         'release_status' => ReleaseStatus::ComingSoon,
     ]);
     $admin = User::factory()->admin()->create();
-    $newDate = Carbon::now()->addMonth()->format('Y-m-d');
+    $newDate = Date::now()->addMonth()->format('Y-m-d');
 
     Livewire::actingAs($admin)
         ->test('admin.games-list')

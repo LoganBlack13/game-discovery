@@ -7,12 +7,13 @@ namespace App\Services;
 use App\Enums\GameActivityType;
 use App\Enums\ReleaseStatus;
 use App\Models\Game;
+use Carbon\CarbonInterface;
 
 final class GameActivityRecorder
 {
     public function recordReleaseChanges(
         Game $game,
-        ?\Carbon\CarbonInterface $oldReleaseDate,
+        ?CarbonInterface $oldReleaseDate,
         ReleaseStatus|string|null $oldReleaseStatus,
         bool $wasExisting
     ): void {
@@ -21,7 +22,7 @@ final class GameActivityRecorder
         $wasReleased = $this->isReleased($oldReleaseDate, $oldReleaseStatus);
         $isNowReleased = $this->isReleased($newReleaseDate, $newReleaseStatus);
 
-        if ($oldReleaseDate !== null && $newReleaseDate !== null
+        if ($oldReleaseDate instanceof CarbonInterface && $newReleaseDate !== null
             && $oldReleaseDate->format('Y-m-d') !== $newReleaseDate->format('Y-m-d')) {
             $game->activities()->create([
                 'type' => GameActivityType::ReleaseDateChanged,
@@ -36,7 +37,7 @@ final class GameActivityRecorder
             ]);
         }
 
-        if ($oldReleaseDate === null && $newReleaseDate !== null) {
+        if (! $oldReleaseDate instanceof CarbonInterface && $newReleaseDate !== null) {
             $game->activities()->create([
                 'type' => GameActivityType::ReleaseDateAnnounced,
                 'title' => 'Release date announced',
@@ -57,13 +58,13 @@ final class GameActivityRecorder
         }
     }
 
-    private function isReleased(?\Carbon\CarbonInterface $releaseDate, ReleaseStatus|string|null $releaseStatus): bool
+    private function isReleased(?CarbonInterface $releaseDate, ReleaseStatus|string|null $releaseStatus): bool
     {
         $status = $releaseStatus instanceof ReleaseStatus
             ? $releaseStatus
-            : ($releaseStatus !== null ? ReleaseStatus::tryFrom((string) $releaseStatus) : null);
+            : ($releaseStatus !== null ? ReleaseStatus::tryFrom($releaseStatus) : null);
 
-        if ($releaseDate !== null && $releaseDate->isPast()) {
+        if ($releaseDate instanceof CarbonInterface && $releaseDate->isPast()) {
             return true;
         }
 

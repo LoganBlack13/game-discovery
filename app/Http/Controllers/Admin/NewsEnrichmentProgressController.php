@@ -17,7 +17,7 @@ final class NewsEnrichmentProgressController
         ]);
 
         $runId = $validated['run_id'];
-        $key = "news_enrichment:progress:{$runId}";
+        $key = 'news_enrichment:progress:'.$runId;
         $progress = Cache::get($key);
 
         if ($progress === null) {

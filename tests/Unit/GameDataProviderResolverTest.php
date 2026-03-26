@@ -10,7 +10,7 @@ use App\Services\RawgGameDataProvider;
 uses()->group('unit');
 
 test('resolve returns RawgGameDataProvider for rawg source', function (): void {
-    $resolver = app(GameDataProviderResolver::class);
+    $resolver = resolve(GameDataProviderResolver::class);
 
     $provider = $resolver->resolve('rawg');
 
@@ -19,7 +19,7 @@ test('resolve returns RawgGameDataProvider for rawg source', function (): void {
 });
 
 test('resolve returns IgdbGameDataProvider for igdb source', function (): void {
-    $resolver = app(GameDataProviderResolver::class);
+    $resolver = resolve(GameDataProviderResolver::class);
 
     $provider = $resolver->resolve('igdb');
 
@@ -28,7 +28,7 @@ test('resolve returns IgdbGameDataProvider for igdb source', function (): void {
 });
 
 test('resolve is case-insensitive', function (): void {
-    $resolver = app(GameDataProviderResolver::class);
+    $resolver = resolve(GameDataProviderResolver::class);
 
     $provider = $resolver->resolve('RAWG');
 
@@ -36,7 +36,7 @@ test('resolve is case-insensitive', function (): void {
 });
 
 test('resolve throws InvalidArgumentException for unknown source', function (): void {
-    $resolver = app(GameDataProviderResolver::class);
+    $resolver = resolve(GameDataProviderResolver::class);
 
     expect(fn () => $resolver->resolve('steam'))
         ->toThrow(InvalidArgumentException::class);

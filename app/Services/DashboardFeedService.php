@@ -6,6 +6,8 @@ namespace App\Services;
 
 use App\Enums\GameActivityType;
 use App\Models\Game;
+use App\Models\GameActivity;
+use App\Models\News;
 use App\Models\User;
 use Illuminate\Support\Carbon;
 
@@ -29,7 +31,7 @@ final class DashboardFeedService
         $items = collect();
 
         if ($filter === 'all' || $filter === 'news') {
-            $news = \App\Models\News::query()
+            $news = News::query()
                 ->whereIn('game_id', $trackedGameIds)
                 ->with('game')
                 ->orderByDesc('published_at')
@@ -51,7 +53,7 @@ final class DashboardFeedService
         }
 
         if ($filter === 'all' || $filter === 'release') {
-            $activities = \App\Models\GameActivity::query()
+            $activities = GameActivity::query()
                 ->whereIn('game_id', $trackedGameIds)
                 ->with('game')
                 ->orderByDesc('occurred_at')

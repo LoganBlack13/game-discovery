@@ -6,12 +6,13 @@ use Rector\Caching\ValueObject\Storage\FileCacheStorage;
 use Rector\CodingStyle\Rector\ClassMethod\MakeInheritedMethodVisibilitySameAsParentRector;
 use Rector\Config\RectorConfig;
 use Rector\Php83\Rector\ClassMethod\AddOverrideAttributeToOverriddenMethodsRector;
+use RectorLaravel\Rector\ClassMethod\MakeModelAttributesAndScopesProtectedRector;
+use RectorLaravel\Rector\ClassMethod\ScopeNamedClassMethodToScopeAttributedClassMethodRector;
 use RectorLaravel\Set\LaravelSetList;
-use RectorLaravel\Set\LaravelSetProvider;
 
 return RectorConfig::configure()
-    ->withSetProviders(LaravelSetProvider::class)
     ->withSets([
+        LaravelSetList::LARAVEL_120,
         LaravelSetList::LARAVEL_ARRAYACCESS_TO_METHOD_CALL,
         LaravelSetList::LARAVEL_ARRAY_STR_FUNCTION_TO_STATIC_CALL,
         LaravelSetList::LARAVEL_CODE_QUALITY,
@@ -26,7 +27,6 @@ return RectorConfig::configure()
     ->withImportNames(
         removeUnusedImports: true,
     )
-    ->withComposerBased(laravel: true)
     ->withCache(
         cacheDirectory: '/tmp/rector',
         cacheClass: FileCacheStorage::class,
@@ -43,6 +43,8 @@ return RectorConfig::configure()
     ->withSkip([
         AddOverrideAttributeToOverriddenMethodsRector::class,
         MakeInheritedMethodVisibilitySameAsParentRector::class,
+        ScopeNamedClassMethodToScopeAttributedClassMethodRector::class,
+        MakeModelAttributesAndScopesProtectedRector::class,
     ])
     ->withPreparedSets(
         deadCode: true,

@@ -5,12 +5,11 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Admin;
 
 use App\Models\Game;
-use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 final class DashboardController
 {
-    public function __invoke(Request $request): View
+    public function __invoke(): View
     {
         $totalGames = Game::query()->count();
         $recentGamesCount = Game::query()

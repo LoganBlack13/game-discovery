@@ -7,13 +7,14 @@ use App\Models\Game;
 use App\Models\GameActivity;
 use App\Models\News;
 use App\Models\User;
-use Carbon\Carbon;
+use Illuminate\Support\Facades\Date;
 use Livewire\Livewire;
 
 test('guest is redirected to login when visiting dashboard', function (): void {
     $response = $this->get(route('dashboard'));
 
     $response->assertRedirect();
+
     expect($response->headers->get('Location'))->toContain('login');
 });
 
@@ -35,7 +36,7 @@ test('authenticated user sees hero and Up next when they have tracked games with
     $user = User::factory()->create();
     $upcoming = Game::factory()->create([
         'title' => 'Upcoming Game',
-        'release_date' => Carbon::now()->addMonths(2),
+        'release_date' => Date::now()->addMonths(2),
     ]);
     $user->trackedGames()->attach($upcoming);
 
@@ -52,7 +53,7 @@ test('authenticated user sees three next games when they have two to four upcomi
     foreach (['First Game', 'Second Game', 'Third Game', 'Fourth Game'] as $title) {
         $game = Game::factory()->create([
             'title' => $title,
-            'release_date' => Carbon::now()->addMonths(1),
+            'release_date' => Date::now()->addMonths(1),
         ]);
         $user->trackedGames()->attach($game);
     }
@@ -83,7 +84,7 @@ test('dashboard shows Upcoming releases section with countdown and news count wh
     $user = User::factory()->create();
     $game = Game::factory()->create([
         'title' => 'Upcoming Release',
-        'release_date' => Carbon::now()->addDays(30),
+        'release_date' => Date::now()->addDays(30),
     ]);
     $user->trackedGames()->attach($game);
     News::factory()->create(['game_id' => $game->id, 'title' => 'News one', 'published_at' => now()]);
@@ -93,7 +94,7 @@ test('dashboard shows Upcoming releases section with countdown and news count wh
 
     $response->assertOk();
     $response->assertSee('Upcoming releases', false);
-    $response->assertSee('Track the games you\'re waiting for', false);
+    $response->assertSee("Track the games you're waiting for", false);
     $response->assertSee('Upcoming Release', false);
     $response->assertSee('2 news', false);
     $response->assertSee('Browse more games', false);
@@ -130,7 +131,7 @@ test('news sidebar loads initial 10 items and loadMore adds more', function (): 
     foreach (range(1, 15) as $i) {
         News::factory()->create([
             'game_id' => $game->id,
-            'title' => "News item {$i}",
+            'title' => 'News item '.$i,
             'published_at' => now()->subDays($i),
         ]);
     }
@@ -156,7 +157,7 @@ test('feed filter News only shows only news items', function (): void {
         'title' => 'Only news item',
         'published_at' => now(),
     ]);
-    GameActivity::create([
+    GameActivity::query()->create([
         'game_id' => $game->id,
         'type' => GameActivityType::ReleaseDateChanged,
         'title' => 'Release date changed',
@@ -179,7 +180,7 @@ test('feed filter Release updates only shows only activity items', function (): 
         'title' => 'News headline',
         'published_at' => now(),
     ]);
-    GameActivity::create([
+    GameActivity::query()->create([
         'game_id' => $game->id,
         'type' => GameActivityType::GameReleased,
         'title' => 'Game released today',

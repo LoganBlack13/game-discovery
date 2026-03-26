@@ -17,7 +17,7 @@ final class GameRequestProgressController
         ]);
 
         $runId = $validated['run_id'];
-        $key = "game_requests:progress:{$runId}";
+        $key = 'game_requests:progress:'.$runId;
         $progress = Cache::get($key);
 
         if ($progress === null) {
