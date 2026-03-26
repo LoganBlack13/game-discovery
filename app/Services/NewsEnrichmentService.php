@@ -94,9 +94,7 @@ final readonly class NewsEnrichmentService
                         'url' => $item['url'],
                         'source' => $name,
                         'thumbnail' => $item['thumbnail'] ?? null,
-                        'published_at' => $item['published_at'] instanceof Carbon
-                            ? $item['published_at']
-                            : null,
+                        'published_at' => $item['published_at'] instanceof Carbon ? $item['published_at'] : null,
                     ]);
                     $createdCount++;
 
