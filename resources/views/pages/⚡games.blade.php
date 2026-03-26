@@ -44,7 +44,7 @@ new #[Title('Games')] class extends Component
 <div class="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
     <header class="mb-8 space-y-1">
         <h1 class="font-display text-3xl font-semibold text-base-content">Games</h1>
-        <p class="text-sm text-base-content/70">Browse the catalogue and track what you're waiting for.</p>
+        <p class="text-sm text-base-content/70">Browse the catalogue and track what you're waiting for. <a href="{{ route('game-requests.index') }}" class="text-primary hover:underline">Can't find a game?</a></p>
     </header>
 
     {{-- Filters --}}
