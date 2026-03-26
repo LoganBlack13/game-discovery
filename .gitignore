@@ -20,4 +20,4 @@ Homestead.yaml
 /.nova
 /.vscode
 /.zed
-/tmp
+/tmp.claude/worktrees/
