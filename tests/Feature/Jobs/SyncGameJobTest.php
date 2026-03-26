@@ -11,6 +11,7 @@ use App\Models\Game;
 use App\Models\GameActivity;
 use App\Services\GameActivityRecorder;
 use Illuminate\Support\Facades\Date;
+use Illuminate\Support\Facades\Log;
 
 beforeEach(function (): void {
     $this->externalId = '12345';
@@ -295,4 +296,49 @@ test('sync sets last_synced_at when creating new game', function (): void {
         ->first();
     expect($game)->not->toBeNull()
         ->and($game->last_synced_at)->not->toBeNull();
+});
+
+test('job has correct tries and backoff configuration', function (): void {
+    $job = new SyncGameJob('12345', 'rawg');
+
+    expect($job->tries)->toBe(3)
+        ->and($job->backoff())->toBe([30, 120]);
+});
+
+test('job does not create game when getGameDetails throws InvalidArgumentException', function (): void {
+    $provider = $this->mock(GameDataProvider::class, function ($mock): void {
+        $mock->shouldReceive('getGameDetails')
+            ->once()
+            ->andThrow(new InvalidArgumentException('Missing API credentials'));
+    });
+
+    $resolver = $this->mock(GameDataProviderResolver::class, function ($mock) use ($provider): void {
+        $mock->shouldReceive('resolve')
+            ->once()
+            ->with('rawg')
+            ->andReturn($provider);
+    });
+
+    $job = new SyncGameJob('12345', 'rawg');
+    $job->handle($resolver, resolve(GameActivityRecorder::class));
+
+    expect(Game::query()->where('external_id', '12345')->exists())->toBeFalse();
+});
+
+test('failed method logs error with job context', function (): void {
+    Log::spy();
+
+    $job = new SyncGameJob('99999', 'igdb', 42);
+    $exception = new RuntimeException('Something went wrong');
+
+    $job->failed($exception);
+
+    Log::shouldHaveReceived('error')
+        ->once()
+        ->with('SyncGameJob permanently failed', [
+            'externalId' => '99999',
+            'externalSource' => 'igdb',
+            'gameId' => 42,
+            'error' => 'Something went wrong',
+        ]);
 });

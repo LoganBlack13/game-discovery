@@ -9,10 +9,15 @@ use App\Models\Game;
 use App\Services\GameActivityRecorder;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
+use Illuminate\Support\Facades\Log;
+use InvalidArgumentException;
+use Throwable;
 
 final class SyncGameJob implements ShouldQueue
 {
     use Queueable;
+
+    public int $tries = 3;
 
     public function __construct(
         public string $externalId,
@@ -20,10 +25,35 @@ final class SyncGameJob implements ShouldQueue
         public ?int $gameId = null
     ) {}
 
+    /**
+     * @return array<int, int>
+     */
+    public function backoff(): array
+    {
+        return [30, 120];
+    }
+
+    public function failed(Throwable $exception): void
+    {
+        Log::error('SyncGameJob permanently failed', [
+            'externalId' => $this->externalId,
+            'externalSource' => $this->externalSource,
+            'gameId' => $this->gameId,
+            'error' => $exception->getMessage(),
+        ]);
+    }
+
     public function handle(GameDataProviderResolver $resolver, GameActivityRecorder $recorder): void
     {
         $provider = $resolver->resolve($this->externalSource);
-        $details = $provider->getGameDetails($this->externalId);
+
+        try {
+            $details = $provider->getGameDetails($this->externalId);
+        } catch (InvalidArgumentException $e) {
+            $this->fail($e);
+
+            return;
+        }
 
         $existing = Game::query()
             ->where('external_source', $details['external_source'])
