@@ -18,7 +18,6 @@
         "nunomaduro/essentials": "^1.2.0"
     },
     "require-dev": {
-        "driftingly/rector-laravel": "^2.1.11",
         "fakerphp/faker": "^1.24.1",
         "larastan/larastan": "^3.9.3",
         "laravel/boost": "^2.1.2",
@@ -30,7 +29,6 @@
         "pestphp/pest-plugin-browser": "^4.3.0",
         "pestphp/pest-plugin-laravel": "^4.1.0",
         "pestphp/pest-plugin-type-coverage": "^4.0.3",
-        "rector/rector": "^2.3.8",
         "roave/security-advisories": "dev-latest"
     },
     "autoload": {
@@ -80,7 +78,6 @@
             "bunx npm-check-updates -u"
         ],
         "lint": [
-            "rector",
             "pint --parallel",
             "bun run lint"
         ],

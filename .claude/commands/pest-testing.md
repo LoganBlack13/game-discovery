@@ -1,0 +1,1 @@
+../../.cursor/skills/pest-testing/SKILL.md

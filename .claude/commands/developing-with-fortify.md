@@ -1,0 +1,1 @@
+../../.cursor/skills/developing-with-fortify/SKILL.md

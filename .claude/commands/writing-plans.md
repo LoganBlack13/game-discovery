@@ -1,0 +1,1 @@
+../../.cursor/skills/writing-plans/SKILL.md

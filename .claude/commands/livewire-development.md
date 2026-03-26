@@ -1,0 +1,1 @@
+../../.cursor/skills/livewire-development/SKILL.md

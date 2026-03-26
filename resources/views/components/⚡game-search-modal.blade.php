@@ -1,9 +1,12 @@
 <?php
 
 use App\Models\Game;
+use App\Services\UserGameSearchResult;
 use App\Services\UserGameSearchService;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Support\Collection;
+use Livewire\Attributes\Computed;
+use Livewire\Attributes\On;
 use Livewire\Component;
 
 new class extends Component
@@ -12,10 +15,17 @@ new class extends Component
 
     public string $query = '';
 
+    #[On('open-game-search')]
+    public function resetQuery(): void
+    {
+        $this->query = '';
+    }
+
     /**
-     * @return Collection<int, \App\Services\UserGameSearchResult>
+     * @return Collection<int, UserGameSearchResult>
      */
-    public function getResultsProperty(): Collection
+    #[Computed]
+    public function results(): Collection
     {
         return app(UserGameSearchService::class)->search(
             auth()->user(),

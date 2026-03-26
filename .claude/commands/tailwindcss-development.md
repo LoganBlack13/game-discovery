@@ -1,0 +1,1 @@
+../../.cursor/skills/tailwindcss-development/SKILL.md

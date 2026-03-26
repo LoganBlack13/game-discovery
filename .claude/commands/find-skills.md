@@ -1,0 +1,1 @@
+../../.cursor/skills/find-skills/SKILL.md
