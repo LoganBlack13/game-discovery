@@ -84,9 +84,13 @@
                                     aria-haspopup="menu"
                                     @click="open = !open"
                                 >
-                                    <span class="inline-flex size-6 items-center justify-center rounded-full bg-base-100/20 text-xs font-semibold uppercase">
-                                        {{ \Illuminate\Support\Str::substr(auth()->user()->name, 0, 1) }}
-                                    </span>
+                                    @if (auth()->user()->profile_photo_path)
+                                        <img src="{{ asset('storage/'.auth()->user()->profile_photo_path) }}" alt="" class="size-6 rounded-full object-cover" />
+                                    @else
+                                        <span class="inline-flex size-6 items-center justify-center rounded-full bg-base-100/20 text-xs font-semibold uppercase">
+                                            {{ \Illuminate\Support\Str::substr(auth()->user()->name, 0, 1) }}
+                                        </span>
+                                    @endif
                                     <span class="max-w-[7rem] truncate text-left">{{ auth()->user()->name }}</span>
                                     <svg class="size-3 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M6 9l6 6 6-6" />

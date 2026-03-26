@@ -77,6 +77,25 @@ test('uploading a new photo deletes the old one', function (): void {
     Storage::disk('public')->assertMissing($oldPath);
 });
 
+test('authenticated user can remove their profile photo', function (): void {
+    Storage::fake('public');
+    $oldPath = 'profile-photos/old-photo.jpg';
+    Storage::disk('public')->put($oldPath, 'old content');
+    $user = User::factory()->create(['profile_photo_path' => $oldPath]);
+    $this->actingAs($user);
+
+    $this->patch(route('profile.update'), [
+        'name' => $user->name,
+        'username' => $user->username,
+        'email' => $user->email,
+        'remove_photo' => '1',
+    ]);
+
+    $user->refresh();
+    expect($user->profile_photo_path)->toBeNull();
+    Storage::disk('public')->assertMissing($oldPath);
+});
+
 test('authenticated user can view recovery codes page without 2FA', function (): void {
     $user = User::factory()->create();
     $this->actingAs($user)
