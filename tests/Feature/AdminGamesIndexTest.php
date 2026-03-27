@@ -59,6 +59,20 @@ test('admin can delete game via Livewire action', function (): void {
     expect(Game::query()->find($gameId))->toBeNull();
 });
 
+test('admin can delete game that has associated game requests', function (): void {
+    $game = Game::factory()->create();
+    $admin = User::factory()->admin()->create();
+    App\Models\GameRequest::factory()->create(['game_id' => $game->id]);
+    $gameId = $game->id;
+
+    Livewire::actingAs($admin)
+        ->test('admin.games-list')
+        ->call('deleteGame', $gameId);
+
+    expect(Game::query()->find($gameId))->toBeNull()
+        ->and(App\Models\GameRequest::query()->where('game_id', $gameId)->count())->toBe(0);
+});
+
 test('non-admin cannot delete game via Livewire action', function (): void {
     $game = Game::factory()->create();
     $user = User::factory()->create();
