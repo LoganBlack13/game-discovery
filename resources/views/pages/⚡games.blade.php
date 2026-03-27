@@ -82,7 +82,16 @@ new #[Title('Games')] class extends Component
 
     {{-- Grid --}}
     @if ($this->games->isEmpty())
-        <p class="text-base-content/70">No games found.</p>
+        <div class="flex flex-col items-center gap-4 py-20 text-center">
+            @if ($search !== '')
+                <p class="text-base-content/70">No games found for "{{ $search }}".</p>
+                <a href="{{ route('game-requests.index') }}" class="btn btn-primary btn-sm">
+                    Request "{{ $search }}"
+                </a>
+            @else
+                <p class="text-base-content/70">No games found.</p>
+            @endif
+        </div>
     @else
         <div class="grid gap-4 grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
             @foreach ($this->games as $game)

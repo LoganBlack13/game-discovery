@@ -81,6 +81,22 @@ test('games index filters released games', function (): void {
     $response->assertDontSee('Upcoming Game', false);
 });
 
+test('games index shows request CTA when search returns no results', function (): void {
+    $response = $this->get(route('games.index', ['q' => 'Frostpunk 3']));
+
+    $response->assertSuccessful();
+    $response->assertSee('No games found for "Frostpunk 3"', false);
+    $response->assertSee('Request "Frostpunk 3"', false);
+    $response->assertSee(route('game-requests.index'), false);
+});
+
+test('games index shows no request CTA when empty without search', function (): void {
+    $response = $this->get(route('games.index'));
+
+    $response->assertSuccessful();
+    $response->assertDontSee('Request "', false);
+});
+
 test('games index links to individual game pages', function (): void {
     $game = Game::factory()->create(['title' => 'Linked Game']);
 
