@@ -48,6 +48,20 @@ test('authenticated user can dismiss a notification', function (): void {
     expect($user->notifications()->count())->toBe(0);
 });
 
+test('authenticated user can dismiss a release date changed notification', function (): void {
+    $user = User::factory()->create();
+    $game = Game::factory()->create(['release_date' => now()->addMonths(3)]);
+    $user->notify(new GameReleaseDateChangedNotification($game, Carbon::now()->addMonth()));
+
+    $notification = $user->notifications()->first();
+
+    $this->actingAs($user)
+        ->delete(route('notifications.destroy', $notification->id))
+        ->assertRedirect();
+
+    expect($user->notifications()->count())->toBe(0);
+});
+
 test('game released notification is sent to users tracking the game', function (): void {
     Notification::fake();
 
