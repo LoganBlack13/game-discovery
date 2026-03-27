@@ -9,7 +9,6 @@ use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 
 final class ProfileController extends Controller
@@ -27,24 +26,11 @@ final class ProfileController extends Controller
         assert($user instanceof User);
         $validated = $request->validated();
 
-        if ($request->hasFile('photo')) {
-            if ($user->profile_photo_path) {
-                Storage::disk('public')->delete($user->profile_photo_path);
-            }
-
-            $path = $request->file('photo')->store('profile-photos', 'public');
-            $validated['profile_photo_path'] = $path;
-        } elseif ($request->boolean('remove_photo') && $user->profile_photo_path) {
-            Storage::disk('public')->delete($user->profile_photo_path);
-            $validated['profile_photo_path'] = null;
-        }
-
         $oldEmail = $user->email;
         $user->forceFill(collect($validated)->only([
             'name',
             'username',
             'email',
-            'profile_photo_path',
         ])->all())->save();
 
         if (isset($validated['email']) && $validated['email'] !== $oldEmail) {

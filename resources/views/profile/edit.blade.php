@@ -9,46 +9,13 @@
                 </div>
             @endif
 
-            <form action="{{ route('profile.update') }}" method="POST" enctype="multipart/form-data" class="flex flex-col gap-6">
+            <form action="{{ route('profile.update') }}" method="POST" class="flex flex-col gap-6">
                 @csrf
                 @method('PATCH')
 
-                <div class="flex items-center gap-6">
-                    @if ($user->getAttribute('profile_photo_path'))
-                        <img
-                            src="{{ asset('storage/'.$user->profile_photo_path) }}"
-                            alt=""
-                            class="size-20 rounded-full object-cover"
-                        />
-                    @else
-                        <div class="flex size-20 items-center justify-center rounded-full bg-base-300 text-2xl font-medium text-base-content/50">
-                            {{ strtoupper(mb_substr($user->name, 0, 1)) }}
-                        </div>
-                    @endif
-
-                    <div class="flex flex-col gap-2">
-                        <label class="form-control">
-                            <div class="label">
-                                <span class="label-text font-medium">Photo</span>
-                            </div>
-                            <input
-                                id="photo"
-                                type="file"
-                                name="photo"
-                                accept="image/*"
-                                class="file-input file-input-bordered file-input-sm w-full max-w-xs"
-                            />
-                        </label>
-                        @error('photo')
-                            <p class="text-sm text-error">{{ $message }}</p>
-                        @enderror
-                        @if ($user->getAttribute('profile_photo_path'))
-                            <label class="flex cursor-pointer items-center gap-2">
-                                <input type="checkbox" name="remove_photo" value="1" class="checkbox checkbox-sm" />
-                                <span class="label-text text-sm">Remove current photo</span>
-                            </label>
-                        @endif
-                    </div>
+                <div class="flex items-center gap-4">
+                    <img src="{{ $user->avatarUrl() }}" alt="" class="size-16 rounded-full" />
+                    <p class="text-sm text-base-content/50">Avatar generated automatically from your name.</p>
                 </div>
 
                 <label class="form-control">

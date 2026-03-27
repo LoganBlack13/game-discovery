@@ -21,7 +21,6 @@ use Override;
  * @property-read string $id
  * @property-read string $name
  * @property-read string $username
- * @property-read string|null $profile_photo_path
  * @property-read string $email
  * @property-read CarbonInterface|null $email_verified_at
  * @property-read string $password
@@ -67,7 +66,6 @@ final class User extends Authenticatable implements MustVerifyEmail
             'id' => 'string',
             'name' => 'string',
             'username' => 'string',
-            'profile_photo_path' => 'string',
             'email' => 'string',
             'email_verified_at' => 'datetime',
             'role' => UserRole::class,
@@ -78,6 +76,11 @@ final class User extends Authenticatable implements MustVerifyEmail
             'created_at' => 'datetime',
             'updated_at' => 'datetime',
         ];
+    }
+
+    public function avatarUrl(): string
+    {
+        return 'https://api.dicebear.com/9.x/initials/svg?seed='.urlencode($this->name);
     }
 
     public function isAdmin(): bool
