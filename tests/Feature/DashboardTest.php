@@ -222,8 +222,8 @@ test('user can clear the status of a tracked game', function (): void {
 
 test('status filter only shows games with matching status', function (): void {
     $user = User::factory()->create();
-    $playing = Game::factory()->create(['title' => 'Playing Game']);
-    $dropped = Game::factory()->create(['title' => 'Dropped Game']);
+    $playing = Game::factory()->create(['title' => 'Playing Game', 'release_date' => null]);
+    $dropped = Game::factory()->create(['title' => 'Dropped Game', 'release_date' => null]);
     $user->trackedGames()->attach($playing, ['status' => 'playing']);
     $user->trackedGames()->attach($dropped, ['status' => 'dropped']);
 
