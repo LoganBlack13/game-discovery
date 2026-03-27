@@ -149,4 +149,13 @@ final class Game extends Model
     {
         return $query->orderByRaw('release_date IS NULL')->oldest('release_date');
     }
+
+    /**
+     * @param  Builder<self>  $query
+     * @return Builder<self>
+     */
+    public function scopeSearchByTitle(Builder $query, string $term): Builder
+    {
+        return $query->whereRaw('LOWER(title) LIKE LOWER(?)', ['%'.$term.'%']);
+    }
 }

@@ -7,7 +7,7 @@ test('app layout includes user search command palette', function (): void {
 
     $response->assertOk();
     $response->assertSee('Search games', false);
-    $response->assertSee('Type to search games', false);
+    $response->assertSee('Start typing to search games…', false);
     $response->assertSee('role="search"', false);
 });
 

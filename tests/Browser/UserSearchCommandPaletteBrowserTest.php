@@ -15,7 +15,7 @@ it('opens search palette via header button and shows search UI', function (): vo
         ->click('button[aria-label="Search games (⌘K)"]')
         ->assertVisible('.spotlight-input')
         ->assertSee('Search games')
-        ->assertSee('Type to search games');
+        ->assertSee('Start typing to search games…');
 });
 
 it('authenticated user can track a game from search results', function (): void {
@@ -28,9 +28,9 @@ it('authenticated user can track a game from search results', function (): void 
         ->click('button[aria-label="Search games (⌘K)"]')
         ->assertVisible('.spotlight-input')
         ->type('.spotlight-input', 'Browser Track Me')
-        ->press('Track game');
+        ->press('Track');
 
-    $page->assertSee('Remove from tracking');
+    $page->assertSee('Tracked ✓');
     $user->refresh();
     expect($user->trackedGames()->where('game_id', $game->id)->exists())->toBeTrue();
 });
