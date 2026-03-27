@@ -12,7 +12,7 @@ test('search spotlight and trigger are present when layout is loaded', function 
     $response->assertOk();
     $response->assertSee('Search games', false);
     $response->assertSee('open-game-search', false);
-    $response->assertSee('Type to search games', false);
+    $response->assertSee('Start typing to search games…', false);
 });
 
 test('search trigger documents keyboard shortcut in UI', function (): void {
@@ -69,5 +69,5 @@ test('guest sees log in to track in search results', function (): void {
 
     Livewire::test('game-search-modal')
         ->set('query', 'Guest Search')
-        ->assertSee('Log in to track');
+        ->assertSee('Sign in to track');
 });

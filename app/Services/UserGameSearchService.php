@@ -29,7 +29,7 @@ final class UserGameSearchService
         }
 
         $games = Game::query()
-            ->where('title', 'like', '%'.$term.'%')
+            ->searchByTitle($term)
             ->orderBy('title')
             ->limit($limit)
             ->get();
