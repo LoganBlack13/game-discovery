@@ -7,6 +7,8 @@ namespace App\Services;
 use App\Enums\GameActivityType;
 use App\Enums\ReleaseStatus;
 use App\Models\Game;
+use App\Notifications\GameReleaseDateChangedNotification;
+use App\Notifications\GameReleasedNotification;
 use Carbon\CarbonInterface;
 
 final class GameActivityRecorder
@@ -35,6 +37,8 @@ final class GameActivityRecorder
                 'url' => null,
                 'occurred_at' => now(),
             ]);
+
+            $game->trackedByUsers->each->notify(new GameReleaseDateChangedNotification($game, $oldReleaseDate));
         }
 
         if (! $oldReleaseDate instanceof CarbonInterface && $newReleaseDate !== null) {
@@ -55,6 +59,8 @@ final class GameActivityRecorder
                 'url' => null,
                 'occurred_at' => now(),
             ]);
+
+            $game->trackedByUsers->each->notify(new GameReleasedNotification($game));
         }
     }
 

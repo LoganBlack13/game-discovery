@@ -7,6 +7,7 @@ use App\Http\Controllers\Admin\GameRequestProgressController;
 use App\Http\Controllers\Admin\NewsEnrichmentProgressController;
 use App\Http\Controllers\GameController;
 use App\Http\Controllers\GameRequestController;
+use App\Http\Controllers\NotificationsController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
@@ -34,6 +35,8 @@ Route::middleware(['auth', 'verified'])->group(function (): void {
     });
     Route::post('/games/{game:slug}/track', [GameController::class, 'track'])->name('games.track');
     Route::delete('/games/{game:slug}/track', [GameController::class, 'untrack'])->name('games.untrack');
+    Route::get('/notifications', [NotificationsController::class, 'index'])->name('notifications.index');
+    Route::delete('/notifications/{id}', [NotificationsController::class, 'destroy'])->name('notifications.destroy');
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::get('/profile/recovery-codes', [ProfileController::class, 'recoveryCodes'])
