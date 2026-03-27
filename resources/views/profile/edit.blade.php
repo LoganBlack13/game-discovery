@@ -14,8 +14,8 @@
                 @method('PATCH')
 
                 <div class="flex items-center gap-4">
-                    <img src="{{ $user->avatarUrl() }}" alt="" class="size-16 rounded-full" />
-                    <p class="text-sm text-base-content/50">Avatar generated automatically from your name.</p>
+                    <livewire:avatar-picker />
+                    <p class="text-sm text-base-content/50">Click your avatar to choose a different one.</p>
                 </div>
 
                 <label class="form-control">
