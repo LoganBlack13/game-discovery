@@ -59,7 +59,7 @@
             <header class="sticky top-0 z-50 shrink-0 px-4 pt-4">
                 <div class="header-bar mx-auto flex h-12 max-w-5xl items-center justify-between gap-6 rounded-full bg-base-100/10 px-6 py-0 backdrop-blur-[10px] md:justify-between">
                     <a href="{{ url('/') }}" class="flex shrink-0 items-center" aria-label="{{ config('app.name') }} home">
-                        <span class="header-logo flex h-8 w-8 items-center justify-center font-display text-xl font-bold">S</span>
+                        <img src="/logo.svg" alt="{{ config('app.name') }}" class="h-8 w-auto" />
                     </a>
                     <nav class="hidden items-center gap-6 md:flex" aria-label="Main">
                         <a href="{{ route('games.index') }}" class="nav-pill-link rounded-full px-3.5 py-1.5 text-base font-medium text-base-content/80 transition-colors hover:text-base-content">Games</a>
@@ -253,7 +253,9 @@
                 <div class="mx-auto max-w-5xl px-4 py-8 sm:px-6">
                     <div class="flex flex-col gap-6 sm:flex-row sm:items-start sm:justify-between">
                         <div class="max-w-sm">
-                            <a href="{{ url('/') }}" class="font-display text-lg font-semibold text-base-content">{{ config('app.name') }}</a>
+                            <a href="{{ url('/') }}" class="flex items-center" aria-label="{{ config('app.name') }} home">
+                                <img src="/logo.svg" alt="{{ config('app.name') }}" class="h-6 w-auto" />
+                            </a>
                             <p class="mt-2 text-sm text-base-content/70">
                                 Track upcoming releases, follow news for your games, and plan your backlog.
                             </p>

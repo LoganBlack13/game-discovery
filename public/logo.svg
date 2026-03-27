@@ -1,0 +1,75 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 248 56" fill="none">
+  <defs>
+    <linearGradient id="bodyGrad" x1="14" y1="8" x2="38" y2="48" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#67e8f9"/>
+      <stop offset="100%" stop-color="#0891b2"/>
+    </linearGradient>
+    <linearGradient id="glowGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#22d3ee" stop-opacity="0.4"/>
+      <stop offset="100%" stop-color="#22d3ee" stop-opacity="0"/>
+    </linearGradient>
+    <filter id="glow" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="3" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <filter id="softglow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="1.5" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Ambient glow behind scroll -->
+  <ellipse cx="26" cy="28" rx="17" ry="22" fill="#22d3ee" opacity="0.08"/>
+
+  <!-- Scroll icon -->
+  <g filter="url(#softglow)">
+    <!-- Bottom roll (behind body) -->
+    <ellipse cx="26" cy="44" rx="12.5" ry="4" fill="#075985"/>
+    <ellipse cx="26" cy="44" rx="10" ry="2.5" fill="#0e7490"/>
+
+    <!-- Body -->
+    <rect x="13.5" y="8" width="25" height="36" fill="url(#bodyGrad)"/>
+
+    <!-- Body inner sheen -->
+    <rect x="13.5" y="8" width="25" height="10" fill="url(#glowGrad)"/>
+
+    <!-- Top roll (in front) -->
+    <ellipse cx="26" cy="8" rx="12.5" ry="4" fill="#a5f3fc"/>
+    <ellipse cx="26" cy="8" rx="10" ry="2.5" fill="#cffafe"/>
+
+    <!-- Text lines on scroll -->
+    <rect x="18" y="16" width="16" height="2" rx="1" fill="#083344" opacity="0.5"/>
+    <rect x="18" y="21" width="12" height="2" rx="1" fill="#083344" opacity="0.5"/>
+    <rect x="18" y="26" width="16" height="2" rx="1" fill="#083344" opacity="0.5"/>
+    <rect x="18" y="31" width="10" height="2" rx="1" fill="#083344" opacity="0.5"/>
+    <rect x="18" y="36" width="14" height="2" rx="1" fill="#083344" opacity="0.5"/>
+  </g>
+
+  <!-- Sparkle top-right of scroll -->
+  <g filter="url(#glow)" opacity="0.9">
+    <path d="M42 6 L43.2 9.2 L46.5 10 L43.2 10.8 L42 14 L40.8 10.8 L37.5 10 L40.8 9.2 Z" fill="#67e8f9"/>
+  </g>
+
+  <!-- Small sparkle bottom -->
+  <g opacity="0.6">
+    <path d="M10 44 L10.7 45.9 L12.6 46.5 L10.7 47.1 L10 49 L9.3 47.1 L7.4 46.5 L9.3 45.9 Z" fill="#22d3ee"/>
+  </g>
+
+  <!-- Wordmark -->
+  <text
+    x="62"
+    y="37"
+    font-family="Syne, system-ui, sans-serif"
+    font-weight="800"
+    font-size="31"
+    letter-spacing="-0.8"
+  >
+    <tspan fill="#f1f5f9">Quest</tspan><tspan fill="#22d3ee">log</tspan>
+  </text>
+</svg>
