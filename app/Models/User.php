@@ -82,6 +82,7 @@ final class User extends Authenticatable implements MustVerifyEmail
 
     public function avatarUrl(?string $seed = null): string
     {
+        /** @var string $style */
         $style = config('avatar.style', 'thumbs');
         $resolved = urlencode($seed ?? $this->avatar_seed ?? $this->name);
 
