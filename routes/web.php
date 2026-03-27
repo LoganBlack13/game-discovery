@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\GameRequestProgressController;
 use App\Http\Controllers\Admin\NewsEnrichmentProgressController;
 use App\Http\Controllers\GameController;
+use App\Http\Controllers\GameRequestController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
@@ -20,6 +21,7 @@ Route::get('/terms', fn (): Factory|View => view('pages.terms'))->name('terms');
 
 Route::middleware(['auth', 'verified'])->group(function (): void {
     Route::get('/dashboard', App\Http\Controllers\DashboardController::class)->name('dashboard');
+    Route::get('/request-game', [GameRequestController::class, 'index'])->name('game-requests.index');
 
     Route::prefix('admin')->name('admin.')->middleware('admin')->group(function (): void {
         Route::get('/', [DashboardController::class, '__invoke'])->name('dashboard');

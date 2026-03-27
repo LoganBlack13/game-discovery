@@ -55,12 +55,11 @@ test('second user submitting same title increments request count', function (): 
         ->and($request->request_count)->toBe(2);
 });
 
-test('guest cannot submit and sees message', function (): void {
+test('guest cannot submit and receives 403', function (): void {
     Livewire::test('game-request-card')
         ->set('title', 'Elden Ring')
         ->call('submit')
-        ->assertSet('success', false)
-        ->assertSet('feedback', 'You must be signed in to request a game.');
+        ->assertForbidden();
 
     expect(GameRequest::query()->count())->toBe(0);
 });
