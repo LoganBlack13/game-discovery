@@ -16,12 +16,12 @@ Route::livewire('/', 'pages::welcome');
 Route::livewire('/games', 'pages::games')->name('games.index');
 
 Route::get('/games/{game:slug}', [GameController::class, 'show'])->name('games.show');
-Route::get('/request-game', [GameRequestController::class, 'index'])->name('game-requests.index');
 Route::get('/privacy', fn (): Factory|View => view('pages.privacy'))->name('privacy');
 Route::get('/terms', fn (): Factory|View => view('pages.terms'))->name('terms');
 
 Route::middleware(['auth', 'verified'])->group(function (): void {
     Route::get('/dashboard', App\Http\Controllers\DashboardController::class)->name('dashboard');
+    Route::get('/request-game', [GameRequestController::class, 'index'])->name('game-requests.index');
 
     Route::prefix('admin')->name('admin.')->middleware('admin')->group(function (): void {
         Route::get('/', [DashboardController::class, '__invoke'])->name('dashboard');

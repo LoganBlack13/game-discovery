@@ -16,12 +16,7 @@ new class extends Component
 
     public function submit(): void
     {
-        if (! auth()->check()) {
-            $this->feedback = 'You must be signed in to request a game.';
-            $this->success = false;
-
-            return;
-        }
+        abort_unless(auth()->check(), 403);
 
         $this->validate(StoreGameRequestRequest::livewireRules());
 
