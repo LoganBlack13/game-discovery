@@ -63,3 +63,12 @@ it('shows the request form to authenticated users', function (): void {
         ->assertOk()
         ->assertSee('Request game');
 });
+
+it('pre-fills the title field from the title query parameter', function (): void {
+    $user = User::factory()->create();
+
+    $this->actingAs($user)
+        ->get(route('game-requests.index', ['title' => 'Frostpunk 3']))
+        ->assertOk()
+        ->assertSee('Frostpunk 3');
+});

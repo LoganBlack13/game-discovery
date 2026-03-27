@@ -12,6 +12,11 @@ new class extends Component
 
     public ?string $feedback = null;
 
+    public function mount(): void
+    {
+        $this->title = request()->string('title')->toString();
+    }
+
     public bool $success = false;
 
     public function submit(): void

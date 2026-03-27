@@ -85,7 +85,7 @@ new #[Title('Games')] class extends Component
         <div class="flex flex-col items-center gap-4 py-20 text-center">
             @if ($search !== '')
                 <p class="text-base-content/70">No games found for "{{ $search }}".</p>
-                <a href="{{ route('game-requests.index') }}" class="btn btn-primary btn-sm">
+                <a href="{{ route('game-requests.index', ['title' => $search]) }}" class="btn btn-primary btn-sm">
                     Request "{{ $search }}"
                 </a>
             @else
