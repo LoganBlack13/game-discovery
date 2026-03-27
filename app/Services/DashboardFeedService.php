@@ -9,6 +9,7 @@ use App\Models\Game;
 use App\Models\GameActivity;
 use App\Models\News;
 use App\Models\User;
+use Carbon\CarbonInterface;
 use Illuminate\Support\Carbon;
 
 /**
@@ -19,9 +20,9 @@ final class DashboardFeedService
     private const int MAX_ITEMS_PER_SOURCE = 500;
 
     /**
-     * @return array<int, array{game_id: int, game: Game, type: string, type_label: string, title: string, description: string|null, url: string, occurred_at: Carbon}>
+     * @return array<int, array{game_id: int, game: Game, type: string, type_label: string, title: string, description: string|null, url: string, occurred_at: Carbon, is_new: bool}>
      */
-    public function getFeedItems(User $user, string $filter, int $limit, int $offset): array
+    public function getFeedItems(User $user, string $filter, int $limit, int $offset, ?CarbonInterface $since = null): array
     {
         $trackedGameIds = $user->trackedGames()->pluck('games.id')->all();
         if ($trackedGameIds === []) {
@@ -39,6 +40,7 @@ final class DashboardFeedService
                 ->get();
 
             foreach ($news as $n) {
+                $occurredAt = $n->published_at ?? $n->created_at;
                 $items->push([
                     'game_id' => $n->game_id,
                     'game' => $n->game,
@@ -47,7 +49,8 @@ final class DashboardFeedService
                     'title' => $n->title,
                     'description' => null,
                     'url' => $n->url,
-                    'occurred_at' => $n->published_at ?? $n->created_at,
+                    'occurred_at' => $occurredAt,
+                    'is_new' => $since !== null && $occurredAt instanceof CarbonInterface && $occurredAt->isAfter($since),
                 ]);
             }
         }
@@ -70,11 +73,12 @@ final class DashboardFeedService
                     'description' => $a->description,
                     'url' => $a->url ?? route('games.show', $a->game),
                     'occurred_at' => $a->occurred_at,
+                    'is_new' => $since !== null && $a->occurred_at->isAfter($since),
                 ]);
             }
         }
 
-        /** @var array<int, array{game_id: int, game: Game, type: string, type_label: string, title: string, description: string|null, url: string, occurred_at: Carbon}> $result */
+        /** @var array<int, array{game_id: int, game: Game, type: string, type_label: string, title: string, description: string|null, url: string, occurred_at: Carbon, is_new: bool}> $result */
         $result = $items
             ->sortByDesc(function (mixed $row): string {
                 $occurred = is_array($row) ? ($row['occurred_at'] ?? null) : null;
