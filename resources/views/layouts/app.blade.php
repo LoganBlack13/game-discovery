@@ -7,6 +7,9 @@
 
         <title>{{ $title ?? config('app.name') }}</title>
 
+        <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+        <link rel="icon" href="/favicon.ico" sizes="any">
+
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap" rel="stylesheet">
@@ -21,7 +24,7 @@
             (function () {
                 const config = window.GAME_DISCOVERY_THEMES;
                 const slugs = config.themes.map(function (t) { return t.slug; });
-                const stored = localStorage.getItem('game-discovery-theme');
+                const stored = localStorage.getItem('questlog-theme');
 
                 function resolveThemeSlug(raw) {
                     if (raw === 'system' || !raw) {
@@ -309,7 +312,7 @@
                     defaultDark: config.default_dark,
                     defaultLight: config.default_light,
                     init() {
-                        const stored = localStorage.getItem('game-discovery-theme');
+                        const stored = localStorage.getItem('questlog-theme');
                         if (stored === 'system' || !stored) {
                             this.mode = 'system';
                         } else if (stored === 'light' || stored === 'dark') {
@@ -353,14 +356,14 @@
                     setTheme(slug) {
                         this.mode = 'explicit';
                         this.effectiveTheme = slug;
-                        localStorage.setItem('game-discovery-theme', slug);
+                        localStorage.setItem('questlog-theme', slug);
                         document.documentElement.dataset.theme = slug;
                         document.documentElement.dataset.themeType = this.themeType(slug);
                     },
                     setMode(value) {
                         this.mode = value;
                         if (value === 'system') {
-                            localStorage.setItem('game-discovery-theme', 'system');
+                            localStorage.setItem('questlog-theme', 'system');
                             this.updateEffectiveFromStorage('system');
                         }
                     },
