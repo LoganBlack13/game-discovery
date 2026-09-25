@@ -27,6 +27,11 @@ jobs:
       #     ENV_SOME_API_KEY: ${{ secrets.ENV_SOME_API_KEY }}
       # Values must not contain a single quote or a newline.
       - name: Collect .env secrets
+        env:
+          ENV_DB_PASSWORD: ${{ secrets.ENV_DB_PASSWORD }}
+          ENV_IGDB_TWITCH_CLIENT_ID: ${{ secrets.ENV_IGDB_TWITCH_CLIENT_ID }}
+          ENV_IGDB_TWITCH_CLIENT_SECRET: ${{ secrets.ENV_IGDB_TWITCH_CLIENT_SECRET }}
+          ENV_RAWG_API_KEY: ${{ secrets.ENV_RAWG_API_KEY }}
         run: |
           overrides=""
           for name in ${!ENV_@}; do
