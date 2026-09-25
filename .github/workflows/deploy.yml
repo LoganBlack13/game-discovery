@@ -16,19 +16,50 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    environment: production
     if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
     timeout-minutes: 15
 
     steps:
+      # Secrets upserted into the VPS .env as <KEY>='<value>'. Only the secrets listed
+      # under `env` are exposed to this job; each must be named ENV_<KEY>, e.g.:
+      #   env:
+      #     ENV_SOME_API_KEY: ${{ secrets.ENV_SOME_API_KEY }}
+      # Values must not contain a single quote or a newline.
+      - name: Collect .env secrets
+        run: |
+          overrides=""
+          for name in ${!ENV_@}; do
+            value=${!name}
+            # Skip keys listed above but not defined as secrets
+            [ -z "$value" ] && continue
+            case "$value" in
+              *"'"* | *$'\n'*) echo "::error::$name contains a single quote or a newline"; exit 1 ;;
+            esac
+            overrides+="${name#ENV_}='${value}'"$'\n'
+          done
+          overrides=$(printf '%s' "$overrides" | base64 -w0)
+          echo "::add-mask::$overrides"
+          echo "DOTENV_OVERRIDES=$overrides" >> "$GITHUB_ENV"
+
       - name: Deploy to VPS
         uses: appleboy/ssh-action@v1
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
+          envs: DOTENV_OVERRIDES
           script: |
+            set -e
             cd /opt/apps/game-discovery
             git pull
+            # Keep the previous .env to roll back a wrong secret value
+            cp .env .env.previous
+            printf '%s' "${DOTENV_OVERRIDES:-}" | base64 -d | while IFS= read -r line; do
+              key=${line%%=*}
+              sed -i "/^${key}=/d" .env
+              printf '%s\n' "$line" >> .env
+            done
             COMMIT=$(git rev-parse --short HEAD)
             docker compose build --no-cache --build-arg CACHEBUST=$COMMIT
             docker compose up -d --force-recreate
