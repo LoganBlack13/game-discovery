@@ -2,7 +2,10 @@
 
 use App\Enums\TrackedGameStatus;
 use App\Models\Game;
+use App\Models\TrackedGame;
 use App\Models\User;
+use App\Services\PersonalTrackingService;
+use Livewire\Attributes\On;
 use Livewire\Component;
 
 new class extends Component
@@ -19,9 +22,35 @@ new class extends Component
     {
         $user = auth()->user();
         assert($user instanceof User);
-        $user->trackedGames()->updateExistingPivot($gameId, [
-            'status' => $statusValue !== '' ? $statusValue : null,
-        ]);
+        $entry = $user->trackedGameEntries()->where('game_id', $gameId)->firstOrFail();
+
+        app(PersonalTrackingService::class)->changeStatus($entry, TrackedGameStatus::tryFrom($statusValue));
+        $this->dispatch('tracking-updated')->to('dashboard-backlog');
+    }
+
+    #[On('tracking-updated')]
+    public function refreshTracking(): void
+    {
+        // Re-render so "Currently playing" and statuses reflect changes made in child components.
+    }
+
+    /**
+     * Games currently being played, most recently active first, with their open resume goal.
+     *
+     * @return \Illuminate\Database\Eloquent\Collection<int, TrackedGame>
+     */
+    public function getCurrentlyPlayingProperty(): \Illuminate\Database\Eloquent\Collection
+    {
+        $user = auth()->user();
+        assert($user instanceof User);
+
+        return $user->trackedGameEntries()
+            ->withStatus(TrackedGameStatus::Playing)
+            ->with(['game', 'currentResumeGoal'])
+            ->orderByRaw('last_activity_at IS NULL')
+            ->orderByDesc('last_activity_at')
+            ->orderByDesc('updated_at')
+            ->get();
     }
 
     /**
@@ -30,6 +59,7 @@ new class extends Component
     public function getGamesProperty(): \Illuminate\Support\Collection
     {
         $query = auth()->user()->trackedGames()
+            ->withPivot('last_activity_at')
             ->with(['news' => fn ($q) => $q->orderByDesc('published_at')->limit(1)]);
 
         if ($this->filter === 'released') {
@@ -125,6 +155,53 @@ new class extends Component
         }
     }"
 >
+    <section id="currently-playing" aria-labelledby="currently-playing-title" class="mb-10">
+        <h2 id="currently-playing-title" class="font-display text-lg font-semibold text-base-content sm:text-xl">Currently playing</h2>
+        @if ($this->currentlyPlaying->isNotEmpty())
+            <ul class="mt-4 grid gap-4 sm:grid-cols-2 xl:grid-cols-3" role="list">
+                @foreach ($this->currentlyPlaying as $entry)
+                    <li wire:key="playing-{{ $entry->id }}">
+                        <a
+                            href="{{ route('games.show', $entry->game) }}#my-tracking"
+                            class="card card-side bg-base-200 border border-base-content/10 h-full overflow-hidden rounded-box shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-primary/50 hover:shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                            aria-label="Resume {{ $entry->game->title }}"
+                        >
+                            @if ($entry->game->cover_image)
+                                <figure class="w-24 shrink-0">
+                                    <img src="{{ $entry->game->cover_image }}" alt="" class="size-full object-cover" />
+                                </figure>
+                            @else
+                                <div class="flex w-24 shrink-0 items-center justify-center bg-base-300">
+                                    <span class="font-display text-2xl font-bold text-base-content/40">{{ substr($entry->game->title, 0, 1) }}</span>
+                                </div>
+                            @endif
+                            <div class="card-body min-w-0 gap-1 p-3">
+                                <h3 class="card-title truncate font-display text-base font-semibold text-base-content">{{ $entry->game->title }}</h3>
+                                @if ($entry->platform)
+                                    <p class="text-xs text-base-content/60">{{ $entry->platform }}</p>
+                                @endif
+                                @if ($entry->progress_percent !== null)
+                                    <progress class="progress progress-primary w-full" value="{{ $entry->progress_percent }}" max="100" aria-label="Progress {{ $entry->progress_percent }}%"></progress>
+                                @endif
+                                @if ($entry->progress)
+                                    <p class="truncate text-xs text-base-content/70">{{ $entry->progress }}</p>
+                                @endif
+                                @if ($entry->currentResumeGoal)
+                                    <p class="line-clamp-2 text-xs text-base-content"><span class="font-medium text-primary">Next:</span> {{ $entry->currentResumeGoal->body }}</p>
+                                @endif
+                                @if ($entry->last_activity_at)
+                                    <p class="mt-auto text-xs text-base-content/50">Last played {{ $entry->last_activity_at->diffForHumans() }}</p>
+                                @endif
+                            </div>
+                        </a>
+                    </li>
+                @endforeach
+            </ul>
+        @else
+            <p class="mt-2 text-sm text-base-content/70">Nothing in progress right now. Set a game to “Playing” from its page or the list below to find it here.</p>
+        @endif
+    </section>
+
     @if ($this->upNext->isNotEmpty())
         <section id="up-next" class="mb-10" aria-label="Up next">
             @php
@@ -322,9 +399,7 @@ new class extends Component
         @endif
     </section>
 
-    <section id="backlog" aria-label="Plan your gaming backlog" class="mb-10">
-        {{-- Task 4: Backlog planning with example data and total hours --}}
-    </section>
+    <livewire:dashboard-backlog />
 
     <section id="playable-insight" aria-label="When will you actually play it?" class="mb-10">
         {{-- Task 5: Playable date insight table/cards --}}
@@ -414,6 +489,9 @@ new class extends Component
                         @endif
                         @if (count($game->platforms) > 0)
                             <p class="mt-0.5 text-xs text-base-content/60">{{ implode(', ', array_slice($game->platforms, 0, 3)) }}</p>
+                        @endif
+                        @if ($game->pivot?->last_activity_at)
+                            <p class="mt-0.5 text-xs text-base-content/60">Last activity: {{ \Illuminate\Support\Carbon::parse($game->pivot->last_activity_at)->format('M j') }}</p>
                         @endif
                         @if ($game->news->isNotEmpty() && $game->news->first()->published_at)
                             <p class="mt-1 text-xs text-base-content/60">Latest news: {{ $game->news->first()->published_at->format('M j') }}</p>

@@ -80,6 +80,72 @@ final class RawgGameDataProvider implements GameDataProvider
     }
 
     /**
+     * Individual contributors credited on a game, with their positions (RAWG "development team").
+     *
+     * @return list<array{external_id: string, name: string, slug: string, image: string|null, roles: list<string>}>
+     */
+    public function getDevelopmentTeam(string $externalId, int $maxPages = 5): array
+    {
+        $key = config('services.rawg.key');
+        throw_if(! is_string($key) || $key === '', InvalidArgumentException::class, 'RAWG API key is not configured.');
+
+        $members = [];
+        $url = self::BASE_URL.'/games/'.$externalId.'/development-team';
+        $params = ['key' => $key, 'page_size' => 40];
+
+        for ($page = 0; $page < $maxPages && $url !== null; $page++) {
+            $response = Http::timeout(10)->get($url, $params);
+            throw_unless($response->successful(), RuntimeException::class, 'Failed to fetch development team from RAWG.');
+
+            $data = $response->json();
+            $results = is_array($data) && is_array($data['results'] ?? null) ? $data['results'] : [];
+
+            foreach ($results as $item) {
+                $member = $this->mapDevelopmentTeamMember($item);
+                if ($member !== null) {
+                    $members[] = $member;
+                }
+            }
+
+            $next = is_array($data) ? ($data['next'] ?? null) : null;
+            $url = is_string($next) && $next !== '' ? $next : null;
+            $params = [];
+        }
+
+        return $members;
+    }
+
+    /**
+     * @return array{external_id: string, name: string, slug: string, image: string|null, roles: list<string>}|null
+     */
+    private function mapDevelopmentTeamMember(mixed $item): ?array
+    {
+        if (! is_array($item)) {
+            return null;
+        }
+
+        $id = $this->str($item['id'] ?? null);
+        $name = mb_trim($this->str($item['name'] ?? null));
+        if ($id === '' || $name === '') {
+            return null;
+        }
+
+        $positions = is_array($item['positions'] ?? null) ? $item['positions'] : [];
+        $roles = array_values(array_unique(array_filter(array_map(
+            fn (mixed $position): string => is_array($position) ? Str::title(mb_trim($this->str($position['name'] ?? null))) : '',
+            $positions
+        ))));
+
+        return [
+            'external_id' => $id,
+            'name' => $name,
+            'slug' => $this->str($item['slug'] ?? null) ?: Str::slug($name),
+            'image' => is_string($item['image'] ?? null) && $item['image'] !== '' ? $item['image'] : null,
+            'roles' => $roles !== [] ? $roles : ['Contributor'],
+        ];
+    }
+
+    /**
      * @return array{title: string, slug: string, description: string|null, cover_image: string|null, developer: string|null, publisher: string|null, genres: array<string>, platforms: array<string>, release_date: string|null, release_status: string, external_id: string, external_source: string}|null
      */
     private function mapGameFromList(mixed $item): ?array

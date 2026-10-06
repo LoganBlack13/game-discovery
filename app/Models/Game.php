@@ -29,6 +29,7 @@ use Override;
  * @property string|null $external_id
  * @property string|null $external_source
  * @property CarbonInterface|null $last_synced_at
+ * @property CarbonInterface|null $credits_synced_at
  */
 final class Game extends Model
 {
@@ -53,6 +54,7 @@ final class Game extends Model
         'external_id',
         'external_source',
         'last_synced_at',
+        'credits_synced_at',
     ];
 
     /**
@@ -66,6 +68,7 @@ final class Game extends Model
             'genres' => 'array',
             'platforms' => 'array',
             'last_synced_at' => 'datetime',
+            'credits_synced_at' => 'datetime',
         ];
     }
 
@@ -96,6 +99,14 @@ final class Game extends Model
     public function gameRequests(): HasMany
     {
         return $this->hasMany(GameRequest::class);
+    }
+
+    /**
+     * @return HasMany<GameCredit, $this>
+     */
+    public function credits(): HasMany
+    {
+        return $this->hasMany(GameCredit::class);
     }
 
     /**

@@ -111,6 +111,12 @@
             </div>
         </div>
 
+        @auth
+            @if ($isTracked)
+                <livewire:game-tracking-panel :game="$game" />
+            @endif
+        @endauth
+
         {{-- About --}}
         @if ($game->description)
             <div class="mt-10 border-t border-base-content/10 pt-10">
@@ -118,6 +124,40 @@
                 <p class="mt-3 whitespace-pre-wrap text-base-content/70">{{ $game->description }}</p>
             </div>
         @endif
+
+        {{-- Credits --}}
+        <section class="mt-10 border-t border-base-content/10 pt-10" aria-labelledby="credits-title">
+            <h2 id="credits-title" class="font-display text-lg font-semibold text-base-content">Credits</h2>
+            @if ($creditsByDiscipline !== [])
+                <p class="mt-1 text-sm text-base-content/60">Individual contributors known to Questlog. This list may be incomplete.</p>
+                <div class="mt-4 grid gap-6 sm:grid-cols-2">
+                    @foreach ($creditsByDiscipline as $disciplineValue => $people)
+                        <div>
+                            <h3 class="text-sm font-semibold uppercase tracking-wide text-base-content/70">{{ \App\Enums\CreditDiscipline::from($disciplineValue)->label() }}</h3>
+                            <ul class="mt-2 flex flex-col gap-1.5" role="list">
+                                @foreach ($people as $row)
+                                    <li class="text-sm">
+                                        <a href="{{ route('people.show', ['person' => $row['person'], 'game' => $game->slug]) }}" class="link link-hover font-medium text-base-content">{{ $row['person']->name }}</a>
+                                        <span class="text-base-content/60">— {{ implode(', ', $row['roles']) }}</span>
+                                    </li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endforeach
+                </div>
+            @else
+                <p class="mt-3 text-sm text-base-content/60" data-credits-missing>
+                    @if ($game->credits_synced_at)
+                        Our data source doesn't list individual contributors for this game yet. That doesn't mean nobody is credited — the information is just missing.
+                    @else
+                        Credits haven't been imported for this game yet.
+                    @endif
+                    @if ($game->developer || $game->publisher)
+                        Studio information is shown above.
+                    @endif
+                </p>
+            @endif
+        </section>
 
         {{-- Activity timeline --}}
         @if ($game->activities->isNotEmpty())

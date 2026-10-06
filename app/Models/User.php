@@ -103,6 +103,16 @@ final class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
+     * Personal tracking records (status, progress, journal, review) for each tracked game.
+     *
+     * @return HasMany<TrackedGame, $this>
+     */
+    public function trackedGameEntries(): HasMany
+    {
+        return $this->hasMany(TrackedGame::class);
+    }
+
+    /**
      * @return HasMany<GameRequestVote, $this>
      */
     public function gameRequestVotes(): HasMany

@@ -64,3 +64,15 @@ test('authenticated user can untrack a game via JSON request', function (): void
 
     expect($user->trackedGames()->where('game_id', $game->id)->exists())->toBeFalse();
 });
+
+test('tracking a game starts its personal journey as watching', function (): void {
+    $user = User::factory()->create();
+    $game = Game::factory()->create();
+
+    $this->actingAs($user)->post(route('games.track', $game))->assertRedirect();
+    $this->actingAs($user)->post(route('games.track', $game))->assertRedirect();
+
+    $entry = $user->trackedGameEntries()->where('game_id', $game->id)->sole();
+    expect($entry->status)->toBe(App\Enums\TrackedGameStatus::Watching)
+        ->and($entry->statusChanges()->count())->toBe(1);
+});
