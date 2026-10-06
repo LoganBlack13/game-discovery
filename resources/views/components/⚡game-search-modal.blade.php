@@ -2,6 +2,7 @@
 
 use App\Models\Game;
 use App\Services\UserGameSearchResult;
+use App\Services\PersonalTrackingService;
 use App\Services\UserGameSearchService;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Support\Collection;
@@ -38,7 +39,7 @@ new class extends Component
     {
         $game = Game::query()->findOrFail($gameId);
         $this->authorize('track', $game);
-        auth()->user()->trackedGames()->syncWithoutDetaching([$game->id]);
+        app(PersonalTrackingService::class)->track(auth()->user(), $game);
     }
 
     public function untrackGame(string $gameId): void

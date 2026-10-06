@@ -8,6 +8,7 @@ use App\Http\Controllers\Admin\NewsEnrichmentProgressController;
 use App\Http\Controllers\GameController;
 use App\Http\Controllers\GameRequestController;
 use App\Http\Controllers\NotificationsController;
+use App\Http\Controllers\PersonController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
@@ -17,6 +18,7 @@ Route::livewire('/', 'pages::welcome');
 Route::livewire('/games', 'pages::games')->name('games.index');
 
 Route::get('/games/{game:slug}', [GameController::class, 'show'])->name('games.show');
+Route::get('/people/{person:slug}', [PersonController::class, 'show'])->name('people.show');
 Route::get('/privacy', fn (): Factory|View => view('pages.privacy'))->name('privacy');
 Route::get('/terms', fn (): Factory|View => view('pages.terms'))->name('terms');
 
