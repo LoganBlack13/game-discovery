@@ -61,6 +61,21 @@ test('a moment is stored privately and its thumbnail is queued', function (): vo
     Queue::assertPushed(GenerateMomentThumbnail::class, fn (GenerateMomentThumbnail $job): bool => $job->moment->is($moment));
 });
 
+test('moments are stored on the configured disk', function (): void {
+    Storage::fake('s3');
+    config(['filesystems.moments' => 's3']);
+    $payload = momentPayload($this->session);
+
+    $this->withToken($this->token)
+        ->post(route('api.v1.companion.moments.store'), $payload, ['Accept' => 'application/json'])
+        ->assertCreated();
+
+    $moment = SavedMoment::query()->findOrFail($payload['uuid']);
+    expect($moment->disk)->toBe('s3');
+    Storage::disk('s3')->assertExists($moment->path);
+    Storage::disk('local')->assertMissing($moment->path);
+});
+
 test('png moments keep their format', function (): void {
     $payload = momentPayload($this->session, ['image' => UploadedFile::fake()->image('moment.png', 800, 600)]);
 

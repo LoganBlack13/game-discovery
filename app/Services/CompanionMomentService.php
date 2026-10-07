@@ -20,8 +20,6 @@ use Illuminate\Validation\ValidationException;
  */
 final readonly class CompanionMomentService
 {
-    public const string DISK = 'local';
-
     public const int MAX_IMAGE_KILOBYTES = 10 * 1024;
 
     public const int QUOTA_BYTES = 1024 * 1024 * 1024;
@@ -66,7 +64,8 @@ final readonly class CompanionMomentService
         }
 
         $extension = $dimensions[2] === IMAGETYPE_PNG ? 'png' : 'jpg';
-        $path = $image->storeAs("moments/{$user->id}", "{$data['uuid']}.{$extension}", self::DISK);
+        $disk = config()->string('filesystems.moments');
+        $path = $image->storeAs("moments/{$user->id}", "{$data['uuid']}.{$extension}", $disk);
         assert(is_string($path));
 
         $skew = CompanionSessionService::clockSkewSeconds($data['client_sent_at']);
@@ -76,7 +75,7 @@ final readonly class CompanionMomentService
             'game_session_id' => $session->id,
             'companion_device_id' => $device->id,
             'captured_at' => CarbonImmutable::parse($data['captured_at'])->utc()->addSeconds($skew),
-            'disk' => self::DISK,
+            'disk' => $disk,
             'path' => $path,
             'width' => $dimensions[0],
             'height' => $dimensions[1],
@@ -109,10 +108,12 @@ final readonly class CompanionMomentService
         $session->moments()->each(fn (SavedMoment $moment) => $this->delete($moment));
     }
 
+    /**
+     * Deletes the files one by one: the production object storage silently ignores bulk and directory deletions.
+     */
     public function deleteAllFor(User $user): void
     {
-        Storage::disk(self::DISK)->deleteDirectory("moments/{$user->id}");
-        $user->savedMoments()->delete();
+        $user->savedMoments()->eachById(fn (SavedMoment $moment) => $this->delete($moment));
     }
 
     private function conflict(string $code, string $message, int $status): HttpResponseException

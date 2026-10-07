@@ -161,6 +161,24 @@ test('deleting all companion data deletes moments and their files', function ():
     Storage::disk('local')->assertExists($other->path);
 });
 
+test('deleting all companion data deletes the files of every disk, thumbnails included', function (): void {
+    Storage::fake('s3');
+    $remote = momentFor($this, ['disk' => 's3', 'thumbnail_path' => 'moments/remote_thumb.jpg']);
+    Storage::disk('s3')->put($remote->path, 'image');
+    Storage::disk('s3')->put('moments/remote_thumb.jpg', 'thumb');
+    $local = momentFor($this);
+
+    Livewire::actingAs($this->user)
+        ->test('companion-settings')
+        ->call('deleteAllData');
+
+    expect($remote->fresh())->toBeNull()
+        ->and($local->fresh())->toBeNull();
+    Storage::disk('s3')->assertMissing($remote->path);
+    Storage::disk('s3')->assertMissing('moments/remote_thumb.jpg');
+    Storage::disk('local')->assertMissing($local->path);
+});
+
 test('moment settings can be changed', function (): void {
     $user = User::factory()->create();
 
