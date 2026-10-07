@@ -54,6 +54,24 @@ new class extends Component
     }
 
     /**
+     * Latest Companion session of each game currently played, keyed by game id (one query).
+     *
+     * @return \Illuminate\Database\Eloquent\Collection<int, \App\Models\GameSession>
+     */
+    #[\Livewire\Attributes\Computed]
+    public function latestSessions(): \Illuminate\Database\Eloquent\Collection
+    {
+        $user = auth()->user();
+        assert($user instanceof User);
+
+        return $user->gameSessions()
+            ->whereIn('game_id', $this->currentlyPlaying->pluck('game_id'))
+            ->latestPerGame()
+            ->get()
+            ->keyBy('game_id');
+    }
+
+    /**
      * @return \Illuminate\Support\Collection<int, Game>
      */
     public function getGamesProperty(): \Illuminate\Support\Collection
@@ -160,6 +178,7 @@ new class extends Component
         @if ($this->currentlyPlaying->isNotEmpty())
             <ul class="mt-4 grid gap-4 sm:grid-cols-2 xl:grid-cols-3" role="list">
                 @foreach ($this->currentlyPlaying as $entry)
+                    @php $latestSession = $this->latestSessions->get($entry->game_id); @endphp
                     <li wire:key="playing-{{ $entry->id }}">
                         <a
                             href="{{ route('games.show', $entry->game) }}#my-tracking"
@@ -189,7 +208,11 @@ new class extends Component
                                 @if ($entry->currentResumeGoal)
                                     <p class="line-clamp-2 text-xs text-base-content"><span class="font-medium text-primary">Next:</span> {{ $entry->currentResumeGoal->body }}</p>
                                 @endif
-                                @if ($entry->last_activity_at)
+                                @if ($latestSession?->isLive())
+                                    <p class="mt-auto"><span class="badge badge-primary badge-sm">Playing now</span></p>
+                                @elseif ($latestSession)
+                                    <p class="mt-auto text-xs text-base-content/50">Last session {{ $latestSession->started_at->diffForHumans() }} · {{ \App\Models\GameSession::humanDuration($latestSession->active_seconds) }}</p>
+                                @elseif ($entry->last_activity_at)
                                     <p class="mt-auto text-xs text-base-content/50">Last played {{ $entry->last_activity_at->diffForHumans() }}</p>
                                 @endif
                             </div>

@@ -15,6 +15,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Fortify\TwoFactorAuthenticatable;
+use Laravel\Sanctum\HasApiTokens;
 use Override;
 
 /**
@@ -27,18 +28,37 @@ use Override;
  * @property-read string $password
  * @property-read string|null $remember_token
  * @property-read CarbonInterface|null $last_feed_read_at
+ * @property-read bool $companion_tracking_enabled
+ * @property-read bool $companion_suggest_unknown_games
+ * @property-read string $companion_moment_hotkey
+ * @property-read bool $companion_moment_sound
+ * @property-read bool $companion_moment_upload
  * @property-read CarbonInterface $created_at
  * @property-read CarbonInterface $updated_at
  * @property-read UserRole $role
  */
 final class User extends Authenticatable implements MustVerifyEmail
 {
+    use HasApiTokens;
+
     /** @use HasFactory<UserFactory> */
     use HasFactory;
 
     use HasUuids;
     use Notifiable;
     use TwoFactorAuthenticatable;
+
+    /**
+     * @var array<string, mixed>
+     */
+    #[Override]
+    protected $attributes = [
+        'companion_tracking_enabled' => true,
+        'companion_suggest_unknown_games' => true,
+        'companion_moment_hotkey' => 'Ctrl+Shift+F9',
+        'companion_moment_sound' => true,
+        'companion_moment_upload' => true,
+    ];
 
     /**
      * @var list<string>
@@ -75,6 +95,10 @@ final class User extends Authenticatable implements MustVerifyEmail
             'remember_token' => 'string',
             'two_factor_confirmed_at' => 'datetime',
             'last_feed_read_at' => 'datetime',
+            'companion_tracking_enabled' => 'boolean',
+            'companion_suggest_unknown_games' => 'boolean',
+            'companion_moment_sound' => 'boolean',
+            'companion_moment_upload' => 'boolean',
             'created_at' => 'datetime',
             'updated_at' => 'datetime',
         ];
@@ -110,6 +134,50 @@ final class User extends Authenticatable implements MustVerifyEmail
     public function trackedGameEntries(): HasMany
     {
         return $this->hasMany(TrackedGame::class);
+    }
+
+    /**
+     * Computers paired with Questlog Companion, revoked ones included.
+     *
+     * @return HasMany<CompanionDevice, $this>
+     */
+    public function companionDevices(): HasMany
+    {
+        return $this->hasMany(CompanionDevice::class);
+    }
+
+    /**
+     * @return HasMany<GameSession, $this>
+     */
+    public function gameSessions(): HasMany
+    {
+        return $this->hasMany(GameSession::class);
+    }
+
+    /**
+     * @return HasMany<CompanionMappingCandidate, $this>
+     */
+    public function companionMappingCandidates(): HasMany
+    {
+        return $this->hasMany(CompanionMappingCandidate::class);
+    }
+
+    /**
+     * @return HasMany<SavedMoment, $this>
+     */
+    public function savedMoments(): HasMany
+    {
+        return $this->hasMany(SavedMoment::class);
+    }
+
+    /**
+     * Games the Companion must never record for this user.
+     *
+     * @return BelongsToMany<Game, $this>
+     */
+    public function companionExcludedGames(): BelongsToMany
+    {
+        return $this->belongsToMany(Game::class, 'companion_game_exclusions')->withTimestamps();
     }
 
     /**
