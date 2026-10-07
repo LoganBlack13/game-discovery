@@ -25,6 +25,7 @@ Route::get('/terms', fn (): Factory|View => view('pages.terms'))->name('terms');
 Route::middleware(['auth', 'verified'])->group(function (): void {
     Route::get('/dashboard', App\Http\Controllers\DashboardController::class)->name('dashboard');
     Route::get('/request-game', [GameRequestController::class, 'index'])->name('game-requests.index');
+    Route::livewire('/companion/link', 'pages::companion-link')->name('companion.link');
 
     Route::prefix('admin')->name('admin.')->middleware('admin')->group(function (): void {
         Route::get('/', [DashboardController::class, '__invoke'])->name('dashboard');

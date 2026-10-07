@@ -12,7 +12,10 @@ use App\Models\User;
 use App\Observers\GameObserver;
 use App\Services\GameDataProviderResolver;
 use App\Services\RawgGameDataProvider;
+use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 
 final class AppServiceProvider extends ServiceProvider
@@ -31,5 +34,13 @@ final class AppServiceProvider extends ServiceProvider
         Gate::define('accessAdmin', fn (User $user): bool => $user->role === UserRole::Admin);
 
         Game::observe(GameObserver::class);
+
+        RateLimiter::for('companion-pairing', fn (Request $request): Limit => Limit::perHour(10)->by((string) $request->ip()));
+        RateLimiter::for('companion-pairing-poll', fn (Request $request): Limit => Limit::perMinute(30)->by((string) $request->ip()));
+        RateLimiter::for('companion-api', function (Request $request): Limit {
+            $user = $request->user();
+
+            return Limit::perMinute(120)->by($user instanceof User ? $user->id : (string) $request->ip());
+        });
     }
 }

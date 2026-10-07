@@ -15,6 +15,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Fortify\TwoFactorAuthenticatable;
+use Laravel\Sanctum\HasApiTokens;
 use Override;
 
 /**
@@ -33,6 +34,8 @@ use Override;
  */
 final class User extends Authenticatable implements MustVerifyEmail
 {
+    use HasApiTokens;
+
     /** @use HasFactory<UserFactory> */
     use HasFactory;
 
@@ -110,6 +113,16 @@ final class User extends Authenticatable implements MustVerifyEmail
     public function trackedGameEntries(): HasMany
     {
         return $this->hasMany(TrackedGame::class);
+    }
+
+    /**
+     * Computers paired with Questlog Companion, revoked ones included.
+     *
+     * @return HasMany<CompanionDevice, $this>
+     */
+    public function companionDevices(): HasMany
+    {
+        return $this->hasMany(CompanionDevice::class);
     }
 
     /**

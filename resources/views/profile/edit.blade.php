@@ -82,6 +82,10 @@
 
             <div class="divider"></div>
 
+            <livewire:companion-devices />
+
+            <div class="divider"></div>
+
             <section>
                 <h2 class="text-lg font-medium">Two-factor authentication</h2>
                 @if ($user->hasPendingTwoFactorConfirmation())
