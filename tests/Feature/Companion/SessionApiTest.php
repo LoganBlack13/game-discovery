@@ -289,3 +289,38 @@ test('sessions require a companion token and a uuid', function (): void {
     $this->putJson(route('api.v1.companion.sessions.update', SESSION_ID), snapshot($this->game))->assertUnauthorized();
     $this->withToken($this->token)->putJson('/api/v1/companion/sessions/not-a-uuid', snapshot($this->game))->assertNotFound();
 });
+
+test('new sessions are refused when tracking is turned off', function (): void {
+    $user = $this->device->user;
+    assert($user instanceof User);
+    $user->forceFill(['companion_tracking_enabled' => false])->save();
+
+    putSnapshot($this, snapshot($this->game))
+        ->assertConflict()
+        ->assertJsonPath('code', 'tracking_disabled');
+
+    expect(GameSession::query()->count())->toBe(0);
+});
+
+test('new sessions of an excluded game are refused', function (): void {
+    $user = $this->device->user;
+    assert($user instanceof User);
+    $user->companionExcludedGames()->attach($this->game);
+
+    putSnapshot($this, snapshot($this->game))
+        ->assertConflict()
+        ->assertJsonPath('code', 'game_excluded');
+
+    expect(GameSession::query()->count())->toBe(0);
+});
+
+test('a session started before the exclusion can still be closed', function (): void {
+    putSnapshot($this, snapshot($this->game))->assertCreated();
+    $user = $this->device->user;
+    assert($user instanceof User);
+    $user->companionExcludedGames()->attach($this->game);
+
+    putSnapshot($this, snapshot($this->game, ['ended_at' => now()->subMinute()->toIso8601ZuluString(), 'end_reason' => 'closed']))
+        ->assertOk()
+        ->assertJsonPath('data.end_reason', 'closed');
+});

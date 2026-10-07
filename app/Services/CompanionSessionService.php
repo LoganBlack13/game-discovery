@@ -13,6 +13,7 @@ use App\Models\GameExecutableMapping;
 use App\Models\GameSession;
 use App\Models\User;
 use Carbon\CarbonImmutable;
+use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
@@ -55,6 +56,7 @@ final readonly class CompanionSessionService
             if ($session === null) {
                 $game = Game::query()->find($snapshot['game_id']);
                 abort_if($game === null, 404, 'Unknown game.');
+                $this->assertTrackingAllowed($user, $game);
 
                 $session = GameSession::query()->createOrFirst(['id' => $sessionId], [
                     'user_id' => $user->id,
@@ -88,6 +90,19 @@ final readonly class CompanionSessionService
     }
 
     /**
+     * Deletes everything the Companion recorded for the user — sessions, personal mappings, exclusions — while
+     * keeping devices connected and the personal tracking (statuses, journal, reviews) untouched (fiche A3, F-05).
+     */
+    public function deleteAllFor(User $user): void
+    {
+        DB::transaction(function () use ($user): void {
+            $user->gameSessions()->delete();
+            GameExecutableMapping::query()->where('user_id', $user->id)->delete();
+            $user->companionExcludedGames()->detach();
+        });
+    }
+
+    /**
      * Closes sessions left open for more than 15 minutes without heartbeat (fiche A2, F-06).
      */
     public function closeStaleSessions(): int
@@ -104,6 +119,26 @@ final readonly class CompanionSessionService
             });
 
         return $closed;
+    }
+
+    /**
+     * New sessions are refused when the user turned tracking off or excluded the game (fiche A3, F-03).
+     * Sessions already started can still be updated and closed.
+     */
+    private function assertTrackingAllowed(User $user, Game $game): void
+    {
+        $code = match (true) {
+            ! $user->companion_tracking_enabled => 'tracking_disabled',
+            $user->companionExcludedGames()->whereKey($game->id)->exists() => 'game_excluded',
+            default => null,
+        };
+
+        if ($code !== null) {
+            throw new HttpResponseException(response()->json([
+                'message' => $code === 'game_excluded' ? 'This game is excluded from Companion tracking.' : 'Companion tracking is turned off.',
+                'code' => $code,
+            ], 409));
+        }
     }
 
     /**

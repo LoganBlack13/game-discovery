@@ -115,6 +115,7 @@
             @if ($isTracked)
                 <livewire:game-tracking-panel :game="$game" />
             @endif
+            <livewire:game-sessions :game="$game" />
         @endauth
 
         {{-- About --}}

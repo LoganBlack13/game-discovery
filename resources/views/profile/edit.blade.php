@@ -84,6 +84,8 @@
 
             <livewire:companion-devices />
 
+            <livewire:companion-settings />
+
             <div class="divider"></div>
 
             <section>

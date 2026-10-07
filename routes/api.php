@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\V1\Companion\MappingController;
 use App\Http\Controllers\Api\V1\Companion\MeController;
 use App\Http\Controllers\Api\V1\Companion\PairingController;
 use App\Http\Controllers\Api\V1\Companion\SessionController;
+use App\Http\Controllers\Api\V1\Companion\SettingsController;
 use App\Http\Middleware\EnsureCompanionDevice;
 use Illuminate\Support\Facades\Route;
 
@@ -20,6 +21,7 @@ Route::prefix('v1/companion')->name('api.v1.companion.')->group(function (): voi
     Route::middleware(['auth:sanctum', EnsureCompanionDevice::class, 'throttle:companion-api'])->group(function (): void {
         Route::get('/me', MeController::class)->name('me');
         Route::get('/mappings', MappingController::class)->name('mappings.index');
+        Route::get('/settings', SettingsController::class)->name('settings');
         Route::put('/sessions/{session}', [SessionController::class, 'update'])->whereUuid('session')->name('sessions.update');
     });
 });

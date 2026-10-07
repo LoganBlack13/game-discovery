@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Query\Builder as QueryBuilder;
 use Override;
 
 /**
@@ -43,6 +44,9 @@ final class GameSession extends Model
 
     use HasUuids;
 
+    /** An open session whose last heartbeat is more recent than this is shown as "Playing now". */
+    public const int LIVE_WINDOW_MINUTES = 3;
+
     /**
      * @var list<string>
      */
@@ -63,6 +67,18 @@ final class GameSession extends Model
         'end_reason',
         'effects_applied_at',
     ];
+
+    /**
+     * Formats a duration as `42 min` or `1 h 05`.
+     */
+    public static function humanDuration(int $seconds): string
+    {
+        $minutes = intdiv(max($seconds, 0), 60);
+
+        return $minutes < 60
+            ? "{$minutes} min"
+            : sprintf('%d h %02d', intdiv($minutes, 60), $minutes % 60);
+    }
 
     /**
      * @return array<string, string>
@@ -91,12 +107,41 @@ final class GameSession extends Model
     }
 
     /**
+     * @return BelongsTo<CompanionDevice, $this>
+     */
+    public function device(): BelongsTo
+    {
+        return $this->belongsTo(CompanionDevice::class, 'companion_device_id');
+    }
+
+    /**
      * @param  Builder<GameSession>  $query
      * @return Builder<GameSession>
      */
     public function scopeOpen(Builder $query): Builder
     {
         return $query->whereNull('ended_at');
+    }
+
+    /**
+     * The most recent session of each game, in a single query.
+     *
+     * @param  Builder<GameSession>  $query
+     * @return Builder<GameSession>
+     */
+    public function scopeLatestPerGame(Builder $query): Builder
+    {
+        return $query->where('started_at', function (QueryBuilder $latest): void {
+            $latest->selectRaw('max(latest.started_at)')
+                ->from('game_sessions as latest')
+                ->whereColumn('latest.user_id', 'game_sessions.user_id')
+                ->whereColumn('latest.game_id', 'game_sessions.game_id');
+        });
+    }
+
+    public function isLive(): bool
+    {
+        return $this->ended_at === null && $this->last_heartbeat_at->gte(now()->subMinutes(self::LIVE_WINDOW_MINUTES));
     }
 
     /**

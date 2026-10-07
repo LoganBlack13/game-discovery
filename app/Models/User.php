@@ -28,6 +28,7 @@ use Override;
  * @property-read string $password
  * @property-read string|null $remember_token
  * @property-read CarbonInterface|null $last_feed_read_at
+ * @property-read bool $companion_tracking_enabled
  * @property-read CarbonInterface $created_at
  * @property-read CarbonInterface $updated_at
  * @property-read UserRole $role
@@ -42,6 +43,14 @@ final class User extends Authenticatable implements MustVerifyEmail
     use HasUuids;
     use Notifiable;
     use TwoFactorAuthenticatable;
+
+    /**
+     * @var array<string, mixed>
+     */
+    #[Override]
+    protected $attributes = [
+        'companion_tracking_enabled' => true,
+    ];
 
     /**
      * @var list<string>
@@ -78,6 +87,7 @@ final class User extends Authenticatable implements MustVerifyEmail
             'remember_token' => 'string',
             'two_factor_confirmed_at' => 'datetime',
             'last_feed_read_at' => 'datetime',
+            'companion_tracking_enabled' => 'boolean',
             'created_at' => 'datetime',
             'updated_at' => 'datetime',
         ];
@@ -123,6 +133,24 @@ final class User extends Authenticatable implements MustVerifyEmail
     public function companionDevices(): HasMany
     {
         return $this->hasMany(CompanionDevice::class);
+    }
+
+    /**
+     * @return HasMany<GameSession, $this>
+     */
+    public function gameSessions(): HasMany
+    {
+        return $this->hasMany(GameSession::class);
+    }
+
+    /**
+     * Games the Companion must never record for this user.
+     *
+     * @return BelongsToMany<Game, $this>
+     */
+    public function companionExcludedGames(): BelongsToMany
+    {
+        return $this->belongsToMany(Game::class, 'companion_game_exclusions')->withTimestamps();
     }
 
     /**
