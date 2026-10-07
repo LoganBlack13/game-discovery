@@ -17,7 +17,9 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     environment: production
-    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
+    # workflow_run's `branches` filter matches fork PR branches named "main" too:
+    # only deploy after a successful push to this repository's main branch.
+    if: ${{ github.event_name == 'workflow_dispatch' || (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push' && github.event.workflow_run.head_repository.full_name == github.repository) }}
     timeout-minutes: 15
 
     steps:

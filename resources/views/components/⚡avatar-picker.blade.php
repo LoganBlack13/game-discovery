@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\User;
+use Illuminate\Validation\Rule;
 use Livewire\Attributes\Computed;
 use Livewire\Component;
 
@@ -35,11 +36,17 @@ new class extends Component
 
     public function select(string $seed): void
     {
+        if (! in_array($seed, $this->seeds, true)) {
+            return;
+        }
+
         $this->selectedSeed = $seed;
     }
 
     public function save(): void
     {
+        $this->validate(['selectedSeed' => ['required', 'string', Rule::in($this->seeds)]]);
+
         /** @var User $user */
         $user = auth()->user();
         $user->forceFill(['avatar_seed' => $this->selectedSeed])->save();

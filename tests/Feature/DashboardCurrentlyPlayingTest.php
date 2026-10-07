@@ -94,8 +94,13 @@ test('updating the status of an untracked game fails', function (): void {
     $user = User::factory()->create();
     $game = Game::factory()->create();
 
-    Livewire::actingAs($user)->test('dashboard-game-list')->call('updateStatus', $game->id, TrackedGameStatus::Playing->value);
-})->throws(Illuminate\Database\Eloquent\ModelNotFoundException::class);
+    Livewire::actingAs($user)
+        ->test('dashboard-game-list')
+        ->call('updateStatus', $game->id, TrackedGameStatus::Playing->value)
+        ->assertNotFound();
+
+    expect($user->trackedGameEntries()->count())->toBe(0);
+});
 
 test('dashboard keeps upcoming releases when nothing is being played', function (): void {
     $user = User::factory()->create();
