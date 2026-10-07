@@ -3,6 +3,7 @@
 use App\Models\Game;
 use App\Models\GameSession;
 use App\Models\User;
+use App\Services\CompanionMomentService;
 use Illuminate\Database\Eloquent\Collection;
 use Livewire\Attributes\Computed;
 use Livewire\Component;
@@ -81,12 +82,14 @@ new class extends Component
         unset($this->isExcluded);
     }
 
-    public function deleteSession(string $sessionId): void
+    public function deleteSession(string $sessionId, CompanionMomentService $moments): void
     {
         $session = GameSession::query()->findOrFail($sessionId);
         $this->authorize('delete', $session);
 
+        $moments->deleteForSession($session);
         $session->delete();
+        $this->dispatch('companion-moments-changed');
 
         unset($this->sessions, $this->stats);
     }
@@ -159,7 +162,7 @@ new class extends Component
                             <button
                                 type="button"
                                 wire:click="deleteSession('{{ $session->id }}')"
-                                wire:confirm="Delete this session? It will no longer count in your measured playtime."
+                                wire:confirm="Delete this session and its moments? It will no longer count in your measured playtime."
                                 class="btn btn-ghost btn-xs"
                                 aria-label="Delete session of {{ $session->started_at->isoFormat('LLL') }}"
                             >Delete</button>

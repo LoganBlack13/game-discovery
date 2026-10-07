@@ -35,7 +35,17 @@ final readonly class CompanionSessionService
 
     public const int STALE_AFTER_MINUTES = 15;
 
-    public function __construct(private PersonalTrackingService $tracking) {}
+    public function __construct(private PersonalTrackingService $tracking, private CompanionMomentService $moments) {}
+
+    /**
+     * Seconds to add to the device timestamps: zero while its clock is within two minutes of the server (fiche A2, R-05).
+     */
+    public static function clockSkewSeconds(string $clientSentAt): int
+    {
+        $skew = now()->getTimestamp() - CarbonImmutable::parse($clientSentAt)->getTimestamp();
+
+        return abs($skew) <= self::CLOCK_SKEW_TOLERANCE_SECONDS ? 0 : $skew;
+    }
 
     /**
      * @param  array{game_id: int, started_at: string, last_heartbeat_at: string, ended_at?: string|null, active_seconds: int, idle_seconds: int, end_reason?: string|null, detection_source: string, mapping_id?: int|null, client_sent_at: string}  $snapshot
@@ -90,11 +100,13 @@ final readonly class CompanionSessionService
     }
 
     /**
-     * Deletes everything the Companion recorded for the user — sessions, personal mappings, exclusions — while
+     * Deletes everything the Companion recorded for the user — sessions, moments, personal mappings, exclusions — while
      * keeping devices connected and the personal tracking (statuses, journal, reviews) untouched (fiche A3, F-05).
      */
     public function deleteAllFor(User $user): void
     {
+        $this->moments->deleteAllFor($user);
+
         DB::transaction(function () use ($user): void {
             $user->gameSessions()->delete();
             GameExecutableMapping::query()->where('user_id', $user->id)->delete();
@@ -149,10 +161,7 @@ final readonly class CompanionSessionService
      */
     private function correctedTimes(array $snapshot): array
     {
-        $skew = now()->getTimestamp() - CarbonImmutable::parse($snapshot['client_sent_at'])->getTimestamp();
-        if (abs($skew) <= self::CLOCK_SKEW_TOLERANCE_SECONDS) {
-            $skew = 0;
-        }
+        $skew = self::clockSkewSeconds($snapshot['client_sent_at']);
 
         $endedAt = $snapshot['ended_at'] ?? null;
 

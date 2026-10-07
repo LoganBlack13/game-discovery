@@ -30,6 +30,9 @@ use Override;
  * @property-read CarbonInterface|null $last_feed_read_at
  * @property-read bool $companion_tracking_enabled
  * @property-read bool $companion_suggest_unknown_games
+ * @property-read string $companion_moment_hotkey
+ * @property-read bool $companion_moment_sound
+ * @property-read bool $companion_moment_upload
  * @property-read CarbonInterface $created_at
  * @property-read CarbonInterface $updated_at
  * @property-read UserRole $role
@@ -52,6 +55,9 @@ final class User extends Authenticatable implements MustVerifyEmail
     protected $attributes = [
         'companion_tracking_enabled' => true,
         'companion_suggest_unknown_games' => true,
+        'companion_moment_hotkey' => 'Ctrl+Shift+F9',
+        'companion_moment_sound' => true,
+        'companion_moment_upload' => true,
     ];
 
     /**
@@ -91,6 +97,8 @@ final class User extends Authenticatable implements MustVerifyEmail
             'last_feed_read_at' => 'datetime',
             'companion_tracking_enabled' => 'boolean',
             'companion_suggest_unknown_games' => 'boolean',
+            'companion_moment_sound' => 'boolean',
+            'companion_moment_upload' => 'boolean',
             'created_at' => 'datetime',
             'updated_at' => 'datetime',
         ];
@@ -152,6 +160,14 @@ final class User extends Authenticatable implements MustVerifyEmail
     public function companionMappingCandidates(): HasMany
     {
         return $this->hasMany(CompanionMappingCandidate::class);
+    }
+
+    /**
+     * @return HasMany<SavedMoment, $this>
+     */
+    public function savedMoments(): HasMany
+    {
+        return $this->hasMany(SavedMoment::class);
     }
 
     /**

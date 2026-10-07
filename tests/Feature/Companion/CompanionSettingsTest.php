@@ -91,6 +91,10 @@ test('the companion reads its settings', function (): void {
             'excluded_game_ids' => [$first->id, $second->id],
             'suggest_unknown_games' => true,
             'pending_candidates' => 0,
+            'moment_hotkey' => 'Ctrl+Shift+F9',
+            'moment_sound' => true,
+            'moment_upload' => true,
+            'moments_quota_reached' => false,
         ]]);
 });
 

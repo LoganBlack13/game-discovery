@@ -10,6 +10,7 @@ use App\Http\Controllers\GameRequestController;
 use App\Http\Controllers\NotificationsController;
 use App\Http\Controllers\PersonController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\SavedMomentImageController;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Route;
@@ -27,6 +28,7 @@ Route::middleware(['auth', 'verified'])->group(function (): void {
     Route::get('/request-game', [GameRequestController::class, 'index'])->name('game-requests.index');
     Route::livewire('/companion/link', 'pages::companion-link')->name('companion.link');
     Route::livewire('/companion/mappings', 'pages::companion-mappings')->name('companion.mappings');
+    Route::get('/moments/{moment}/image', SavedMomentImageController::class)->whereUuid('moment')->name('moments.image');
 
     Route::prefix('admin')->name('admin.')->middleware('admin')->group(function (): void {
         Route::get('/', [DashboardController::class, '__invoke'])->name('dashboard');

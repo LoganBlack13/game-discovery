@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Http\Controllers\Api\V1\Companion\MappingCandidateController;
 use App\Http\Controllers\Api\V1\Companion\MappingController;
 use App\Http\Controllers\Api\V1\Companion\MeController;
+use App\Http\Controllers\Api\V1\Companion\MomentController;
 use App\Http\Controllers\Api\V1\Companion\PairingController;
 use App\Http\Controllers\Api\V1\Companion\SessionController;
 use App\Http\Controllers\Api\V1\Companion\SettingsController;
@@ -24,6 +25,7 @@ Route::prefix('v1/companion')->name('api.v1.companion.')->group(function (): voi
         Route::get('/mappings', MappingController::class)->name('mappings.index');
         Route::get('/settings', SettingsController::class)->name('settings');
         Route::post('/mapping-candidates', [MappingCandidateController::class, 'store'])->name('mapping-candidates.store');
+        Route::post('/moments', [MomentController::class, 'store'])->name('moments.store');
         Route::put('/sessions/{session}', [SessionController::class, 'update'])->whereUuid('session')->name('sessions.update');
     });
 });
