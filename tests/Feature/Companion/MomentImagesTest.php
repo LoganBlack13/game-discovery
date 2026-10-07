@@ -80,14 +80,30 @@ test('small images keep their size in the thumbnail', function (): void {
     expect($size[0] ?? null)->toBe(320)->and($size[1] ?? null)->toBe(200);
 });
 
-test('the thumbnail job skips missing or unreadable files', function (): void {
-    $missing = SavedMoment::factory()->create();
+test('the thumbnail job skips unreadable files', function (): void {
     $broken = SavedMoment::factory()->create();
     Storage::disk('local')->put($broken->path, 'not an image');
 
-    new GenerateMomentThumbnail($missing)->handle();
     new GenerateMomentThumbnail($broken)->handle();
 
-    expect($missing->fresh()?->thumbnail_path)->toBeNull()
-        ->and($broken->fresh()?->thumbnail_path)->toBeNull();
+    expect($broken->fresh()?->thumbnail_path)->toBeNull();
+});
+
+test('the thumbnail job fails when the image is missing from its disk', function (): void {
+    $missing = SavedMoment::factory()->create();
+
+    expect(fn () => new GenerateMomentThumbnail($missing)->handle())
+        ->toThrow(RuntimeException::class, "Moment image [{$missing->path}] is missing from disk [local].");
+    expect($missing->fresh()?->thumbnail_path)->toBeNull();
+});
+
+test('the thumbnail is written to the disk of the moment', function (): void {
+    Storage::fake('s3');
+    $moment = SavedMoment::factory()->create(['disk' => 's3']);
+    Storage::disk('s3')->put($moment->path, UploadedFile::fake()->image('m.jpg', 1920, 1080)->getContent());
+
+    new GenerateMomentThumbnail($moment)->handle();
+
+    Storage::disk('s3')->assertExists((string) $moment->refresh()->thumbnail_path);
+    Storage::disk('local')->assertMissing((string) $moment->thumbnail_path);
 });

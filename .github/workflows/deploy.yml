@@ -30,6 +30,8 @@ jobs:
       # Values must not contain a single quote or a newline.
       - name: Collect .env secrets
         env:
+          ENV_AWS_ACCESS_KEY_ID: ${{ secrets.ENV_AWS_ACCESS_KEY_ID }}
+          ENV_AWS_SECRET_ACCESS_KEY: ${{ secrets.ENV_AWS_SECRET_ACCESS_KEY }}
           ENV_DB_PASSWORD: ${{ secrets.ENV_DB_PASSWORD }}
           ENV_IGDB_TWITCH_CLIENT_ID: ${{ secrets.ENV_IGDB_TWITCH_CLIENT_ID }}
           ENV_IGDB_TWITCH_CLIENT_SECRET: ${{ secrets.ENV_IGDB_TWITCH_CLIENT_SECRET }}

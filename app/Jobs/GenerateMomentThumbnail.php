@@ -9,9 +9,12 @@ use GdImage;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\Storage;
+use RuntimeException;
 
 /**
  * Builds the gallery thumbnail of a moment (fiche A6) with GD: 480 px on the long side, JPEG.
+ *
+ * Fails when the image cannot be found, so a disk the queue worker cannot reach shows up in the failed jobs.
  */
 final class GenerateMomentThumbnail implements ShouldQueue
 {
@@ -29,7 +32,11 @@ final class GenerateMomentThumbnail implements ShouldQueue
     {
         $disk = Storage::disk($this->moment->disk);
         $contents = $disk->get($this->moment->path);
-        if ($contents === null || getimagesizefromstring($contents) === false) {
+        if ($contents === null) {
+            throw new RuntimeException("Moment image [{$this->moment->path}] is missing from disk [{$this->moment->disk}].");
+        }
+
+        if (getimagesizefromstring($contents) === false) {
             return;
         }
 
