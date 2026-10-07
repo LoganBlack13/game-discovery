@@ -1,0 +1,32 @@
+# Secrets: never bake environment files into the image (runtime uses env_file)
+.env
+.env.*
+auth.json
+
+# VCS, CI and tooling metadata
+.git
+.github
+.agents
+.claude
+.cursor
+.mcp.json
+memory
+docs
+
+# Dependencies and build output are produced by dedicated build stages
+node_modules
+vendor
+public/build
+public/hot
+
+# Local runtime data
+storage/logs/*
+storage/framework/cache/data/*
+storage/framework/sessions/*
+storage/framework/views/*
+storage/app/private/*
+storage/app/public/*
+storage/pail
+storage/*.key
+.phpunit.cache
+tests/Browser/Screenshots

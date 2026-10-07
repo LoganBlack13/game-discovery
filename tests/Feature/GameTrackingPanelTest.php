@@ -10,7 +10,6 @@ use App\Models\JournalEntry;
 use App\Models\TrackedGame;
 use App\Models\TrackedGameStatusChange;
 use App\Models\User;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Livewire\Features\SupportTesting\Testable;
 use Livewire\Livewire;
 
@@ -135,8 +134,10 @@ test('another user status change cannot be edited', function (): void {
     $entry = TrackedGame::factory()->playing()->create();
     $foreignChange = TrackedGameStatusChange::factory()->paused()->create();
 
-    trackingPanelFor($entry)->call('editComment', $foreignChange->id);
-})->throws(ModelNotFoundException::class);
+    trackingPanelFor($entry)
+        ->call('editComment', $foreignChange->id)
+        ->assertNotFound();
+});
 
 test('completing a game prompts an optional review that can be skipped', function (): void {
     $entry = TrackedGame::factory()->playing()->create();
@@ -289,8 +290,12 @@ test('another user journal entry cannot be completed', function (): void {
     $entry = TrackedGame::factory()->playing()->create();
     $foreignGoal = JournalEntry::factory()->resumeGoal()->create();
 
-    trackingPanelFor($entry)->call('completeResumeGoal', $foreignGoal->id);
-})->throws(ModelNotFoundException::class);
+    trackingPanelFor($entry)
+        ->call('completeResumeGoal', $foreignGoal->id)
+        ->assertNotFound();
+
+    expect($foreignGoal->fresh()->completed_at)->toBeNull();
+});
 
 test('the history lists status changes in reverse chronological order', function (): void {
     $entry = TrackedGame::factory()->toPlay()->create();

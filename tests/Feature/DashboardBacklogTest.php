@@ -8,7 +8,6 @@ use App\Enums\TrackedGameStatus;
 use App\Models\Game;
 use App\Models\TrackedGame;
 use App\Models\User;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Livewire\Livewire;
 
 test('dashboard shows the backlog section', function (): void {
@@ -128,5 +127,10 @@ test('large backlogs are paginated with show more', function (): void {
 test('another user backlog entry cannot be changed', function (): void {
     $foreign = TrackedGame::factory()->toPlay()->create();
 
-    Livewire::actingAs(User::factory()->create())->test('dashboard-backlog')->call('togglePlayNext', $foreign->id);
-})->throws(ModelNotFoundException::class);
+    Livewire::actingAs(User::factory()->create())
+        ->test('dashboard-backlog')
+        ->call('togglePlayNext', $foreign->id)
+        ->assertNotFound();
+
+    expect($foreign->fresh()->is_up_next)->toBe($foreign->is_up_next);
+});
