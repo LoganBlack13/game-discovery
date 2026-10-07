@@ -11,6 +11,8 @@ use App\Models\JournalEntry;
 use App\Models\TrackedGame;
 use App\Models\TrackedGameStatusChange;
 use App\Models\User;
+use Carbon\CarbonInterface;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
 
 final class PersonalTrackingService
@@ -80,6 +82,37 @@ final class PersonalTrackingService
                 'occurred_at' => $now,
             ]);
         });
+    }
+
+    /**
+     * First Companion session of a game (fiche A2, R-06): the game becomes tracked and, unless it is finished,
+     * moves to "Playing" through the regular status history so the user can revert it.
+     */
+    public function recordCompanionSession(User $user, Game $game, CarbonInterface $activityAt): TrackedGame
+    {
+        $entry = $this->track($user, $game);
+
+        if (in_array($entry->status, [null, TrackedGameStatus::Watching, TrackedGameStatus::ToPlay, TrackedGameStatus::Paused], true)) {
+            $this->changeStatus($entry, TrackedGameStatus::Playing);
+        }
+
+        $this->touchActivity($user, $game, $activityAt);
+
+        return $entry;
+    }
+
+    /**
+     * Moves the last activity of a tracked game forward, never backward.
+     */
+    public function touchActivity(User $user, Game $game, CarbonInterface $activityAt): void
+    {
+        TrackedGame::query()
+            ->where('user_id', $user->id)
+            ->where('game_id', $game->id)
+            ->where(function (Builder $query) use ($activityAt): void {
+                $query->whereNull('last_activity_at')->orWhere('last_activity_at', '<', $activityAt);
+            })
+            ->update(['last_activity_at' => $activityAt]);
     }
 
     public function addJournalEntry(TrackedGame $entry, string $body, bool $isResumeGoal = false): JournalEntry

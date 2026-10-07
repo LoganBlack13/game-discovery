@@ -8,16 +8,6 @@ use App\Models\User;
 use Database\Factories\CompanionPairingFactory;
 use Laravel\Sanctum\PersonalAccessToken;
 
-function issueCompanionToken(CompanionDevice $device): string
-{
-    $user = $device->user;
-    assert($user instanceof User);
-    $token = $user->createToken("companion:{$device->id}", [CompanionDevice::TOKEN_ABILITY]);
-    $device->forceFill(['personal_access_token_id' => $token->accessToken->getKey()])->save();
-
-    return $token->plainTextToken;
-}
-
 test('a companion can start a pairing', function (): void {
     $response = $this->postJson(route('api.v1.companion.pairings.store'), [
         'label' => 'PC-SALON — Windows',
@@ -127,7 +117,7 @@ test('me requires a token', function (): void {
 
 test('a revoked device is rejected', function (): void {
     $device = CompanionDevice::factory()->create();
-    $token = issueCompanionToken($device);
+    $token = companionToken($device);
     $this->withToken($token)->getJson(route('api.v1.companion.me'))->assertSuccessful();
 
     $device->revoke();
@@ -154,7 +144,7 @@ test('a companion token whose device record is missing is rejected', function ()
 
 test('api activity updates last seen at most once per minute', function (): void {
     $device = CompanionDevice::factory()->create(['last_seen_at' => now()->subHour()]);
-    $token = issueCompanionToken($device);
+    $token = companionToken($device);
 
     $this->withToken($token)->getJson(route('api.v1.companion.me'))->assertSuccessful();
     expect($device->fresh()?->last_seen_at?->toDateTimeString())->toBe(now()->toDateTimeString());
@@ -167,7 +157,7 @@ test('api activity updates last seen at most once per minute', function (): void
 
 test('a companion token does not open web pages', function (): void {
     $device = CompanionDevice::factory()->create();
-    $token = issueCompanionToken($device);
+    $token = companionToken($device);
 
     $this->withToken($token)->get(route('dashboard'))->assertRedirect(route('login'));
     $this->withToken($token)->get(route('admin.dashboard'))->assertRedirect(route('login'));
