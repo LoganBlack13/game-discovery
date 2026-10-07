@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Services;
 
 use App\Contracts\GameDataProvider;
+use App\Enums\GameLauncher;
 use App\Enums\ReleaseStatus;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Date;
@@ -23,6 +24,8 @@ final class IgdbGameDataProvider implements GameDataProvider
     private const string CACHE_KEY_TOKEN = 'igdb_twitch_access_token';
 
     private const int TOKEN_CACHE_BUFFER_SECONDS = 60;
+
+    private const int EXTERNAL_UID_CACHE_DAYS = 30;
 
     /** Add-game UI expects at most this many results per source. */
     private const int SEARCH_LIMIT = 10;
@@ -100,6 +103,55 @@ final class IgdbGameDataProvider implements GameDataProvider
         }
 
         return $this->mapGameDetails($first);
+    }
+
+    /**
+     * IGDB id of the game a store identifier (GOG id, Epic id, Microsoft Store id) belongs to. Null when IGDB does
+     * not know it or several games share it. Answers are cached for 30 days; failures are not cached.
+     */
+    public function findGameIdByExternalUid(GameLauncher $launcher, string $uid): ?int
+    {
+        $cacheKey = 'igdb_external_'.$launcher->value.'_'.hash('sha256', $uid);
+        $cached = Cache::get($cacheKey);
+        if (is_int($cached)) {
+            return $cached === 0 ? null : $cached;
+        }
+
+        $headers = $this->requestHeaders();
+        if ($headers === null) {
+            return null;
+        }
+
+        $body = sprintf(
+            'fields game,uid; where uid = "%s" & external_game_source = (%s); limit 10;',
+            addslashes($uid),
+            implode(',', $launcher->igdbExternalSources())
+        );
+
+        try {
+            $response = Http::withHeaders($headers)
+                ->timeout(10)
+                ->withBody($body, 'text/plain')
+                ->post(self::IGDB_BASE_URL.'/external_games');
+        } catch (Throwable) { // @codeCoverageIgnore
+            return null; // @codeCoverageIgnore
+        }
+
+        if (! $response->successful()) {
+            return null;
+        }
+
+        $results = $response->json();
+        $gameIds = collect(is_array($results) ? $results : [])
+            ->map(fn (mixed $row): mixed => is_array($row) ? ($row['game'] ?? null) : null)
+            ->filter(fn (mixed $gameId): bool => is_int($gameId))
+            ->unique()
+            ->values();
+
+        $gameId = $gameIds->count() === 1 ? (int) $gameIds->first() : 0;
+        Cache::put($cacheKey, $gameId, now()->addDays(self::EXTERNAL_UID_CACHE_DAYS));
+
+        return $gameId === 0 ? null : $gameId;
     }
 
     /**

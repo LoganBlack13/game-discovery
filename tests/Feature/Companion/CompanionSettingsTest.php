@@ -86,7 +86,12 @@ test('the companion reads its settings', function (): void {
     $this->withToken(companionToken($device))
         ->getJson(route('api.v1.companion.settings'))
         ->assertSuccessful()
-        ->assertExactJson(['data' => ['tracking_enabled' => false, 'excluded_game_ids' => [$first->id, $second->id]]]);
+        ->assertExactJson(['data' => [
+            'tracking_enabled' => false,
+            'excluded_game_ids' => [$first->id, $second->id],
+            'suggest_unknown_games' => true,
+            'pending_candidates' => 0,
+        ]]);
 });
 
 test('settings require a companion token', function (): void {

@@ -58,6 +58,18 @@ final class GameExecutableMapping extends Model
     ];
 
     /**
+     * Identity of an executable: its launcher id when known, otherwise its name and folder.
+     */
+    public static function keyFor(?GameLauncher $launcher, ?string $launcherGameId, string $executableName, ?string $pathFragment): string
+    {
+        if ($launcher instanceof GameLauncher && $launcherGameId !== null) {
+            return "launcher:{$launcher->value}:{$launcherGameId}";
+        }
+
+        return 'exe:'.mb_strtolower($executableName).':'.mb_strtolower((string) $pathFragment);
+    }
+
+    /**
      * @return array<string, string>
      */
     public function casts(): array
@@ -95,10 +107,6 @@ final class GameExecutableMapping extends Model
      */
     public function matchKey(): string
     {
-        if ($this->launcher instanceof GameLauncher && $this->launcher_game_id !== null) {
-            return "launcher:{$this->launcher->value}:{$this->launcher_game_id}";
-        }
-
-        return 'exe:'.mb_strtolower($this->executable_name).':'.mb_strtolower((string) $this->path_fragment);
+        return self::keyFor($this->launcher, $this->launcher_game_id, $this->executable_name, $this->path_fragment);
     }
 }

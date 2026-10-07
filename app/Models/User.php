@@ -29,6 +29,7 @@ use Override;
  * @property-read string|null $remember_token
  * @property-read CarbonInterface|null $last_feed_read_at
  * @property-read bool $companion_tracking_enabled
+ * @property-read bool $companion_suggest_unknown_games
  * @property-read CarbonInterface $created_at
  * @property-read CarbonInterface $updated_at
  * @property-read UserRole $role
@@ -50,6 +51,7 @@ final class User extends Authenticatable implements MustVerifyEmail
     #[Override]
     protected $attributes = [
         'companion_tracking_enabled' => true,
+        'companion_suggest_unknown_games' => true,
     ];
 
     /**
@@ -88,6 +90,7 @@ final class User extends Authenticatable implements MustVerifyEmail
             'two_factor_confirmed_at' => 'datetime',
             'last_feed_read_at' => 'datetime',
             'companion_tracking_enabled' => 'boolean',
+            'companion_suggest_unknown_games' => 'boolean',
             'created_at' => 'datetime',
             'updated_at' => 'datetime',
         ];
@@ -141,6 +144,14 @@ final class User extends Authenticatable implements MustVerifyEmail
     public function gameSessions(): HasMany
     {
         return $this->hasMany(GameSession::class);
+    }
+
+    /**
+     * @return HasMany<CompanionMappingCandidate, $this>
+     */
+    public function companionMappingCandidates(): HasMany
+    {
+        return $this->hasMany(CompanionMappingCandidate::class);
     }
 
     /**

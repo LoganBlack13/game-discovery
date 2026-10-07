@@ -25,6 +25,8 @@ final class CompanionSettingsResource extends JsonResource
         return [
             'tracking_enabled' => $this->resource->companion_tracking_enabled,
             'excluded_game_ids' => $this->resource->companionExcludedGames()->orderBy('games.id')->pluck('games.id')->all(),
+            'suggest_unknown_games' => $this->resource->companion_suggest_unknown_games,
+            'pending_candidates' => $this->resource->companionMappingCandidates()->awaitingUser()->count(),
         ];
     }
 }

@@ -11,16 +11,30 @@ new class extends Component
 {
     public bool $trackingEnabled = true;
 
+    public bool $suggestUnknownGames = true;
+
     public bool $dataDeleted = false;
 
     public function mount(): void
     {
         $this->trackingEnabled = $this->user()->companion_tracking_enabled;
+        $this->suggestUnknownGames = $this->user()->companion_suggest_unknown_games;
     }
 
     public function updatedTrackingEnabled(bool $enabled): void
     {
         $this->user()->forceFill(['companion_tracking_enabled' => $enabled])->save();
+    }
+
+    public function updatedSuggestUnknownGames(bool $enabled): void
+    {
+        $this->user()->forceFill(['companion_suggest_unknown_games' => $enabled])->save();
+    }
+
+    #[Computed]
+    public function pendingCandidates(): int
+    {
+        return $this->user()->companionMappingCandidates()->awaitingUser()->count();
     }
 
     /**
@@ -66,6 +80,18 @@ new class extends Component
     @unless ($trackingEnabled)
         <p class="mt-1 text-sm text-warning">Tracking is off: Companion records no new session.</p>
     @endunless
+
+    <label class="label mt-2 cursor-pointer justify-start gap-3">
+        <input type="checkbox" class="toggle toggle-primary" wire:model.live="suggestUnknownGames" />
+        <span class="label-text">Suggest unknown programs that look like games</span>
+    </label>
+
+    <p class="mt-2 text-sm">
+        <a href="{{ route('companion.mappings') }}" class="link link-primary">Companion games</a>
+        @if ($this->pendingCandidates > 0)
+            <span class="badge badge-primary badge-sm ml-1">{{ $this->pendingCandidates }} to associate</span>
+        @endif
+    </p>
 
     <h3 class="mt-6 text-sm font-medium">Games not tracked</h3>
     @if ($this->excludedGames->isEmpty())
