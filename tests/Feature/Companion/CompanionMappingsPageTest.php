@@ -75,6 +75,21 @@ test('another game can be searched and chosen', function (): void {
     expect(GameExecutableMapping::query()->sole()->game_id)->toBe($chosen->id);
 });
 
+test('the search finds a sequel whatever the way its number is written', function (): void {
+    Game::factory()->create(['title' => 'Graveyard Keeper II']);
+    Game::factory()->create(['title' => 'Baldur\'s Gate 3']);
+    $candidate = CompanionMappingCandidate::factory()->for($this->user)->create(['product_name' => 'Graveyard Keeper 2']);
+
+    Livewire::actingAs($this->user)
+        ->test('pages::companion-mappings')
+        ->call('startSearch', $candidate->id)
+        ->assertSet('search', 'Graveyard Keeper 2')
+        ->assertSee('Graveyard Keeper II')
+        ->set('search', 'gate iii')
+        ->assertSee('Baldur\'s Gate 3')
+        ->assertDontSee('Graveyard Keeper II');
+});
+
 test('searching with fewer than two characters lists nothing', function (): void {
     Game::factory()->create(['title' => 'A']);
     $candidate = CompanionMappingCandidate::factory()->for($this->user)->create();

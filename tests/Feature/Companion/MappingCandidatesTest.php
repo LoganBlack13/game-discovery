@@ -162,6 +162,17 @@ test('at most a hundred candidates are accepted at once', function (): void {
     postCandidates($this, $candidates)->assertUnprocessable()->assertJsonValidationErrors('candidates');
 });
 
+test('a sequel numbered with digits proposes the game numbered in roman numerals', function (): void {
+    $game = Game::factory()->create(['title' => 'Graveyard Keeper II']);
+    Game::factory()->create(['title' => 'Graveyard Keeper']);
+
+    postCandidates($this, [candidate(['product_name' => 'Graveyard Keeper 2'])])
+        ->assertJsonPath('data.0.status', 'pending')
+        ->assertJsonPath('data.0.proposed_game_id', $game->id);
+
+    expect(GameExecutableMapping::query()->count())->toBe(0);
+});
+
 test('candidates require a companion token', function (): void {
     $this->postJson(route('api.v1.companion.mapping-candidates.store'), ['candidates' => [candidate()]])->assertUnauthorized();
 });
@@ -170,7 +181,9 @@ test('titles are normalized before comparison', function (string $title, string 
     expect(CompanionMappingService::normalizeTitle($title))->toBe($normalized);
 })->with([
     ['ELDEN RING™', 'elden ring'],
-    ['Hades II', 'hades ii'],
+    ['Hades II', 'hades 2'],
+    ['Final Fantasy XIV Online', 'final fantasy 14 online'],
+    ['I Am Bread', 'i am bread'],
     ["Baldur's Gate 3", 'baldur s gate 3'],
     ['  ', ''],
 ]);
