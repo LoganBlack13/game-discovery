@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Enums\ReleaseStatus;
+use App\Services\TitleNumerals;
 use Carbon\CarbonInterface;
 use Database\Factories\GameFactory;
 use Illuminate\Database\Eloquent\Builder;
@@ -167,6 +168,10 @@ final class Game extends Model
      */
     public function scopeSearchByTitle(Builder $query, string $term): Builder
     {
-        return $query->whereRaw('LOWER(title) LIKE LOWER(?)', ['%'.$term.'%']);
+        return $query->where(function (Builder $query) use ($term): void {
+            foreach (TitleNumerals::variants($term) as $variant) {
+                $query->orWhereRaw('LOWER(title) LIKE LOWER(?)', ['%'.$variant.'%']);
+            }
+        });
     }
 }

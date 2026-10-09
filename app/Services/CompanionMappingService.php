@@ -25,13 +25,14 @@ final readonly class CompanionMappingService
     public function __construct(private IgdbGameDataProvider $igdb) {}
 
     /**
-     * Lowercases a title and keeps only letters and digits so `ELDEN RING™` and `Elden Ring` compare equal.
+     * Lowercases a title, keeps only letters and digits and writes sequel numbers as digits, so `ELDEN RING™`
+     * and `Elden Ring`, or `Hades II` and `Hades 2`, compare equal.
      */
     public static function normalizeTitle(string $title): string
     {
         $words = preg_split('/[^\pL\pN]+/u', mb_strtolower($title), -1, PREG_SPLIT_NO_EMPTY);
 
-        return implode(' ', $words === false ? [] : $words);
+        return TitleNumerals::toArabic(implode(' ', $words === false ? [] : $words));
     }
 
     /**
