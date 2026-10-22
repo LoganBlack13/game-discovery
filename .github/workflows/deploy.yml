@@ -70,7 +70,8 @@ jobs:
               printf '%s\n' "$line" >> .env
             done
             COMMIT=$(git rev-parse --short HEAD)
-            docker compose build --no-cache --build-arg CACHEBUST=$COMMIT
+            # --pull: fetch the latest base image so PHP security releases ship
+            docker compose build --pull --no-cache --build-arg CACHEBUST=$COMMIT
             docker compose up -d --force-recreate
             docker compose exec -T app php artisan migrate --force
             docker compose exec -T app php artisan config:cache

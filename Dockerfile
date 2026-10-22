@@ -36,6 +36,13 @@ FROM dunglas/frankenphp:1-php8.5-alpine
 
 WORKDIR /app
 
+# PHP2Shell (CVE-2026-109618 / CVE-2026-109619): refuse to build on an unpatched PHP,
+# and apply the PHP project's interim mitigations (no native PHP sessions in use).
+RUN php -r 'exit(version_compare(PHP_VERSION, "8.5.12", ">=") ? 0 : 1);' \
+    || { echo "PHP $(php -r 'echo PHP_VERSION;') is vulnerable to PHP2Shell, need >= 8.5.12" >&2; exit 1; } \
+    && printf 'session.upload_progress.enabled=Off\nfatal_error_backtraces=Off\n' \
+        > "$PHP_INI_DIR/conf.d/zz-php2shell.ini"
+
 # Bust cache on each deploy (value injected by CI via --build-arg)
 ARG CACHEBUST=1
 
