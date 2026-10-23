@@ -32,7 +32,8 @@ COPY --from=vendor /app/vendor/livewire/flux vendor/livewire/flux
 RUN bun run build
 
 # ── Stage 3 : Production image ────────────────────────────────────────────────
-FROM dunglas/frankenphp:1-php8.5-alpine
+# PHP pinned to the patch release that fixes PHP2Shell (CVE-2026-109618, CVE-2026-109619)
+FROM dunglas/frankenphp:1-php8.5.12-alpine
 
 WORKDIR /app
 
